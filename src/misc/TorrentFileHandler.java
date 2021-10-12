@@ -56,7 +56,7 @@ public class TorrentFileHandler {
 	
 	public String getSHA1Info() throws InvalidBEncodingException {
 		
-		String bencodInfo = document.get("info").getString();
+		byte[] bencodInfo = document.get("info").getBytes();
 		
 		String sha1 = "";
 		
@@ -64,8 +64,11 @@ public class TorrentFileHandler {
 			
 			MessageDigest digest = MessageDigest.getInstance("SHA-1");
 			digest.reset();
-			digest.update(bencodInfo.getBytes("utf8"));
-			sha1 = String.format("%040x", new BigInteger(1, digest.digest()));
+			// TODO : Vérifier les tailles /!\
+			digest.update(bencodInfo);
+			sha1 = digest.digest().toString();
+			
+			// SHA-1 Length : 20
 			
 		} catch (Exception e) {
 			

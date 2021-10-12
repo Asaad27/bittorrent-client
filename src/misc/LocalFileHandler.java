@@ -10,5 +10,16 @@ public class LocalFileHandler {
 		
 	}
 	
+	public String getUploaded() {
+		return "";
+	}
+	
+	public String getDownloaded() {
+		return "";
+	}
+	
+	public String getLeft() {
+		return "";
+	}
 	
 }
