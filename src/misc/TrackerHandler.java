@@ -42,8 +42,6 @@ public class TrackerHandler {
 		
 		Map<String, String> params = new HashMap<>();
 		
-		
-		
 	}
 	
 	private void processHttpResponse() {

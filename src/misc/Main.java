@@ -24,7 +24,7 @@ public class Main {
 			
 			// TODO : Local File check : Vérifier que le fichier n'est pas déjà téléchargé pour calculer les params de la requête HTTP
 			
-			TrackerHandler tracker = new TrackerHandler(announceURL, torrentFile.getSHA1Info());
+			TrackerHandler tracker = new TrackerHandler(announceURL, torrentFile.getSHA1Info(), localFile);
 			
 			List<InetAddress> peerLst = tracker.getPeerLst();
 			
