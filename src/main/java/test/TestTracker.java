@@ -1,5 +1,5 @@
 package test;
-import misc.TrackerHandler;
+import misc.tracker.TrackerHandler;
 
 public class TestTracker {
 

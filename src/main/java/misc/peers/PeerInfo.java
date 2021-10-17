@@ -1,4 +1,4 @@
-package misc;
+package misc.peers;
 import java.net.InetAddress;
 
 public class PeerInfo {

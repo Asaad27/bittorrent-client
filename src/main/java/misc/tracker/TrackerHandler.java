@@ -1,10 +1,12 @@
-package misc;
+package misc.tracker;
+import misc.peers.PeerInfo;
+import misc.utils.LocalFileHandler;
+
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.net.InetAddress;
 import java.net.ProtocolException;
 import java.io.IOException;
 import java.io.InputStreamReader;
