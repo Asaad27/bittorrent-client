@@ -4,7 +4,12 @@ WORKDIR /tmp
 
 # OPENTRACKER image for a usage on windows
 
-RUN apk update\
+FROM alpine
+
+WORKDIR /tmp
+
+# OPENTRACKER
+RUN apk update &&\
     apk add --no-cache \
 	gcc \
 	g++ \
@@ -30,8 +35,6 @@ RUN  mkdir /open &&\
 
 EXPOSE 6969
 
-WORKDIR /open/opentracker
-
-
+WORKDIR /open
 
 CMD [ "./opentracker" ]
