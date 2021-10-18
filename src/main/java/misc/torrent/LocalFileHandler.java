@@ -1,4 +1,4 @@
-package misc.utils;
+package misc.torrent;
 
 public class LocalFileHandler {
 

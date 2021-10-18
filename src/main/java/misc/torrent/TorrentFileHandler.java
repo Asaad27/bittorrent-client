@@ -2,6 +2,7 @@ package misc.torrent;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Map;
 import java.security.MessageDigest;
 import be.adaxisoft.bencode.*;
@@ -37,12 +38,12 @@ public class TorrentFileHandler {
 		}
 
 		var torrentMetaData = new TorrentMetaData();
-
+		// TODO : fix bugs 	&& add the other attributes
 		torrentMetaData.setAnnounceUrlString(getAnnounceURL());
 		torrentMetaData.setName(getFilename());
-		torrentMetaData.setSHA1Info(getSHA1Info());
-		torrentMetaData.setLength(getFileInfo().get("length").getString());
-		//torrentMetaData.
+		//torrentMetaData.setSHA1Info(getSHA1Info());
+		torrentMetaData.setLength(getFileInfo().get("length").toString());
+
 
 
 		return torrentMetaData;
@@ -67,10 +68,11 @@ public class TorrentFileHandler {
 	
 	public String getFilename() throws InvalidBEncodingException {
 		
-		return getFileInfo().get("filename").getString();
+		return getFileInfo().get("name").getString();
 		
 	}
-	
+
+	//TODO : fix
 	public String getSHA1Info() throws InvalidBEncodingException {
 		
 		byte[] bencodInfo = document.get("info").getBytes();
@@ -83,7 +85,7 @@ public class TorrentFileHandler {
 			digest.reset();
 			// TODO : Vérifier les tailles /!\
 			digest.update(bencodInfo);
-			sha1 = digest.digest().toString();
+			sha1 = Arrays.toString(digest.digest());
 			
 			// SHA-1 Length : 20
 			

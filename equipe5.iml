@@ -12,5 +12,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Bencode-2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: be.adaxisoft:Bencode:2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:2.4" level="project" />
   </component>
 </module>

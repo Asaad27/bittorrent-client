@@ -3,7 +3,7 @@ import misc.peers.PeerInfo;
 import misc.torrent.TorrentFileHandler;
 import misc.torrent.TorrentMetaData;
 import misc.tracker.TrackerHandler;
-import misc.utils.LocalFileHandler;
+import misc.torrent.LocalFileHandler;
 
 import java.io.FileInputStream;
 import java.net.URL;
@@ -24,8 +24,12 @@ public class Main {
 			TorrentFileHandler torrentHandler = new TorrentFileHandler(new FileInputStream(args[0]));
 			TorrentMetaData torrentMetaData = torrentHandler.ParseTorrent();
 
+			System.out.println(torrentMetaData.getAnnounceUrlString() +  "/" + torrentMetaData.getLength());
 
-			//URL announceURL = new URL(torrentFile.getAnnounceURL());
+			System.out.println(torrentMetaData.getAnnounceUrlString());
+			System.out.println(torrentMetaData.getName());
+			//System.out.println(torrentMetaData.getSHA1Info());
+			// TODO : check URL protocol
 			URL announceURL = new URL(torrentMetaData.getAnnounceUrlString());
 
 			LocalFileHandler localFile = new LocalFileHandler(torrentMetaData.getName());
@@ -33,7 +37,8 @@ public class Main {
 			// TODO : Local File check : Vérifier que le fichier n'est pas déjà téléchargé pour calculer les params de la requête HTTP
 			
 			TrackerHandler tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1Info(), localFile, PORT);
-			
+
+			System.out.println("looking for peers");
 			List<PeerInfo> peerLst = tracker.getPeerLst();
 			
 			

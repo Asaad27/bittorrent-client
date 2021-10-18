@@ -1,6 +1,6 @@
 package misc.tracker;
 import misc.peers.PeerInfo;
-import misc.utils.LocalFileHandler;
+import misc.torrent.LocalFileHandler;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -109,7 +109,8 @@ public class TrackerHandler {
 	}
 	
 	public String genPeerId() {
-		
+
+		System.out.println("getting peers id");
 		String peer_id = PEER_ID_HEAD;
 		Random r = new Random();
 		String randomStr;
