@@ -6,13 +6,16 @@ import java.util.List;
 
 public class TorrentMetaData {
 
+    private Long length;   //length of the file (bytes)
     private String name;
     private String comment;
     private String announceUrlString;
-    private String length;   //length of the file (bytes)
+
     private int piece_length;
     private List<String> pieces;
     private String SHA1Info;
+    private String creationDate;
+    private String createdBy;
 
 
     public String getSHA1Info() {
@@ -49,11 +52,11 @@ public class TorrentMetaData {
         this.announceUrlString = announceUrlString;
     }
 
-    public String getLength() {
+    public Long getLength() {
         return length;
     }
 
-    public void setLength(String length) {
+    public void setLength(Long length) {
         this.length = length;
     }
 
@@ -71,5 +74,27 @@ public class TorrentMetaData {
 
     public void setPieces(List<String> pieces) {
         this.pieces = pieces;
+    }
+
+    public String getCreationDate() {
+        return creationDate;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreationDate(String creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    @Override
+    public String toString() {
+        return "name :  " + getName() + "\ncreationDate : " + getCreationDate() + "\ncreatedBy : " + getCreatedBy() + "\ncomment : " + getComment()
+                + "\nannounce URl : " + getAnnounceUrlString() + "\nlength : " + getLength() + "\nSSH info : " + getSHA1Info();
     }
 }

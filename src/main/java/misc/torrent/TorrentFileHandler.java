@@ -1,7 +1,6 @@
 package misc.torrent;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Map;
 import java.security.MessageDigest;
@@ -43,11 +42,41 @@ public class TorrentFileHandler {
 		torrentMetaData.setName(getFilename());
 		torrentMetaData.setComment(getComment());
 		//torrentMetaData.setSHA1Info(getSHA1Info());
-		torrentMetaData.setLength(getFileInfo().get("length").toString());
+		torrentMetaData.setLength(getLength());
+		torrentMetaData.setCreatedBy(getCreatedBy());
+		torrentMetaData.setCreationDate(getCreationDate());
 
 
 
 		return torrentMetaData;
+	}
+
+	public Long getLength() throws  InvalidBEncodingException{
+		if (!getFileInfo().containsKey("length")) {
+			System.err.println("The length field does not exists");
+			return null;
+		}
+
+		return getFileInfo().get("length").getLong();
+	}
+
+	// TODO : check creation date format
+	public String getCreationDate() throws InvalidBEncodingException{
+		if (!document.containsKey("creation date")) {
+			System.err.println("The creation date field does not exists");
+			return null;
+		}
+		Long num = this.document.get("creation date").getLong();
+		System.out.println(num);
+		return this.document.get("creation date").toString();
+	}
+
+	public String getCreatedBy() throws InvalidBEncodingException {
+		if (!document.containsKey("created by")) {
+			System.err.println("The created by field does not exists");
+			return null;
+		}
+		return this.document.get("created by").getString();
 	}
 
 	public String getComment() throws InvalidBEncodingException {

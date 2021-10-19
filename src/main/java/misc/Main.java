@@ -24,11 +24,7 @@ public class Main {
 			TorrentFileHandler torrentHandler = new TorrentFileHandler(new FileInputStream(args[0]));
 			TorrentMetaData torrentMetaData = torrentHandler.ParseTorrent();
 
-			System.out.println( "torrent length : " + torrentMetaData.getLength());
-
-			System.out.println("announce url : " + torrentMetaData.getAnnounceUrlString());
-			System.out.println("name : " + torrentMetaData.getName());
-			System.out.println("ssh info : " + torrentMetaData.getSHA1Info());
+			System.out.println(torrentMetaData.toString());
 			// TODO : check URL protocol
 			URL announceURL = new URL(torrentMetaData.getAnnounceUrlString());
 
