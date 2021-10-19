@@ -41,6 +41,7 @@ public class TorrentFileHandler {
 		// TODO : fix bugs 	&& add the other attributes
 		torrentMetaData.setAnnounceUrlString(getAnnounceURL());
 		torrentMetaData.setName(getFilename());
+		torrentMetaData.setComment(getComment());
 		//torrentMetaData.setSHA1Info(getSHA1Info());
 		torrentMetaData.setLength(getFileInfo().get("length").toString());
 
@@ -49,14 +50,31 @@ public class TorrentFileHandler {
 		return torrentMetaData;
 	}
 
+	public String getComment() throws InvalidBEncodingException {
+		if (!document.containsKey("comment")) {
+			System.err.println("The comment field does not exists");
+			return null;
+		}
+		return this.document.get("comment").getString();
+	}
+
+
 	public String getAnnounceURL() throws InvalidBEncodingException {
-		
+		if (!document.containsKey("info")) {
+			System.err.println("The info field does not exists");
+			return null;
+		}
 		return this.document.get("announce").getString();
 		
 	}
 	
 	public Map<String, BEncodedValue> getFileInfo() throws InvalidBEncodingException {
-		
+
+		if (!document.containsKey("info")) {
+			System.err.println("The info field does not exists");
+			return null;
+		}
+
 		return this.document.get("info").getMap();
 		
 		// contenu de info :
@@ -67,7 +85,11 @@ public class TorrentFileHandler {
 	}
 	
 	public String getFilename() throws InvalidBEncodingException {
-		
+
+		if (!getFileInfo().containsKey("name")) {
+			System.err.println("The name field does not exists");
+			return null;
+		}
 		return getFileInfo().get("name").getString();
 		
 	}
