@@ -2,16 +2,12 @@ package misc.torrent;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.security.MessageDigest;
 import be.adaxisoft.bencode.*;
 import misc.utils.Utils;
-import org.apache.commons.codec.digest.DigestUtils;
+
 
 public class TorrentFileHandler {
 
@@ -67,15 +63,15 @@ public class TorrentFileHandler {
 		return getFileInfo().get("length").getLong();
 	}
 
-	// TODO : check creation date format
-	private String getCreationDate() throws InvalidBEncodingException{
+	private Date getCreationDate() throws InvalidBEncodingException{
 		if (!document.containsKey("creation date")) {
 			System.err.println("The creation date field does not exists");
 			return null;
 		}
 		Long num = this.document.get("creation date").getLong();
-		System.out.println(num);
-		return this.document.get("creation date").toString();
+		Date date = new Date(num * 1000);
+
+		return date;
 	}
 
 	private String getCreatedBy() throws InvalidBEncodingException {

@@ -1,5 +1,6 @@
 package misc.torrent;
 
+import java.util.Date;
 import java.util.List;
 
 /** torrent metadata model **/
@@ -14,7 +15,7 @@ public class TorrentMetaData {
     private int piece_length;
     private List<String> pieces;
     private String SHA1Info;
-    private String creationDate;
+    private Date creationDate;
     private String createdBy;
 
 
@@ -76,7 +77,7 @@ public class TorrentMetaData {
         this.pieces = pieces;
     }
 
-    public String getCreationDate() {
+    public Date getCreationDate() {
         return creationDate;
     }
 
@@ -84,7 +85,7 @@ public class TorrentMetaData {
         return createdBy;
     }
 
-    public void setCreationDate(String creationDate) {
+    public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
     }
 
