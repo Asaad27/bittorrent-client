@@ -2,11 +2,37 @@ package misc.utils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Formatter;
 
 public class Utils {
 
 	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-	
+
+    public static String SHAsum(byte[] input)
+    {
+        MessageDigest md;
+        try
+        {
+            md = MessageDigest.getInstance("SHA-1");
+            return byteArray2Hex(md.digest(input));
+        } catch (NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static String byteArray2Hex(final byte[] bytes)
+    {
+        Formatter formatter = new Formatter();
+        for (byte b : bytes)
+        {
+            formatter.format("%02x", b);
+        }
+        return formatter.toString();
+    }
     /**
      * Convert a byte array to a string containing its hexadecimal
      * representation (as expressed in the 

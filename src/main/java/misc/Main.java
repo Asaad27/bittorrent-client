@@ -1,4 +1,5 @@
 package misc;
+import misc.peers.PeerConnectionHandler;
 import misc.peers.PeerInfo;
 import misc.torrent.TorrentFileHandler;
 import misc.torrent.TorrentMetaData;
@@ -15,8 +16,9 @@ public class Main {
 		
 		// Port d'écoute Bittorent
 		
-		int PORT = 6881;
-		
+		int PORT = 12314;
+		String SERVER = "127.0.0.1";
+
 		// On initialise le TorrentFileHandler à partir du fichier Torrent d'entrée
 		
 		try {
@@ -25,18 +27,23 @@ public class Main {
 			TorrentMetaData torrentMetaData = torrentHandler.ParseTorrent();
 
 			System.out.println(torrentMetaData.toString());
-			// TODO : check URL protocol
+			// TODO : check URL protocol, only use TCP
 			URL announceURL = new URL(torrentMetaData.getAnnounceUrlString());
 
 			LocalFileHandler localFile = new LocalFileHandler(torrentMetaData.getName());
 			
 			// TODO : Local File check : Vérifier que le fichier n'est pas déjà téléchargé pour calculer les params de la requête HTTP
 			
-			TrackerHandler tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1Info(), localFile, PORT);
+			//TrackerHandler tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1Info(), localFile, PORT);
 
-			System.out.println("looking for peers");
-			List<PeerInfo> peerLst = tracker.getPeerLst();
-			
+			//System.out.println("looking for peers");
+			//List<PeerInfo> peerLst = tracker.getPeerLst();
+
+			/* for testing */
+			String torrentHash = "285DCBB0DC5AE2ECB78F363AD1295A321C8EBFAF";
+			String torrentInfoHash = "";
+			PeerConnectionHandler peerConnectionHandler = new PeerConnectionHandler(PORT, SERVER);
+			//peerConnectionHandler.sendMsg();
 			
 		} catch (Exception e) {
 			

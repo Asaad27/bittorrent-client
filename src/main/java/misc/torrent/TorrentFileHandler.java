@@ -1,10 +1,17 @@
 package misc.torrent;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.security.MessageDigest;
 import be.adaxisoft.bencode.*;
+import misc.utils.Utils;
+import org.apache.commons.codec.digest.DigestUtils;
 
 public class TorrentFileHandler {
 
@@ -21,7 +28,7 @@ public class TorrentFileHandler {
 
 	}
 
-	public  TorrentMetaData ParseTorrent() throws InvalidBEncodingException {
+	public  TorrentMetaData ParseTorrent() throws IOException, NoSuchAlgorithmException {
 		try {
 
 			this.document = reader.decodeMap().getMap();
@@ -37,11 +44,11 @@ public class TorrentFileHandler {
 		}
 
 		var torrentMetaData = new TorrentMetaData();
-		// TODO : fix bugs 	&& add the other attributes
+
 		torrentMetaData.setAnnounceUrlString(getAnnounceURL());
 		torrentMetaData.setName(getFilename());
 		torrentMetaData.setComment(getComment());
-		//torrentMetaData.setSHA1Info(getSHA1Info());
+		torrentMetaData.setSHA1Info(getSHA1Info());
 		torrentMetaData.setLength(getLength());
 		torrentMetaData.setCreatedBy(getCreatedBy());
 		torrentMetaData.setCreationDate(getCreationDate());
@@ -51,7 +58,7 @@ public class TorrentFileHandler {
 		return torrentMetaData;
 	}
 
-	public Long getLength() throws  InvalidBEncodingException{
+	private Long getLength() throws  InvalidBEncodingException{
 		if (!getFileInfo().containsKey("length")) {
 			System.err.println("The length field does not exists");
 			return null;
@@ -61,7 +68,7 @@ public class TorrentFileHandler {
 	}
 
 	// TODO : check creation date format
-	public String getCreationDate() throws InvalidBEncodingException{
+	private String getCreationDate() throws InvalidBEncodingException{
 		if (!document.containsKey("creation date")) {
 			System.err.println("The creation date field does not exists");
 			return null;
@@ -71,7 +78,7 @@ public class TorrentFileHandler {
 		return this.document.get("creation date").toString();
 	}
 
-	public String getCreatedBy() throws InvalidBEncodingException {
+	private String getCreatedBy() throws InvalidBEncodingException {
 		if (!document.containsKey("created by")) {
 			System.err.println("The created by field does not exists");
 			return null;
@@ -79,7 +86,7 @@ public class TorrentFileHandler {
 		return this.document.get("created by").getString();
 	}
 
-	public String getComment() throws InvalidBEncodingException {
+	private String getComment() throws InvalidBEncodingException {
 		if (!document.containsKey("comment")) {
 			System.err.println("The comment field does not exists");
 			return null;
@@ -88,7 +95,7 @@ public class TorrentFileHandler {
 	}
 
 
-	public String getAnnounceURL() throws InvalidBEncodingException {
+	private String getAnnounceURL() throws InvalidBEncodingException {
 		if (!document.containsKey("info")) {
 			System.err.println("The info field does not exists");
 			return null;
@@ -96,8 +103,8 @@ public class TorrentFileHandler {
 		return this.document.get("announce").getString();
 		
 	}
-	
-	public Map<String, BEncodedValue> getFileInfo() throws InvalidBEncodingException {
+
+	private Map<String, BEncodedValue> getFileInfo() throws InvalidBEncodingException {
 
 		if (!document.containsKey("info")) {
 			System.err.println("The info field does not exists");
@@ -113,7 +120,7 @@ public class TorrentFileHandler {
 		
 	}
 	
-	public String getFilename() throws InvalidBEncodingException {
+	private String getFilename() throws InvalidBEncodingException {
 
 		if (!getFileInfo().containsKey("name")) {
 			System.err.println("The name field does not exists");
@@ -123,29 +130,22 @@ public class TorrentFileHandler {
 		
 	}
 
-	//TODO : fix
-	public String getSHA1Info() throws InvalidBEncodingException {
+
+
+	private String getSHA1Info() throws IOException, NoSuchAlgorithmException {
+
+
+		Map<String, BEncodedValue> bencodInfo = document.get("info").getMap();
+
+		MessageDigest md = MessageDigest.getInstance("SHA-1");
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		BEncoder.encode(bencodInfo, baos);
+
+		byte[] bytes = baos.toByteArray();
+
 		
-		byte[] bencodInfo = document.get("info").getBytes();
-		
-		String sha1 = "";
-		
-		try {
-			
-			MessageDigest digest = MessageDigest.getInstance("SHA-1");
-			digest.reset();
-			// TODO : Vérifier les tailles /!\
-			digest.update(bencodInfo);
-			sha1 = Arrays.toString(digest.digest());
-			
-			// SHA-1 Length : 20
-			
-		} catch (Exception e) {
-			
-			e.printStackTrace();
-			
-		}
-		
-		return sha1;
+		return Utils.bytesToHex(md.digest(bytes));
 	}
+
+
 }
