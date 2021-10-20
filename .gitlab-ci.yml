@@ -1,11 +1,13 @@
 image: maven:latest
 
-build:
+build_job:
   stage: build
   script:
+    - echo "maven compilation"
     - mvn compile
 
-test:
+test_job:
   stage: test
   script:
+    - echo "test phase"
     - mvn clean test
