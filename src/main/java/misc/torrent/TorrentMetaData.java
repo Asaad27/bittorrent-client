@@ -14,16 +14,16 @@ public class TorrentMetaData {
 
     private int piece_length;
     private List<String> pieces;
-    private String SHA1Info;
+    private byte[] SHA1Info;
     private Date creationDate;
     private String createdBy;
 
 
-    public String getSHA1Info() {
+    public byte[] getSHA1Info() {
         return SHA1Info;
     }
 
-    public void setSHA1Info(String SHA1Info) {
+    public void setSHA1Info(byte[] SHA1Info) {
         this.SHA1Info = SHA1Info;
     }
 

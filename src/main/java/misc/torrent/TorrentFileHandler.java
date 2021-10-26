@@ -128,7 +128,7 @@ public class TorrentFileHandler {
 
 
 
-	private String getSHA1Info() throws IOException, NoSuchAlgorithmException {
+	private byte[] getSHA1Info() throws IOException, NoSuchAlgorithmException {
 
 
 		Map<String, BEncodedValue> bencodInfo = document.get("info").getMap();
@@ -140,7 +140,8 @@ public class TorrentFileHandler {
 		byte[] bytes = baos.toByteArray();
 
 		
-		return Utils.bytesToHex(md.digest(bytes));
+		// return Utils.bytesToHex(md.digest(bytes));
+		return md.digest(bytes);
 	}
 
 
