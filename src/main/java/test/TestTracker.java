@@ -36,11 +36,10 @@ public class TestTracker {
 	*/
 	
 	@Test
-	public void testQuery() throws NoSuchAlgorithmException, IOException {
+	public void testTracker() throws NoSuchAlgorithmException, IOException {
 		TorrentFileHandler torrent = new TorrentFileHandler(new FileInputStream("src/main/resources/torrents/by.txt.torrent"));
 		TorrentMetaData metaData = torrent.ParseTorrent();
-		
-		TrackerHandler tracker = new TrackerHandler(new URL(metaData.getAnnounceUrlString()), metaData.getSHA1Info(), null, 6969);
+		TrackerHandler tracker = new TrackerHandler(new URL(metaData.getAnnounceUrlString()), metaData.getSHA1InfoByte(), null, 6969);
 		tracker.getPeerLst();
 	}
 }
