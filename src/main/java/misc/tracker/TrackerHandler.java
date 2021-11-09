@@ -1,29 +1,33 @@
 package misc.tracker;
 import misc.peers.PeerInfo;
 import misc.torrent.LocalFileHandler;
+import misc.utils.Utils;
 
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.net.ProtocolException;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 
 public class TrackerHandler {
 	
-	private final static String PEER_ID_HEAD = "-PYA501-";
-	private final String PEER_ID;
+	private static String PEER_ID_HEAD = "-PYA501-";
+	private String PEER_ID;
 	
 	private URL announceURL;
-	private String SHA1Info;
+	private byte[] SHA1Info;
 	private LocalFileHandler localFile;
 	private int port;
 	
-	public TrackerHandler(URL announceURL, String SHA1Info, LocalFileHandler localFile, int port) {
+	public TrackerHandler(URL announceURL, byte[] SHA1Info, LocalFileHandler localFile, int port) {
 		
 		this.announceURL = announceURL;
 		this.SHA1Info = SHA1Info;
@@ -31,42 +35,60 @@ public class TrackerHandler {
 		this.port = port;
 		this.PEER_ID = genPeerId();
 	}
-
-	public List<PeerInfo> getPeerLst() throws IOException {
-		
-		HttpURLConnection conn =  (HttpURLConnection) announceURL.openConnection();
-		
-		sendHttpRequestToTracker(conn);
-		
-		
-		return null;
-	}
 	
-	public void sendHttpRequestToTracker(HttpURLConnection conn) throws ProtocolException, IOException {
+	public String buildQueryURI() {
 		
-		// On définit la méthode de Requête
+		Map<String,String> params = new HashMap<>();
 		
-		conn.setRequestMethod("GET");
-		
-		// On construit le dictionnaire de paramètres
-		
-		Map<String, String> params = new HashMap<>();
-		params.put("info_hash", SHA1Info);
 		params.put("peer_id", PEER_ID);
 		params.put("port", Integer.toString(port));
-		
+		params.put("compact", "1");
 		/*
 		params.put("uploaded", localFile.getUploaded());
 		params.put("downloaded", localFile.getDownloaded());
 		params.put("left", localFile.getLeft());
 		*/
 		
-		params.put("compact", "1");
+		StringBuilder queryParams = new StringBuilder();
 		
-		// TODO : Envoyer la requête HTTP
+		queryParams.append("?");
+		try {
+			queryParams.append(URLEncoder.encode("info_hash", "US-ASCII"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		queryParams.append("=");
+		queryParams.append(Utils.byteArrayToURLString(SHA1Info));
+		queryParams.append("&");
 		
+		try {
+			
+	        for (Map.Entry<String, String> entry : params.entrySet()) {
+	          queryParams.append(URLEncoder.encode(entry.getKey(), "US-ASCII"));
+	          queryParams.append("=");
+	          queryParams.append(URLEncoder.encode(entry.getValue(), "US-ASCII"));
+	          queryParams.append("&");
+	        }
+	        
+	        queryParams.deleteCharAt(queryParams.length() - 1); // On supprimme le dernier "&"
+	        
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		
-		Reader streamReader = null;
+		String queryURI = announceURL.toString().concat(queryParams.toString());
+		
+		return queryURI;
+	}
+	
+	public List<PeerInfo> getPeerLst() throws IOException {
+		
+		URL uri = new URL(buildQueryURI());
+		
+		HttpURLConnection conn =  (HttpURLConnection) uri.openConnection();
+		conn.setRequestMethod("GET");
+		
+		Reader streamReader;
 		
 		int status = conn.getResponseCode();
 		
@@ -76,54 +98,46 @@ public class TrackerHandler {
 			
 		} else {
 			
-			streamReader = new InputStreamReader(conn.getInputStream());
-			
-		}
-	}
-	
-	private void processHttpResponse() {
-		
-		Map<String, String> response = new HashMap<>();
-		// TODO : Remplir la HashMap avec les infos de la réponse HTTP
-		
-		if (response.containsKey("failure reason")) {
-			System.out.println(response.get("failure reason"));
-			// Erreur
-		} else {
-			
-			if (response.containsKey("warning message")) {
-				System.out.println(response.get("warning message"));
+			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			String inputLine;
+			StringBuffer content = new StringBuffer();
+			while ((inputLine = in.readLine()) != null) {
+			    content.append(inputLine);
 			}
+			in.close();
 			
-			/* Info in the response
-			 * failure reason (optional)
- 			 * warning message (optional)
-			 * interval (int in seconds, interval that the client should wait)
-			 * min interval (int in seconds minimum announce interval)
-			 * tracker id (string)
-			 * complete (numbers of peers with the entire file (seeders))
-			 * incomplete (numbers of peers with incomplete file (leechers))
-			 * peers : list of (up to 50) 6-bytes values, first 4 bytes : IP, last 2 bytes : port number (compact version)
-			 */
+			System.out.println(content);
 		}
+	
+		conn.disconnect();
+		
+		return null;
 	}
 	
-	public static String genPeerId() {
+	
+	private void processHttpResponse(String response) {
+		
+		// TODO : Remplir la liste de peers à partir de la réponse HTTP
+		
+	}
+	
+	public String genPeerId() {
 
-		System.out.println("getting peers id");
-		String peer_id = PEER_ID_HEAD;
+		// System.out.println("Getting local Peer ID");
+		String peerId = new String();
+		peerId = peerId.concat(PEER_ID_HEAD);
 		Random r = new Random();
 		String randomStr;
 		int rand;
-		
-		while(peer_id.length() < 20) {
+
+		while(peerId.length() < 20) {
 			
 			rand = r.nextInt(9); 
 			randomStr = Integer.toString(rand);
 
-			peer_id.concat(randomStr);
+			peerId = peerId.concat(randomStr);
 		}
-		
-		return peer_id;
+	
+		return peerId;
 	}
 }
