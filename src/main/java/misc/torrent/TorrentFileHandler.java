@@ -48,8 +48,6 @@ public class TorrentFileHandler {
 		torrentMetaData.setLength(getLength());
 		torrentMetaData.setCreatedBy(getCreatedBy());
 		torrentMetaData.setCreationDate(getCreationDate());
-		torrentMetaData.setSHA1InfoByte(getSHA1InfoBytes());
-
 
 
 
@@ -99,7 +97,7 @@ public class TorrentFileHandler {
 			return null;
 		}
 		return this.document.get("announce").getString();
-		
+
 	}
 
 	private Map<String, BEncodedValue> getFileInfo() throws InvalidBEncodingException {
@@ -110,14 +108,14 @@ public class TorrentFileHandler {
 		}
 
 		return this.document.get("info").getMap();
-		
+
 		// contenu de info :
 		// String name : filename
 		// int length : length of the file in bytes
 		// md5sum : 32 hex characters : MD5 sum of the file
-		
+
 	}
-	
+
 	private String getFilename() throws InvalidBEncodingException {
 
 		if (!getFileInfo().containsKey("name")) {
@@ -125,12 +123,12 @@ public class TorrentFileHandler {
 			return null;
 		}
 		return getFileInfo().get("name").getString();
-		
+
 	}
 
 
 
-	private byte[] getSHA1Info() throws IOException, NoSuchAlgorithmException {
+	private String getSHA1Info() throws IOException, NoSuchAlgorithmException {
 
 
 		Map<String, BEncodedValue> bencodInfo = document.get("info").getMap();
@@ -141,21 +139,8 @@ public class TorrentFileHandler {
 
 		byte[] bytes = baos.toByteArray();
 
-		
-		// return Utils.bytesToHex(md.digest(bytes));
-		return md.digest(bytes);
-	}
 
-	private byte[] getSHA1InfoBytes() throws IOException, NoSuchAlgorithmException{
-		Map<String, BEncodedValue> bencodInfo = document.get("info").getMap();
-
-		MessageDigest md = MessageDigest.getInstance("SHA-1");
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		BEncoder.encode(bencodInfo, baos);
-
-		byte[] bytes = baos.toByteArray();
-
-		return bytes;
+		return Utils.bytesToHex(md.digest(bytes));
 	}
 
 
