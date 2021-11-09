@@ -44,11 +44,11 @@ public class TorrentFileHandler {
 		torrentMetaData.setAnnounceUrlString(getAnnounceURL());
 		torrentMetaData.setName(getFilename());
 		torrentMetaData.setComment(getComment());
-		torrentMetaData.setSHA1Info(getSHA1Info());
+		torrentMetaData.setSHA1InfoByte(getSHA1Info());
 		torrentMetaData.setLength(getLength());
 		torrentMetaData.setCreatedBy(getCreatedBy());
 		torrentMetaData.setCreationDate(getCreationDate());
-		torrentMetaData.setSHA1InfoByte(getSHA1InfoBytes());
+		// torrentMetaData.setSHA1InfoByte(getSHA1InfoBytes());
 
 
 

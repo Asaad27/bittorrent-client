@@ -5,17 +5,29 @@ import misc.utils.Utils;
 
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+
+import javax.swing.text.AbstractDocument.Content;
+
+import be.adaxisoft.bencode.BDecoder;
+import be.adaxisoft.bencode.BEncodedValue;
+
 import java.net.ProtocolException;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 
 public class TrackerHandler {
 	
@@ -84,6 +96,7 @@ public class TrackerHandler {
 	public List<PeerInfo> getPeerLst() throws IOException {
 		
 		URL uri = new URL(buildQueryURI());
+		// System.out.println(uri.toString());
 		
 		HttpURLConnection conn =  (HttpURLConnection) uri.openConnection();
 		conn.setRequestMethod("GET");
@@ -94,30 +107,63 @@ public class TrackerHandler {
 		
 		if (status > 299) {
 			
-			streamReader = new InputStreamReader(conn.getErrorStream());
+			System.out.println("Erreur " + String.valueOf(status));
+			conn.disconnect();
 			
 		} else {
 			
-			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String inputLine;
-			StringBuffer content = new StringBuffer();
-			while ((inputLine = in.readLine()) != null) {
-			    content.append(inputLine);
-			}
-			in.close();
 			
-			System.out.println(content);
+			BDecoder reader = new BDecoder(conn.getInputStream());
+			Map<String, BEncodedValue> response = reader.decodeMap().getMap();
+			
+			byte[] peers = response.get("peers").getBytes();
+			
+			conn.disconnect();
+			
+			return processHttpResponse(peers);
+			
 		}
-	
-		conn.disconnect();
 		
 		return null;
 	}
 	
 	
-	private void processHttpResponse(String response) {
+	private List<PeerInfo> processHttpResponse(byte[] response) {
 		
-		// TODO : Remplir la liste de peers à partir de la réponse HTTP
+		List<PeerInfo> lst = new LinkedList<PeerInfo>();
+		
+		if(response.length % 6 == 0) {
+			
+			int peer_nb = response.length / 6;
+			
+			for(int i = 0; i < peer_nb ; i++) {
+				
+				byte[] addr_byte = {response[6 * i], response[6 * i + 1], response[6 * i + 2], response[6 * i + 3]};
+				byte[] port_byte = {response[6 * i + 4], response[6 * i + 5]};
+				
+				
+				try {
+					InetAddress addr = InetAddress.getByAddress(addr_byte);
+					ByteBuffer wrapped = ByteBuffer.wrap(port_byte);
+					int port = wrapped.getShort();
+					
+					System.out.println("Peer Info n°" + i);
+					System.out.println("Addresse IPv4 : " + addr.toString());
+					System.out.println("Port : " + port);
+					
+					PeerInfo peer = new PeerInfo(addr,port);
+					lst.add(peer);
+					
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				}
+				
+				
+			}
+			
+		}
+		
+		return lst;
 		
 	}
 	
