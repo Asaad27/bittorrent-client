@@ -8,7 +8,7 @@ import java.util.List;
 
 public class TorrentMetaData {
 
-    private Long length;   //length of the file (bytes)
+    private Long  length;   //length of the file (bytes)
     private String name;
     private String comment;
     private String announceUrlString;

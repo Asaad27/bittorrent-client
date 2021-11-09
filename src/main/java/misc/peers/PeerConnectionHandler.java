@@ -206,6 +206,7 @@ public class PeerConnectionHandler {
             }
         }
 
+        //assert
         assert(byteRead == len);
 
         return PeerMessage.deserialize(data);
