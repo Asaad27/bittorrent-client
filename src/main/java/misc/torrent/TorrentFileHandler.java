@@ -48,6 +48,8 @@ public class TorrentFileHandler {
 		torrentMetaData.setLength(getLength());
 		torrentMetaData.setCreatedBy(getCreatedBy());
 		torrentMetaData.setCreationDate(getCreationDate());
+		torrentMetaData.setSHA1InfoByte(getSHA1InfoBytes());
+
 
 
 
@@ -141,6 +143,18 @@ public class TorrentFileHandler {
 
 		
 		return Utils.bytesToHex(md.digest(bytes));
+	}
+
+	private byte[] getSHA1InfoBytes() throws IOException, NoSuchAlgorithmException{
+		Map<String, BEncodedValue> bencodInfo = document.get("info").getMap();
+
+		MessageDigest md = MessageDigest.getInstance("SHA-1");
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		BEncoder.encode(bencodInfo, baos);
+
+		byte[] bytes = baos.toByteArray();
+
+		return bytes;
 	}
 
 

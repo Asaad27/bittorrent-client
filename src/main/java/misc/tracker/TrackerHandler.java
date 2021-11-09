@@ -31,7 +31,7 @@ public class TrackerHandler {
 		this.port = port;
 		this.PEER_ID = genPeerId();
 	}
-	
+
 	public List<PeerInfo> getPeerLst() throws IOException {
 		
 		HttpURLConnection conn =  (HttpURLConnection) announceURL.openConnection();
@@ -108,7 +108,7 @@ public class TrackerHandler {
 		}
 	}
 	
-	public String genPeerId() {
+	public static String genPeerId() {
 
 		System.out.println("getting peers id");
 		String peer_id = PEER_ID_HEAD;

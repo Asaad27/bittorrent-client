@@ -1,5 +1,6 @@
 package misc.torrent;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class TorrentMetaData {
     private int piece_length;
     private List<String> pieces;
     private String SHA1Info;
+    private byte[] SHA1InfoByte;
     private Date creationDate;
     private String createdBy;
 
@@ -93,9 +95,17 @@ public class TorrentMetaData {
         this.createdBy = createdBy;
     }
 
+    public byte[] getSHA1InfoByte() {
+        return SHA1InfoByte;
+    }
+
+    public void setSHA1InfoByte(byte[] SHA1InfoByte) {
+        this.SHA1InfoByte = SHA1InfoByte;
+    }
+
     @Override
     public String toString() {
         return "name :  " + getName() + "\ncreationDate : " + getCreationDate() + "\ncreatedBy : " + getCreatedBy() + "\ncomment : " + getComment()
-                + "\nannounce URl : " + getAnnounceUrlString() + "\nlength : " + getLength() + "\nSSH info : " + getSHA1Info();
+                + "\nannounce URl : " + getAnnounceUrlString() + "\nlength : " + getLength() + "\nSSH info : " + getSHA1Info() ;
     }
 }
