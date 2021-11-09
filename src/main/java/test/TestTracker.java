@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 
+import misc.utils.Utils;
 import org.junit.jupiter.api.Test;
 
 import misc.torrent.TorrentFileHandler;
@@ -39,7 +40,8 @@ public class TestTracker {
 	public void testTracker() throws NoSuchAlgorithmException, IOException {
 		TorrentFileHandler torrent = new TorrentFileHandler(new FileInputStream("src/main/resources/torrents/by.txt.torrent"));
 		TorrentMetaData metaData = torrent.ParseTorrent();
-		TrackerHandler tracker = new TrackerHandler(new URL(metaData.getAnnounceUrlString()), metaData.getSHA1InfoByte(), null, 6969);
+		TrackerHandler tracker = new TrackerHandler(new URL(metaData.getAnnounceUrlString()), Utils.hexStringToByteArray(metaData.getSHA1Info()), null, 6969);
+
 		tracker.getPeerLst();
 	}
 }
