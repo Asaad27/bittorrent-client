@@ -20,11 +20,12 @@ public class Main {
 	public static void main(String[] args) {
 		
 		// Port d'écoute Bittorent
-		
-		int PORT = 40784;
-		String SERVER = "10.245.226.251";
+		int PORT = 59407;
 
-		String PEERID = "2d415a353737302d63724b546962774f6b6c4261";
+		String SERVER = "127.0.0.1";
+
+
+		String PEERID = TrackerHandler.genPeerId();
 		// On initialise le TorrentFileHandler à partir du fichier Torrent d'entrée
 
 		
@@ -39,14 +40,13 @@ public class Main {
 
 			LocalFileHandler localFile = new LocalFileHandler(torrentMetaData.getName());
 			
-			// TODO : Local File check : Vérifier que le fichier n'est pas déjà téléchargé pour calculer les params de la requête HTTP
+
 			
-			//TrackerHandler tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1Info(), localFile, PORT);
+			//TrackerHandler tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1InfoByte(), localFile, PORT);
 
 			//System.out.println("looking for peers");
 			//List<PeerInfo> peerLst = tracker.getPeerLst();
-
-			/* for testing */
+			//System.out.println("peerlist received");
 			PeerConnectionHandler peerConnectionHandler = new PeerConnectionHandler(PORT, SERVER);
 
 			peerConnectionHandler.doHandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(PEERID));
@@ -54,40 +54,32 @@ public class Main {
 			peerConnectionHandler.initLeecher(torrentMetaData);
 
 
-			//Message rcvMsg = peerConnectionHandler.receiveMessage();
-			//System.out.println("recvd " + rcvMsg.ID);
+			//var bitfield = new Message(PeerMessage.MsgType.BITFIELD, PeerConnectionHandler.clientBitfield);
+			//peerConnectionHandler.sendMessage(bitfield);
 
-			peerConnectionHandler.sendMessage(new Message(PeerMessage.MsgType.BITFIELD, PeerConnectionHandler.clientBitfield));
+			//var unchoke =  new Message(PeerMessage.MsgType.UNCHOKE);
+			//peerConnectionHandler.sendMessage(unchoke);
 
+			//Thread.sleep(5000);
+			var interested = new Message(PeerMessage.MsgType.INTERESTED);
+			peerConnectionHandler.sendMessage(interested);
+
+			/*var rcvd = peerConnectionHandler.receiveMessage();
+			System.out.println("recieved : " + rcvd.ID);
+
+			var rcvd2 = peerConnectionHandler.receiveMessage();
+			System.out.println("recieved : " + rcvd2.ID);*/
+
+			var request =  new Message(PeerMessage.MsgType.REQUEST, 0, 0, torrentMetaData.getPiece_length());
+			peerConnectionHandler.sendMessage(request);
 
 			var unchoke =  new Message(PeerMessage.MsgType.UNCHOKE);
 			peerConnectionHandler.sendMessage(unchoke);
 
-
-
-
-
-
-
-
-			/*ByteBuffer byteBuffer = ByteBuffer.allocate(9);
-			byteBuffer.putInt(1);
-			byteBuffer.put((byte)3);
-			byteBuffer.putInt(4);
-			byte[] bytes = byteBuffer.array();
-
-			ByteBuffer bfr = ByteBuffer.wrap(bytes);
-			System.out.println(bfr.getInt());
-			System.out.println(bfr.get());
-			System.out.println(bfr.getInt());*/
-
-	/*		int PIECESIZE = 32*1024;
-			int numPieces = (int) (torrentMetaData.getLength()/PIECESIZE + 1);
-			int bfldSize = numPieces / 8 + 1;
-
-			System.out.println(numPieces);
-			System.out.println(bfldSize);*/
-
+			/*ByteBuffer buf = ByteBuffer.allocate(8); // two 4-byte integers
+			buf.put((byte) 1).putInt( 2);
+			buf.rewind();
+			peerConnectionHandler.sendMessage(buf);*/
 
 		} catch (Exception e) {
 			

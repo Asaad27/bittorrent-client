@@ -89,6 +89,11 @@ public class PeerConnectionHandler {
         System.out.println("handShake validated");
         Thread messageReader = new Thread(() -> {
             while (true) {
+                try {
+                    Thread.sleep(7*1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 Message receivedMessage = receiveMessage();
 
                 if (receivedMessage.ID == PeerMessage.MsgType.KEEPALIVE) {
@@ -97,9 +102,10 @@ public class PeerConnectionHandler {
                     System.out.println("CHOKE RECEIVED");
                 } else if (receivedMessage.ID == PeerMessage.MsgType.UNCHOKE) {
                     System.out.println("UCHOKE RECEIVED");
-                    //TODO : offset within a block ?
-                    var request = new Message(PeerMessage.MsgType.REQUEST, indexPiece, indexPiece + PIECESIZE, PIECESIZE);
+                    //TODO : offset within a block ******
+                    var request = new Message(PeerMessage.MsgType.REQUEST, indexPiece, 0, PIECESIZE);
                     sendMessage(request);
+
                 } else if (receivedMessage.ID == PeerMessage.MsgType.INTERESTED) {
                     System.out.println("INTERESTED RECEIVED");
                 } else if (receivedMessage.ID == PeerMessage.MsgType.NOTINTERESTED) {
@@ -131,7 +137,7 @@ public class PeerConnectionHandler {
             }
         });
 
-        messageReader.start();
+        //messageReader.start();
 
         return true;
     }
@@ -154,6 +160,7 @@ public class PeerConnectionHandler {
         return (clientBitfield[byteIndex]>>(7-offset)&1) != 0;
     }
 
+
     //set a bit for the bitfield
     public static void setPiece(int index){
         int byteIndex = index/8;
@@ -161,12 +168,21 @@ public class PeerConnectionHandler {
         clientBitfield[byteIndex] |= 1 <<(7-offset);
     }
 
+    public void sendMessage(ByteBuffer msg){
+
+        try {
+            out.write(msg.array());
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("custom message sent");
+
+    }
 
     public void sendMessage(Message message){
         byte[] msg = PeerMessage.serialize(message);
-        /*System.out.println(msg.length);
-        System.out.println(message.ID);
-        System.out.println(Arrays.toString(msg));*/
+
         try {
             out.write(msg);
             out.flush();

@@ -18,22 +18,16 @@ public class PeerMessage {
         CANCEL,
         PORT,
         KEEPALIVE;
-
         private static final MsgType[] values = MsgType.values();
-
         public static MsgType getById(int id){
             return values[id];
         }
-
         public int getID(){
             return ordinal();
         }
     }
 
-
-
     // <length prefix><message ID><payload>
-
     public static byte[] serialize(Message msg)
     {
         ByteBuffer buffer = null;
@@ -57,12 +51,10 @@ public class PeerMessage {
                 break;
 
             case INTERESTED:
-                System.out.println("we are in interested");
-                buffer = ByteBuffer.allocate(4 + 1);
-                buffer.putInt(1);
-                byte flg = 2;
-                buffer.put(flg);
-
+                 System.out.println("we are in interested");
+                 buffer = ByteBuffer.allocate(5);
+                 buffer.put((byte) 1).putInt(2);
+                 //buffer.flip();
                 break;
 
             case NOTINTERESTED:
@@ -100,7 +92,7 @@ public class PeerMessage {
                 buffer.put((byte)6);
                 buffer.putInt(msg.index);
                 buffer.putInt(msg.begin);
-                buffer.putInt(msg.blockSize);
+                buffer.putInt(msg.length);
                 break;
 
             case CANCEL:
@@ -117,6 +109,8 @@ public class PeerMessage {
                 return new byte[1];
         }
 
+
+
         return buffer.array();
     }
 
@@ -126,35 +120,29 @@ public class PeerMessage {
         int len = buffer.getInt();
         if (len == 0)
             return  new Message(MsgType.KEEPALIVE);
-
         byte id = buffer.get();
-
-
         if (len == 1)
             return new Message(MsgType.getById(id));
-
         //Have
         if (id == 4){
             return new Message(MsgType.HAVE, buffer.getInt());
         }
-
         //bitfield
         if (id == 5){
             byte[] bitfield = new byte[len-1];
             buffer.get(bitfield, 0, len-1);
             return new Message(MsgType.BITFIELD, bitfield);
         }
-
         //request
         if (id == 6){
             return new Message(MsgType.REQUEST, buffer.getInt(), buffer.getInt(), buffer.getInt());
         }
-
         //piece
         if (id == 7){
             int index = buffer.getInt();
             int begin = buffer.getInt();
             byte[] payload = new byte[len-9];
+
             buffer.get(payload, 0, len-9);
             return new Message(MsgType.PIECE, index, begin, payload);
         }

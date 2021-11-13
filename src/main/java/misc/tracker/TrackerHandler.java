@@ -167,7 +167,7 @@ public class TrackerHandler {
 		
 	}
 	
-	public String genPeerId() {
+	public static String genPeerId() {
 
 		// System.out.println("Getting local Peer ID");
 		String peerId = new String();

@@ -1,5 +1,6 @@
 package misc.torrent;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -13,8 +14,10 @@ public class TorrentMetaData {
     private String announceUrlString;
 
     private int piece_length;
-    private List<String> pieces;
+    private int numberOfPieces;
+    private String pieces;
     private String SHA1Info;
+    private byte[] SHA1InfoByte;
     private Date creationDate;
     private String createdBy;
 
@@ -26,8 +29,6 @@ public class TorrentMetaData {
     public void setSHA1Info(String SHA1Info) {
         this.SHA1Info = SHA1Info;
     }
-
-
 
     public String getName() {
         return name;
@@ -69,11 +70,19 @@ public class TorrentMetaData {
         this.piece_length = piece_length;
     }
 
-    public List<String> getPieces() {
+    public int getNumberOfPieces() {
+        return numberOfPieces;
+    }
+
+    public void setNumberOfPieces(int numberOfPieces) {
+        this.numberOfPieces = numberOfPieces;
+    }
+
+    public String getPieces() {
         return pieces;
     }
 
-    public void setPieces(List<String> pieces) {
+    public void setPieces(String pieces) {
         this.pieces = pieces;
     }
 
@@ -93,9 +102,18 @@ public class TorrentMetaData {
         this.createdBy = createdBy;
     }
 
+    public byte[] getSHA1InfoByte() {
+        return SHA1InfoByte;
+    }
+
+    public void setSHA1InfoByte(byte[] SHA1InfoByte) {
+        this.SHA1InfoByte = SHA1InfoByte;
+    }
+
     @Override
     public String toString() {
         return "name :  " + getName() + "\ncreationDate : " + getCreationDate() + "\ncreatedBy : " + getCreatedBy() + "\ncomment : " + getComment()
-                + "\nannounce URl : " + getAnnounceUrlString() + "\nlength : " + getLength() + "\nSSH info : " + getSHA1Info();
+                + "\nannounce URl : " + getAnnounceUrlString() + "\nlength : " + getLength() + "\nSSH info : " + getSHA1Info() +"\nPiece length : " + getPiece_length() +
+                "\nnumber of pieces : " + getNumberOfPieces() + "\n" ;
     }
 }
