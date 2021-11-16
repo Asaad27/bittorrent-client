@@ -22,20 +22,23 @@ public class LocalFileHandler {
 		this.localFile = new File(filename);
 		this.pieceSize = pieceSize;
 		this.totalPieces = pieceNb;
+		this.bitfield = initBitfield(); 
 		
 		try {
 			this.fileAccess = new RandomAccessFile(localFile, "rw");
-		} catch (FileNotFoundException e) {
-			System.out.println("Fichier local introuvable");
-		}
+		} catch (FileNotFoundException e) { e.printStackTrace(); }
 		
-		this.bitfield = initBitfield();
 	}
 	
 	public BitSet initBitfield() {
 		BitSet bf = new BitSet(totalPieces);
+		bf.clear();
+		try {
+			if(!localFile.createNewFile()) {
+				// TODO : remplir le bitset de 1 en examinant le fichier local
+			}
+		} catch(IOException e) { e.printStackTrace(); }
 		
-		// TODO : remplir le bitset de 1 en examinant le fichier local
 		
 		return bf;
 	}
