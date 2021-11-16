@@ -2,7 +2,6 @@ package misc.tracker;
 import misc.peers.PeerInfo;
 import misc.torrent.LocalFileHandler;
 import misc.utils.Utils;
-
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
@@ -12,19 +11,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
-
-import javax.swing.text.AbstractDocument.Content;
-
 import be.adaxisoft.bencode.BDecoder;
 import be.adaxisoft.bencode.BEncodedValue;
-
-import java.net.ProtocolException;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -36,14 +25,12 @@ public class TrackerHandler {
 	
 	private URL announceURL;
 	private byte[] SHA1Info;
-	private LocalFileHandler localFile;
 	private int port;
 	
-	public TrackerHandler(URL announceURL, byte[] SHA1Info, LocalFileHandler localFile, int port) {
+	public TrackerHandler(URL announceURL, byte[] SHA1Info, int port) {
 		
 		this.announceURL = announceURL;
 		this.SHA1Info = SHA1Info;
-		this.localFile = localFile;
 		this.port = port;
 		this.PEER_ID = genPeerId();
 	}
@@ -55,11 +42,6 @@ public class TrackerHandler {
 		params.put("peer_id", PEER_ID);
 		params.put("port", Integer.toString(port));
 		params.put("compact", "1");
-		/*
-		params.put("uploaded", localFile.getUploaded());
-		params.put("downloaded", localFile.getDownloaded());
-		params.put("left", localFile.getLeft());
-		*/
 		
 		StringBuilder queryParams = new StringBuilder();
 		
@@ -101,14 +83,15 @@ public class TrackerHandler {
 		HttpURLConnection conn =  (HttpURLConnection) uri.openConnection();
 		conn.setRequestMethod("GET");
 		
-		Reader streamReader;
-		
-		int status = conn.getResponseCode();
+		int status = conn.getResponseCode(); // On exécute la requête
 		
 		if (status > 299) {
 			
+			// Erreur HTTP
+			
 			System.out.println("Erreur " + String.valueOf(status));
 			conn.disconnect();
+			return null;
 			
 		} else {
 			
@@ -124,7 +107,6 @@ public class TrackerHandler {
 			
 		}
 		
-		return null;
 	}
 	
 	
