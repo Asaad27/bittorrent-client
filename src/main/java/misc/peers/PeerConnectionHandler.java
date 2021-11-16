@@ -15,7 +15,6 @@ public class PeerConnectionHandler {
     private String server = "127.0.0.1";
     private InputStream in;
     private OutputStream out;
-    private PeerState peerState;
     public  static byte[] clientBitfield = null;
     public static RandomAccessFile file = null;
 

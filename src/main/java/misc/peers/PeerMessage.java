@@ -74,7 +74,7 @@ public class PeerMessage {
                 break;
 
             case BITFIELD:
-                buffer = ByteBuffer.allocate(6 + msg.payload.length);
+                buffer = ByteBuffer.allocate(5 + msg.payload.length);
                 buffer.putInt(1 + msg.payload.length);
                 buffer.put((byte)5);
                 buffer.put(msg.payload, 0, msg.payload.length);

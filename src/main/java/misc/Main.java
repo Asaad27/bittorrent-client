@@ -54,14 +54,18 @@ public class Main {
 
 
 			//TODO : fix bitfield message, maybe use a bitset
-			int size_bitfield = (int) Math.ceil( torrentMetaData.getNumberOfPieces() / 8 ) + 1;
+			int npieces = (int) (torrentMetaData.getLength()/torrentMetaData.getPiece_length());
+			System.out.println(npieces);
+
+
+			int size_bitfield =  npieces/8+1;
 
 			byte[] btfld = new byte[size_bitfield];
 			for (int i = 0; i < size_bitfield; i++)
 				btfld[i] = 0;
 			//var bitfield = new Message(PeerMessage.MsgType.BITFIELD, PeerConnectionHandler.clientBitfield);
-			//var bitfield = new Message(PeerMessage.MsgType.BITFIELD, btfld);
-			//peerConnectionHandler.sendMessage(bitfield);
+			var bitfield = new Message(PeerMessage.MsgType.BITFIELD, btfld);
+			peerConnectionHandler.sendMessage(bitfield);
 
 			var interested = new Message(PeerMessage.MsgType.INTERESTED);
 			peerConnectionHandler.sendMessage(interested);

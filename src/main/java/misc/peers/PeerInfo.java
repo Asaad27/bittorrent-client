@@ -6,6 +6,7 @@ public class PeerInfo {
 	private InetAddress addr;
 	private int port;
 	private byte[] bitfield;
+	private PeerState peerState;
 	
 	public PeerInfo(InetAddress addr, int port) {
 		this.addr = addr;
