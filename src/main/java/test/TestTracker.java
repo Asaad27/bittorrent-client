@@ -40,7 +40,7 @@ public class TestTracker {
 	public void testTracker() throws NoSuchAlgorithmException, IOException {
 		TorrentFileHandler torrent = new TorrentFileHandler(new FileInputStream("src/main/resources/torrents/by.txt.torrent"));
 		TorrentMetaData metaData = torrent.ParseTorrent();
-		TrackerHandler tracker = new TrackerHandler(new URL(metaData.getAnnounceUrlString()), Utils.hexStringToByteArray(metaData.getSHA1Info()), null, 6969);
+		TrackerHandler tracker = new TrackerHandler(new URL(metaData.getAnnounceUrlString()), Utils.hexStringToByteArray(metaData.getSHA1Info()), 6969);
 
 		tracker.getPeerLst();
 	}
