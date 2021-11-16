@@ -101,11 +101,11 @@ public class TrackerHandler {
 		HttpURLConnection conn =  (HttpURLConnection) uri.openConnection();
 		conn.setRequestMethod("GET");
 		
-		Reader streamReader;
-		
-		int status = conn.getResponseCode();
+		int status = conn.getResponseCode(); // On exécute la requête
 		
 		if (status > 299) {
+			
+			// Erreur HTTP
 			
 			System.out.println("Erreur " + String.valueOf(status));
 			conn.disconnect();
