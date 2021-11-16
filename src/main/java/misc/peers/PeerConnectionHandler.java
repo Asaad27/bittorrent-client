@@ -19,16 +19,18 @@ public class PeerConnectionHandler {
     public  static byte[] clientBitfield = null;
     public static RandomAccessFile file = null;
 
-    private static final int PIECESIZE = 32*1024;
-
+    public int pieceSize;
     public int indexPiece = 0;
     public int numPieces = 0;
+    public int offset = 4;
 
     public PeerConnectionHandler() {
     }
 
+    /** initialize file and leecher bitfield  **/
     public void initLeecher(TorrentMetaData torrentMetaData){
-        numPieces = torrentMetaData.getPiece_length()/PIECESIZE + 1;
+        pieceSize = torrentMetaData.getPiece_length();
+        numPieces = torrentMetaData.getPiece_length()/pieceSize + 1;
         int bfldSize = numPieces / 8 + 1;
         clientBitfield = new byte[bfldSize];
         for (int i = 0; i < bfldSize; ++i) {
@@ -36,20 +38,14 @@ public class PeerConnectionHandler {
         }
 
         try {
-            file = new RandomAccessFile(torrentMetaData.getName(), "rw");
+            file = new RandomAccessFile("C:\\Users\\asaad_6stn3w\\IdeaProjects\\equipe5new\\src\\main\\java" + torrentMetaData.getName(), "rw");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
     }
 
-
-    public PeerConnectionHandler(int peerClientPort) throws IOException {
-        this.peerClientPort = peerClientPort;
-
-        connect();
-    }
-
+    /** connection et ouverture du socket  **/
     public PeerConnectionHandler(int peerClientPort, String server) throws IOException {
         this.peerClientPort = peerClientPort;
         this.server = server;
@@ -66,7 +62,7 @@ public class PeerConnectionHandler {
     }
 
 
-
+    /** effectuer le handshake, valider la reponse et lancer un thread qui lit les messages recus **/
     public boolean doHandShake(byte[] SHA1info, byte[] peersId){
 
         HandShake sentHand = new HandShake(SHA1info, peersId);
@@ -91,12 +87,13 @@ public class PeerConnectionHandler {
             System.err.println("HandShake response is not valid");
             return false;
         }
-
         System.out.println("handShake validated");
+
+        //lit et repond aux messages du seeder
         Thread messageReader = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(7*1000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -109,12 +106,14 @@ public class PeerConnectionHandler {
                 } else if (receivedMessage.ID == PeerMessage.MsgType.UNCHOKE) {
                     System.out.println("UCHOKE RECEIVED");
                     //TODO : offset within a block ******
-                    var request = new Message(PeerMessage.MsgType.REQUEST, indexPiece, 0, PIECESIZE/2);
+                    var request = new Message(PeerMessage.MsgType.REQUEST, indexPiece, offset, 16384);
                     try {
                         sendMessage(request);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    indexPiece += (offset==0 ? 1 : 0 );
+                    offset = (offset == 4 ? 0 : 4);
 
                 } else if (receivedMessage.ID == PeerMessage.MsgType.INTERESTED) {
                     System.out.println("INTERESTED RECEIVED");
@@ -151,7 +150,7 @@ public class PeerConnectionHandler {
             }
         });
 
-        //messageReader.start();
+        messageReader.start();
 
         return true;
     }
@@ -166,7 +165,9 @@ public class PeerConnectionHandler {
         System.out.println("Bitfield sent");
     }*/
 
-    // check if an index is set in the bitfield
+    /**
+     check if an index is set in the bitfield
+     **/
     public static boolean hasPiece(int index){
         int byteIndex = index/8;
         int offset = index % 8;
@@ -175,7 +176,7 @@ public class PeerConnectionHandler {
     }
 
 
-    //set a bit for the bitfield
+    /** set a bit for the bitfield **/
     public static void setPiece(int index){
         int byteIndex = index/8;
         int offset = index%8;

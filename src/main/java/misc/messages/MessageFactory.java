@@ -1,4 +1,4 @@
-package misc.msg;
+package misc.messages;
 
 public class MessageFactory {
 

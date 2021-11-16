@@ -117,6 +117,7 @@ public class PeerMessage {
         return buffer.array();
     }
 
+
     public static Message deserialize(byte[] msg){
         ByteBuffer buffer = ByteBuffer.wrap(msg);
 
