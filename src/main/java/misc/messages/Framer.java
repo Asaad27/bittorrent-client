@@ -1,4 +1,4 @@
-package Framer;
+package misc.messages;
 import java.io.IOException;
 import java.io.OutputStream;
 public interface Framer {

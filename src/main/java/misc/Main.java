@@ -35,7 +35,6 @@ public class Main {
 			TorrentMetaData torrentMetaData = torrentHandler.ParseTorrent();
 
 			System.out.println(torrentMetaData.toString());
-			// TODO : check URL protocol, only use TCP
 			URL announceURL = new URL(torrentMetaData.getAnnounceUrlString());
 
 			LocalFileHandler localFile = new LocalFileHandler(torrentMetaData.getName());
@@ -49,12 +48,12 @@ public class Main {
 			//System.out.println("peerlist received");
 			PeerConnectionHandler peerConnectionHandler = new PeerConnectionHandler(PORT, SERVER);
 
-			peerConnectionHandler.doHandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(PEERID));
-
 			peerConnectionHandler.initLeecher(torrentMetaData);
 
-			/*var interested = new Message(PeerMessage.MsgType.INTERESTED);
-			peerConnectionHandler.sendMessage(interested);*/
+			peerConnectionHandler.doHandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(PEERID));
+
+
+			//TODO : fix bitfield message, maybe use a bitset
 			int size_bitfield = (int) Math.ceil( torrentMetaData.getNumberOfPieces() / 8 ) + 1;
 
 			byte[] btfld = new byte[size_bitfield];
@@ -71,27 +70,11 @@ public class Main {
 			var unchoke =  new Message(PeerMessage.MsgType.UNCHOKE);
 			peerConnectionHandler.sendMessage(unchoke);
 
-			//Thread.sleep(5000);
-
-
-			/*var rcvd = peerConnectionHandler.receiveMessage();
-			System.out.println("recieved : " + rcvd.ID);
-
-			var rcvd2 = peerConnectionHandler.receiveMessage();
-			System.out.println("recieved : " + rcvd2.ID);*/
-
 			var request =  new Message(PeerMessage.MsgType.REQUEST, 1, 1, torrentMetaData.getPiece_length()/2);
 			peerConnectionHandler.sendMessage(request);
 
-			//var choke =  new Message(PeerMessage.MsgType.CHOKE);
-			//peerConnectionHandler.sendMessage(choke);
-
 			//var notInter = new Message(PeerMessage.MsgType.NOTINTERESTED);
 			//peerConnectionHandler.sendMessage(notInter);
-			/*ByteBuffer buf = ByteBuffer.allocate(8); // two 4-byte integers
-			buf.put((byte) 1).putInt( 2);
-			buf.rewind();
-			peerConnectionHandler.sendMessage(buf);*/
 
 		} catch (Exception e) {
 			
