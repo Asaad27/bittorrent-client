@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.security.MessageDigest;
 import be.adaxisoft.bencode.*;
+import jdk.jshell.execution.Util;
 import misc.utils.Utils;
 
 
@@ -45,10 +46,13 @@ public class TorrentFileHandler {
 		torrentMetaData.setName(getFilename());
 		torrentMetaData.setComment(getComment());
 		torrentMetaData.setSHA1Info(getSHA1Info());
+		torrentMetaData.setSHA1InfoByte(getSHA1InfoBytes());
 		torrentMetaData.setLength(getLength());
 		torrentMetaData.setCreatedBy(getCreatedBy());
 		torrentMetaData.setCreationDate(getCreationDate());
-		// torrentMetaData.setSHA1InfoByte(getSHA1InfoBytes());
+		torrentMetaData.setPiece_length(getPiece_length());
+		torrentMetaData.setPieces(getPieces());
+		torrentMetaData.setNumberOfPieces((int) (getLength() / getPiece_length()));
 
 
 
@@ -118,6 +122,24 @@ public class TorrentFileHandler {
 
 	}
 
+	private String getPieces() throws InvalidBEncodingException {
+		if (!Objects.requireNonNull(getFileInfo()).containsKey("pieces")) {
+			System.err.println("The pieces field does not exists");
+			return null;
+		}
+
+		return getFileInfo().get("pieces").getString();
+	}
+
+	private int getPiece_length() throws  InvalidBEncodingException{
+		if (!Objects.requireNonNull(getFileInfo()).containsKey("piece length")) {
+			System.err.println("The piece length field does not exists");
+			return -1;
+		}
+
+		return getFileInfo().get("piece length").getInt();
+	}
+
 	private String getFilename() throws InvalidBEncodingException {
 
 		if (!getFileInfo().containsKey("name")) {
@@ -140,7 +162,21 @@ public class TorrentFileHandler {
 		BEncoder.encode(bencodInfo, baos);
 
 		byte[] bytes = baos.toByteArray();
+
+
 		return Utils.bytesToHex(md.digest(bytes));
+	}
+
+	private byte[] getSHA1InfoBytes() throws IOException, NoSuchAlgorithmException{
+		Map<String, BEncodedValue> bencodInfo = document.get("info").getMap();
+
+		MessageDigest md = MessageDigest.getInstance("SHA-1");
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		BEncoder.encode(bencodInfo, baos);
+
+		byte[] bytes = baos.toByteArray();
+
+		return bytes;
 	}
 
 
