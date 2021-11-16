@@ -37,7 +37,7 @@ public class Main {
 			System.out.println(torrentMetaData.toString());
 			URL announceURL = new URL(torrentMetaData.getAnnounceUrlString());
 
-			LocalFileHandler localFile = new LocalFileHandler(torrentMetaData.getName(), torrentMetaData.getNumberOfPieces(), torrentMetaData.getPiece_length());
+			LocalFileHandler localFile = new LocalFileHandler(torrentMetaData.getName(), torrentMetaData.getNumberOfPieces(), torrentMetaData.getPiece_length(), torrentMetaData.getPieces());
 			
 
 			
