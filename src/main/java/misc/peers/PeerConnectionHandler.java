@@ -1,11 +1,9 @@
 package misc.peers;
 
 import misc.torrent.TorrentMetaData;
+import misc.utils.Utils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Random;
@@ -37,6 +35,12 @@ public class PeerConnectionHandler {
             clientBitfield[i] = 0;
         }
 
+        try {
+            file = new RandomAccessFile(torrentMetaData.getName(), "rw");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -57,6 +61,8 @@ public class PeerConnectionHandler {
         socket = new Socket(server, peerClientPort);
         in = socket.getInputStream();
         out = socket.getOutputStream();
+        //in = new BufferedInputStream(new DataInputStream(socket.getInputStream()));
+       // out = new BufferedOutputStream(new DataOutputStream(socket.getOutputStream()));
     }
 
 
@@ -103,8 +109,12 @@ public class PeerConnectionHandler {
                 } else if (receivedMessage.ID == PeerMessage.MsgType.UNCHOKE) {
                     System.out.println("UCHOKE RECEIVED");
                     //TODO : offset within a block ******
-                    var request = new Message(PeerMessage.MsgType.REQUEST, indexPiece, 0, PIECESIZE);
-                    sendMessage(request);
+                    var request = new Message(PeerMessage.MsgType.REQUEST, indexPiece, 0, PIECESIZE/2);
+                    try {
+                        sendMessage(request);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
                 } else if (receivedMessage.ID == PeerMessage.MsgType.INTERESTED) {
                     System.out.println("INTERESTED RECEIVED");
@@ -114,7 +124,11 @@ public class PeerConnectionHandler {
                     System.out.println("HAVE RECEIVED");
                     if (!hasPiece(receivedMessage.getIndex())) {
                         var interested = new Message(PeerMessage.MsgType.INTERESTED);
-                        sendMessage(interested);
+                        try {
+                            sendMessage(interested);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
 
                 } else if (receivedMessage.ID == PeerMessage.MsgType.BITFIELD) {
@@ -180,17 +194,28 @@ public class PeerConnectionHandler {
 
     }
 
-    public void sendMessage(Message message){
+    public void sendMessage(Message message) throws IOException {
         byte[] msg = PeerMessage.serialize(message);
-
         try {
             out.write(msg);
             out.flush();
         } catch (IOException e) {
+            System.err.println("error : " + e.getMessage());
             e.printStackTrace();
         }
-        System.out.println(message.ID.toString() + " sent");
+        System.out.println(message.ID.toString() + " sent" + " content : " + Utils.bytesToHex(msg));
 
+    }
+
+    public void sendMessage(byte[] msg) {
+        try {
+            out.write(msg);
+            out.flush();
+        } catch (IOException e) {
+            System.err.println("error : " + e.getMessage());
+            e.printStackTrace();
+        }
+        System.out.println("bitfield and interested "+ " sent" + " content : " + Utils.bytesToHex(msg));
     }
 
     public Message receiveMessage(){
@@ -227,7 +252,6 @@ public class PeerConnectionHandler {
 
         return PeerMessage.deserialize(data);
     }
-
 
 
 

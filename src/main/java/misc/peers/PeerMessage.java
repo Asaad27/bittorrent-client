@@ -52,9 +52,12 @@ public class PeerMessage {
 
             case INTERESTED:
                  System.out.println("we are in interested");
-                 buffer = ByteBuffer.allocate(5);
-                 buffer.put((byte) 1).putInt(2);
-                 //buffer.flip();
+                 /*buffer = ByteBuffer.allocate(5);
+                 buffer.put((byte) 1).putInt(2);*/
+                buffer = ByteBuffer.allocate(5);
+                buffer.putInt(1);
+                buffer.put((byte) 2);
+
                 break;
 
             case NOTINTERESTED:

@@ -53,16 +53,26 @@ public class Main {
 
 			peerConnectionHandler.initLeecher(torrentMetaData);
 
+			/*var interested = new Message(PeerMessage.MsgType.INTERESTED);
+			peerConnectionHandler.sendMessage(interested);*/
+			int size_bitfield = (int) Math.ceil( torrentMetaData.getNumberOfPieces() / 8 ) + 1;
 
+			byte[] btfld = new byte[size_bitfield];
+			for (int i = 0; i < size_bitfield; i++)
+				btfld[i] = 0;
 			//var bitfield = new Message(PeerMessage.MsgType.BITFIELD, PeerConnectionHandler.clientBitfield);
+			//var bitfield = new Message(PeerMessage.MsgType.BITFIELD, btfld);
 			//peerConnectionHandler.sendMessage(bitfield);
 
-			//var unchoke =  new Message(PeerMessage.MsgType.UNCHOKE);
-			//peerConnectionHandler.sendMessage(unchoke);
-
-			//Thread.sleep(5000);
 			var interested = new Message(PeerMessage.MsgType.INTERESTED);
 			peerConnectionHandler.sendMessage(interested);
+
+
+			var unchoke =  new Message(PeerMessage.MsgType.UNCHOKE);
+			peerConnectionHandler.sendMessage(unchoke);
+
+			//Thread.sleep(5000);
+
 
 			/*var rcvd = peerConnectionHandler.receiveMessage();
 			System.out.println("recieved : " + rcvd.ID);
@@ -70,12 +80,14 @@ public class Main {
 			var rcvd2 = peerConnectionHandler.receiveMessage();
 			System.out.println("recieved : " + rcvd2.ID);*/
 
-			var request =  new Message(PeerMessage.MsgType.REQUEST, 0, 0, torrentMetaData.getPiece_length());
+			var request =  new Message(PeerMessage.MsgType.REQUEST, 1, 1, torrentMetaData.getPiece_length()/2);
 			peerConnectionHandler.sendMessage(request);
 
-			var unchoke =  new Message(PeerMessage.MsgType.UNCHOKE);
-			peerConnectionHandler.sendMessage(unchoke);
+			//var choke =  new Message(PeerMessage.MsgType.CHOKE);
+			//peerConnectionHandler.sendMessage(choke);
 
+			//var notInter = new Message(PeerMessage.MsgType.NOTINTERESTED);
+			//peerConnectionHandler.sendMessage(notInter);
 			/*ByteBuffer buf = ByteBuffer.allocate(8); // two 4-byte integers
 			buf.put((byte) 1).putInt( 2);
 			buf.rewind();
