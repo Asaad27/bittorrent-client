@@ -38,7 +38,7 @@ public class Main {
 			// TODO : check URL protocol, only use TCP
 			URL announceURL = new URL(torrentMetaData.getAnnounceUrlString());
 
-			LocalFileHandler localFile = new LocalFileHandler(torrentMetaData.getName(), torrentMetaData.getNumberOfPieces(), torrentMetaData.getPiece_length());
+			LocalFileHandler localFile = new LocalFileHandler(torrentMetaData.getName(), torrentMetaData.getNumberOfPieces(), torrentMetaData.getPiece_length(), torrentMetaData.getPieces());
 			
 
 			

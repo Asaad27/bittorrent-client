@@ -176,7 +176,7 @@ public class TorrentFileHandler {
 
 		byte[] bytes = baos.toByteArray();
 
-		return bytes;
+		return md.digest(bytes);
 	}
 
 

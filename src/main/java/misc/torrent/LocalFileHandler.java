@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.BitSet;
 
 public class LocalFileHandler {
@@ -15,30 +17,43 @@ public class LocalFileHandler {
 	private int pieceSize;
 	private int totalPieces;
 	private boolean lock = Boolean.FALSE;
+	private String piecesSHA1;
 	
-	public LocalFileHandler(String filename, int pieceSize, int pieceNb) {
+	public LocalFileHandler(String filename, int pieceSize, int pieceNb, String piecesSHA1) {
 		
 		this.filename = filename;
 		this.localFile = new File(filename);
 		this.pieceSize = pieceSize;
 		this.totalPieces = pieceNb;
 		this.bitfield = initBitfield(); 
+		this.piecesSHA1 = piecesSHA1;
 		
 		try {
 			this.fileAccess = new RandomAccessFile(localFile, "rw");
-		} catch (FileNotFoundException e) { e.printStackTrace(); }
+			fileAccess.setLength(pieceNb * pieceSize);
+		} catch (IOException e) { e.printStackTrace(); }
 		
 	}
 	
 	public BitSet initBitfield() {
 		BitSet bf = new BitSet(totalPieces);
 		bf.clear();
+		
 		try {
 			if(!localFile.createNewFile()) {
-				// TODO : remplir le bitset de 1 en examinant le fichier local
+				for(int i = 0; i < totalPieces ; i++) {
+					
+					byte[] tab = new byte[pieceSize];
+					fileAccess.readFully(tab);
+					
+					try {
+						byte[] pieceSHA1 = MessageDigest.getInstance("SHA-1").digest(tab);
+						System.out.println(pieceSHA1.toString());
+					} catch (NoSuchAlgorithmException e) { e.printStackTrace(); } 
+					
+				}
 			}
 		} catch(IOException e) { e.printStackTrace(); }
-		
 		
 		return bf;
 	}
