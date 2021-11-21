@@ -9,6 +9,7 @@ import misc.utils.Utils;
 
 import java.io.FileInputStream;
 import java.net.URL;
+import java.util.Queue;
 
 public class Main {
 
@@ -22,7 +23,7 @@ public class Main {
 
 		String PEERID = TrackerHandler.genPeerId();
 		// On initialise le TorrentFileHandler à partir du fichier Torrent d'entrée
-
+		PeerConnectionHandler peerConnectionHandler = null;
 		
 		try {
 			
@@ -41,7 +42,7 @@ public class Main {
 			//System.out.println("looking for peers");
 			//List<PeerInfo> peerLst = tracker.getPeerLst();
 			//System.out.println("peerlist received");
-			PeerConnectionHandler peerConnectionHandler = new PeerConnectionHandler(PORT, SERVER);
+			peerConnectionHandler = new PeerConnectionHandler(PORT, SERVER);
 
 			peerConnectionHandler.initLeecher(torrentMetaData);
 
@@ -66,11 +67,12 @@ public class Main {
 			int numOfBlocks =(torrentMetaData.getPieceLength() + blockSize - 1) / blockSize ;
 			int pieceSize = torrentMetaData.getPieceLength();
 			int lastPieceSize = (torrentMetaData.getLength() % pieceSize == 0) ?  pieceSize : (int) (torrentMetaData.getLength() % pieceSize);
+			//TODO : traiter le cas ou la taille de la piece n'est pas divisible par la taille du block
+			//TODO : gerer le bitfield
 
-			for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++)
-			{
-				/*if (i%5 == 0)
-					Thread.sleep(5000);*/
+			for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
+
+
 				if (i == torrentMetaData.getNumberOfPieces()-1)
 				{
 
@@ -91,6 +93,7 @@ public class Main {
 					{
 						Message request =  new Message(PeerMessage.MsgType.REQUEST, i, lpoffset , remainingBlockSize);
 						peerConnectionHandler.sendMessage(request);
+						System.out.println("request number : " + i);
 					}
 
 				}
@@ -99,7 +102,13 @@ public class Main {
 					int offset = 0, countBlocks = 0;
 					while (offset < pieceSize)
 					{
-						//TODO ; last block size <-> blocksize
+						while (PeerConnectionHandler.requestedMsgs.get() >= 5)
+						{
+							//System.out.println("waiting to free requests");
+						}
+
+						PeerConnectionHandler.requestedMsgs.incrementAndGet();
+
 						Message request =  new Message(PeerMessage.MsgType.REQUEST, i, offset , blockSize);
 						peerConnectionHandler.sendMessage(request);
 						countBlocks++;
@@ -118,9 +127,9 @@ public class Main {
 			e.printStackTrace();
 			
 		}
-		
-		
-		
+
+
+
 
 	}
 

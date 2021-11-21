@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PeerConnectionHandler {
 
@@ -26,10 +28,30 @@ public class PeerConnectionHandler {
     public int offset = 4;
     public static final int CHUNK_SIZE = 16384;
 
+    public static AtomicInteger requestedMsgs = new AtomicInteger(0);
+
     private List<String> recievedPieces = new ArrayList<>();
     //request msg <len=0013><id=6><Piece_index><Chunk_offset><Chunk_length>
 
-    public PeerConnectionHandler() {
+
+
+    public  void endConnexion() {
+
+        try {
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            sendMessage(new Message(PeerMessage.MsgType.NOTINTERESTED));
+            sendMessage(new Message(PeerMessage.MsgType.CHOKE));
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     /** initialize file and leecher bitfield  **/
@@ -43,10 +65,12 @@ public class PeerConnectionHandler {
         }
 
         try {
-            file = new RandomAccessFile("C:\\Users\\asaad_6stn3w\\IdeaProjects\\equipe5new\\src\\main\\java" + torrentMetaData.getName(), "rw");
+            file = new RandomAccessFile("C:\\Users\\asaad_6stn3w\\IdeaProjects\\equipe5new\\src\\main\\" + torrentMetaData.getName(), "rw");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+
 
     }
 
@@ -97,11 +121,11 @@ public class PeerConnectionHandler {
         //lit et reponds aux messages du seeder
         Thread messageReader = new Thread(() -> {
             while (true) {
-                try {
+               /* try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
+                }*/
                 Message receivedMessage = receiveMessage();
 
                 if (receivedMessage.ID == PeerMessage.MsgType.KEEPALIVE) {
@@ -141,6 +165,7 @@ public class PeerConnectionHandler {
                 else if (receivedMessage.ID == PeerMessage.MsgType.PIECE){
                     System.out.println("piece received**** index : " + receivedMessage.index + " begin : "+receivedMessage.getBegin() + " size : " + receivedMessage.getPayload().length);
 
+                    requestedMsgs.decrementAndGet();
                     if (!hasPiece(receivedMessage.index)) {
                         try {
                             file.seek(((long) receivedMessage.getIndex()*pieceSize + receivedMessage.getBegin()));
@@ -149,8 +174,7 @@ public class PeerConnectionHandler {
                             e.printStackTrace();
                         }
                     }
-                    setPiece(receivedMessage.index);
-
+                    //setPiece(receivedMessage.index);
 
                 }
             }
