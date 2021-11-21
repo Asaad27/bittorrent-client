@@ -1,6 +1,5 @@
 package misc.torrent;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -13,14 +12,22 @@ public class TorrentMetaData {
     private String comment;
     private String announceUrlString;
 
-    private int piece_length;
+    private int pieceLength;
     private int numberOfPieces;
     private String pieces;
     private String SHA1Info;
     private byte[] SHA1InfoByte;
     private Date creationDate;
     private String createdBy;
+    private List<String> piecesList;
 
+    public List<String> getPiecesList() {
+        return piecesList;
+    }
+
+    public void setPiecesList(List<String> piecesList) {
+        this.piecesList = piecesList;
+    }
 
     public String getSHA1Info() {
         return SHA1Info;
@@ -62,12 +69,12 @@ public class TorrentMetaData {
         this.length = length;
     }
 
-    public int getPiece_length() {
-        return piece_length;
+    public int getPieceLength() {
+        return pieceLength;
     }
 
-    public void setPiece_length(int piece_length) {
-        this.piece_length = piece_length;
+    public void setPieceLength(int pieceLength) {
+        this.pieceLength = pieceLength;
     }
 
     public int getNumberOfPieces() {
@@ -113,7 +120,7 @@ public class TorrentMetaData {
     @Override
     public String toString() {
         return "name :  " + getName() + "\ncreationDate : " + getCreationDate() + "\ncreatedBy : " + getCreatedBy() + "\ncomment : " + getComment()
-                + "\nannounce URl : " + getAnnounceUrlString() + "\nlength : " + getLength() + "\nSSH info : " + getSHA1Info() +"\nPiece length : " + getPiece_length() +
+                + "\nannounce URl : " + getAnnounceUrlString() + "\nlength : " + getLength() + "\nSSH info : " + getSHA1Info() +"\nPiece length : " + getPieceLength() +
                 "\nnumber of pieces : " + getNumberOfPieces() + "\n" ;
     }
 }

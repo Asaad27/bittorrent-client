@@ -6,8 +6,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.security.MessageDigest;
 import be.adaxisoft.bencode.*;
-import jdk.jshell.execution.Util;
+
 import misc.utils.Utils;
+
 
 
 public class TorrentFileHandler {
@@ -33,28 +34,32 @@ public class TorrentFileHandler {
 		} catch (InvalidBEncodingException e) {
 
 			System.out.println("BEncodage du fichier torrent invalide");
+			System.err.println("error : " + e.getMessage());
+			return null;
 
 		} catch (IOException e) {
 
 			System.out.println("Fichier d'entrée invalide lors du décodage du fichier Torrent");
+			System.err.println(e.getMessage());
+			return null;
 
 		}
 
-		var torrentMetaData = new TorrentMetaData();
-
-		torrentMetaData.setAnnounceUrlString(getAnnounceURL());
-		torrentMetaData.setName(getFilename());
-		torrentMetaData.setComment(getComment());
-		torrentMetaData.setSHA1Info(getSHA1Info());
-		torrentMetaData.setSHA1InfoByte(getSHA1InfoBytes());
-		torrentMetaData.setLength(getLength());
-		torrentMetaData.setCreatedBy(getCreatedBy());
-		torrentMetaData.setCreationDate(getCreationDate());
-		torrentMetaData.setPiece_length(getPiece_length());
-		torrentMetaData.setPieces(getPieces());
-		torrentMetaData.setNumberOfPieces((int) (getLength() / getPiece_length()));
+		TorrentMetaData torrentMetaData = new TorrentMetaData();
 
 
+			torrentMetaData.setAnnounceUrlString(getAnnounceURL());
+			torrentMetaData.setName(getFilename());
+			torrentMetaData.setComment(getComment());
+			torrentMetaData.setSHA1Info(getSHA1Info());
+			torrentMetaData.setSHA1InfoByte(getSHA1InfoBytes());
+			torrentMetaData.setLength(getLength());
+			torrentMetaData.setCreatedBy(getCreatedBy());
+			torrentMetaData.setCreationDate(getCreationDate());
+			torrentMetaData.setPieceLength(getPieceLength());
+			torrentMetaData.setPieces(getPieces());
+			torrentMetaData.setNumberOfPieces(((int) ((torrentMetaData.getLength() + getPieceLength() - 1 ) / getPieceLength())));
+			torrentMetaData.setPiecesList(getPiecesList());
 
 
 		return torrentMetaData;
@@ -98,8 +103,8 @@ public class TorrentFileHandler {
 
 
 	private String getAnnounceURL() throws InvalidBEncodingException {
-		if (!document.containsKey("info")) {
-			System.err.println("The info field does not exists");
+		if (!document.containsKey("announce")) {
+			System.err.println("The announce field does not exists");
 			return null;
 		}
 		return this.document.get("announce").getString();
@@ -128,10 +133,22 @@ public class TorrentFileHandler {
 			return null;
 		}
 
-		return getFileInfo().get("pieces").getString();
+		return Utils.bytesToHex(getFileInfo().get("pieces").getBytes());
 	}
 
-	private int getPiece_length() throws  InvalidBEncodingException{
+	private List<String> getPiecesList() throws InvalidBEncodingException {
+
+		String result = getPieces();
+		assert result != null;
+		int numberOfPieces = result.length();
+		List<String> piecesList = new ArrayList<>();
+		for (int i = 0; i < numberOfPieces; i += 40)
+			piecesList.add(result.substring(i, i+40));
+
+		return piecesList;
+	}
+
+	private int getPieceLength() throws  InvalidBEncodingException{
 		if (!Objects.requireNonNull(getFileInfo()).containsKey("piece length")) {
 			System.err.println("The piece length field does not exists");
 			return -1;
