@@ -1,8 +1,12 @@
 package misc.peers;
 
-import java.awt.*;
+
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
+
+/**
+ * Class to handle messages sent and received from peer
+ * @author Asaad
+ */
 
 public class PeerMessage {
 
@@ -28,6 +32,12 @@ public class PeerMessage {
     }
 
     // <length prefix><message ID><payload>
+
+    /**
+     * @param msg message to pack
+     * @return unpacked message in byte array reader to be sent
+     */
+
     public static byte[] serialize(Message msg)
     {
         ByteBuffer buffer = null;
@@ -117,7 +127,10 @@ public class PeerMessage {
         return buffer.array();
     }
 
-
+    /**
+     * @param msg message to unpack
+     * @return Unpacked message
+     */
     public static Message deserialize(byte[] msg){
         ByteBuffer buffer = ByteBuffer.wrap(msg);
 

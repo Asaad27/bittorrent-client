@@ -10,6 +10,10 @@ import be.adaxisoft.bencode.*;
 import misc.utils.Utils;
 
 
+/**
+ * Class to read and parse torrent metadata from .torrent file
+ * @author Asaad
+ */
 
 public class TorrentFileHandler {
 
@@ -26,6 +30,9 @@ public class TorrentFileHandler {
 
 	}
 
+	/**
+	 * Decode torrent file and create a TorrentMetaData object containing all meta informations
+	 */
 	public  TorrentMetaData ParseTorrent() throws IOException, NoSuchAlgorithmException {
 		try {
 

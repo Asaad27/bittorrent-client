@@ -7,6 +7,12 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 
+
+/**
+ * Class to handle hanshake
+ * @author Asaad
+ */
+
 public class HandShake implements Serializable {
 
     private final static String pstr = "BitTorrent protocol";
@@ -36,7 +42,10 @@ public class HandShake implements Serializable {
     }
 
 
-
+    /**
+     * create a handshake message
+     * @return handshake message in byte array
+     */
     public byte[] createHandshakeMsg(){
         ByteBuffer msg = ByteBuffer.allocate(HandshakeLength);
 
@@ -53,6 +62,11 @@ public class HandShake implements Serializable {
         return msg.array();
     }
 
+    /**
+     * read recieved handshake
+     * @param in input stream
+     *
+     * */
     public static HandShake readHandshake(InputStream in) {
         if (in == null)
             System.err.println("error, null socket");
@@ -91,6 +105,12 @@ public class HandShake implements Serializable {
 
     }
 
+    /**
+     * compare two handshakes to check if the connection is valid
+     * @param hand1 : sent handshake
+     * @param hand2 : received handshake
+
+     */
     public static boolean compareHandshakes(HandShake hand1, HandShake hand2){
         System.out.println(hand1);
         System.out.println(hand2);

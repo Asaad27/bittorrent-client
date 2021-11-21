@@ -3,7 +3,9 @@ package misc.torrent;
 import java.util.Date;
 import java.util.List;
 
-/** torrent metadata model **/
+/** torrent metadata model
+ * @author Asaad
+ * */
 
 public class TorrentMetaData {
 

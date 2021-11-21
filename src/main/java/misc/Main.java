@@ -1,6 +1,6 @@
 package misc;
 import misc.peers.Message;
-import misc.peers.PeerConnectionHandler;
+import misc.peers.PeerDownloadHandler;
 import misc.peers.PeerMessage;
 import misc.torrent.TorrentFileHandler;
 import misc.torrent.TorrentMetaData;
@@ -9,12 +9,13 @@ import misc.utils.Utils;
 
 import java.io.FileInputStream;
 import java.net.URL;
-import java.util.Queue;
 
 public class Main {
 
 	public static void main(String[] args) {
-		
+
+		//CAS LEECHER 100%
+
 		// Port d'écoute Bittorent
 		int PORT = 59407;
 
@@ -23,7 +24,7 @@ public class Main {
 
 		String PEERID = TrackerHandler.genPeerId();
 		// On initialise le TorrentFileHandler à partir du fichier Torrent d'entrée
-		PeerConnectionHandler peerConnectionHandler = null;
+		PeerDownloadHandler peerDownloadHandler = null;
 		
 		try {
 			
@@ -42,27 +43,25 @@ public class Main {
 			//System.out.println("looking for peers");
 			//List<PeerInfo> peerLst = tracker.getPeerLst();
 			//System.out.println("peerlist received");
-			peerConnectionHandler = new PeerConnectionHandler(PORT, SERVER);
+			peerDownloadHandler = new PeerDownloadHandler(PORT, SERVER);
 
-			peerConnectionHandler.initLeecher(torrentMetaData);
+			peerDownloadHandler.initLeecher(torrentMetaData);
 
-			peerConnectionHandler.doHandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(PEERID));
+			peerDownloadHandler.doHandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(PEERID));
 
 
-			Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, PeerConnectionHandler.clientBitfield);
-			//var bitfield = new Message(PeerMessage.MsgType.BITFIELD, btfld);
-			peerConnectionHandler.sendMessage(bitfield);
+			Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, PeerDownloadHandler.clientBitfield);
+			peerDownloadHandler.sendMessage(bitfield);
 
 			Message interested = new Message(PeerMessage.MsgType.INTERESTED);
-			peerConnectionHandler.sendMessage(interested);
-
+			peerDownloadHandler.sendMessage(interested);
 
 			Message unchoke =  new Message(PeerMessage.MsgType.UNCHOKE);
-			peerConnectionHandler.sendMessage(unchoke);
+			peerDownloadHandler.sendMessage(unchoke);
 
 			/* divide the current piece into blocks */
 			// if it's the last piece compute it's size
-			int blockSize = PeerConnectionHandler.CHUNK_SIZE;
+			int blockSize = PeerDownloadHandler.CHUNK_SIZE;
 			int lastBlockSize = (torrentMetaData.getPieceLength() % blockSize != 0) ? torrentMetaData.getPieceLength()%blockSize : blockSize;
 			int numOfBlocks =(torrentMetaData.getPieceLength() + blockSize - 1) / blockSize ;
 			int pieceSize = torrentMetaData.getPieceLength();
@@ -83,7 +82,7 @@ public class Main {
 					int remainingBlockSize = lastPieceSize%blockSize;
 					for (int j = 0; j < numOfLastPieceBlocks; j++) {
 						Message request =  new Message(PeerMessage.MsgType.REQUEST, i, lpoffset , blockSize);
-						peerConnectionHandler.sendMessage(request);
+						peerDownloadHandler.sendMessage(request);
 						lpoffset += blockSize;
 						lpcountBlocks++;
 
@@ -92,7 +91,7 @@ public class Main {
 					if (remainingBlockSize != 0)
 					{
 						Message request =  new Message(PeerMessage.MsgType.REQUEST, i, lpoffset , remainingBlockSize);
-						peerConnectionHandler.sendMessage(request);
+						peerDownloadHandler.sendMessage(request);
 						System.out.println("request number : " + i);
 					}
 
@@ -102,15 +101,15 @@ public class Main {
 					int offset = 0, countBlocks = 0;
 					while (offset < pieceSize)
 					{
-						while (PeerConnectionHandler.requestedMsgs.get() >= 5)
+						while (PeerDownloadHandler.requestedMsgs.get() >= 5)
 						{
 							//System.out.println("waiting to free requests");
 						}
 
-						PeerConnectionHandler.requestedMsgs.incrementAndGet();
+						PeerDownloadHandler.requestedMsgs.incrementAndGet();
 
 						Message request =  new Message(PeerMessage.MsgType.REQUEST, i, offset , blockSize);
-						peerConnectionHandler.sendMessage(request);
+						peerDownloadHandler.sendMessage(request);
 						countBlocks++;
 						offset += (countBlocks == numOfBlocks )? lastBlockSize : blockSize;
 					}

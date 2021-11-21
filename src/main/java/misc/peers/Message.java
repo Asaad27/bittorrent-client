@@ -1,5 +1,10 @@
 package misc.peers;
 
+/**
+ * Model class for Messages
+ * @author Asaad
+ */
+
 public class Message {
     public PeerMessage.MsgType ID;
     byte[] payload;
@@ -8,8 +13,6 @@ public class Message {
     int length;
     int blockSize;
 
-    public Message() {
-    }
 
     public Message(PeerMessage.MsgType ID) {
         this.ID = ID;
