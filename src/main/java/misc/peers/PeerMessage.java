@@ -5,49 +5,25 @@ import java.nio.ByteBuffer;
 
 /**
  * Class to handle messages sent and received from peer
+ *
  * @author Asaad
  */
 
 public class PeerMessage {
-
-    public enum MsgType{
-        CHOKE,
-        UNCHOKE,
-        INTERESTED,
-        NOTINTERESTED,
-        HAVE,
-        BITFIELD,
-        REQUEST,
-        PIECE,
-        CANCEL,
-        PORT,
-        KEEPALIVE;
-        private static final MsgType[] values = MsgType.values();
-        public static MsgType getById(int id){
-            return values[id];
-        }
-        public int getID(){
-            return ordinal();
-        }
-    }
-
-    // <length prefix><message ID><payload>
 
     /**
      * @param msg message to pack
      * @return unpacked message in byte array reader to be sent
      */
 
-    public static byte[] serialize(Message msg)
-    {
+    public static byte[] serialize(Message msg) {
         ByteBuffer buffer = null;
         MsgType msgType = msg.ID;
 
         if (msgType == MsgType.KEEPALIVE)
             return new byte[4];
 
-        switch (msgType)
-        {
+        switch (msgType) {
             case CHOKE:
                 buffer = ByteBuffer.allocate(5);
                 buffer.putInt(1);
@@ -61,7 +37,7 @@ public class PeerMessage {
                 break;
 
             case INTERESTED:
-                 System.out.println("we are in interested");
+                System.out.println("we are in interested");
                  /*buffer = ByteBuffer.allocate(5);
                  buffer.put((byte) 1).putInt(2);*/
                 buffer = ByteBuffer.allocate(5);
@@ -77,23 +53,23 @@ public class PeerMessage {
                 break;
 
             case HAVE:
-                buffer = ByteBuffer.allocate(11);
+                buffer = ByteBuffer.allocate(9);
                 buffer.putInt(5);
-                buffer.put((byte)4);
+                buffer.put((byte) 4);
                 buffer.putInt(msg.index);
                 break;
 
             case BITFIELD:
                 buffer = ByteBuffer.allocate(5 + msg.payload.length);
                 buffer.putInt(1 + msg.payload.length);
-                buffer.put((byte)5);
+                buffer.put((byte) 5);
                 buffer.put(msg.payload, 0, msg.payload.length);
                 break;
 
             case PIECE:
                 buffer = ByteBuffer.allocate(13 + msg.payload.length);
                 buffer.putInt(9 + msg.payload.length);
-                buffer.put((byte)7);
+                buffer.put((byte) 7);
                 buffer.putInt(msg.index);
                 buffer.putInt(msg.begin);
                 buffer.put(msg.payload, 0, msg.payload.length);
@@ -102,7 +78,7 @@ public class PeerMessage {
             case REQUEST:
                 buffer = ByteBuffer.allocate(17);
                 buffer.putInt(13);
-                buffer.put((byte)6);
+                buffer.put((byte) 6);
                 buffer.putInt(msg.index);
                 buffer.putInt(msg.begin);
                 buffer.putInt(msg.length);
@@ -111,7 +87,7 @@ public class PeerMessage {
             case CANCEL:
                 buffer = ByteBuffer.allocate(13);
                 buffer.putInt(13);
-                buffer.put((byte)8);
+                buffer.put((byte) 8);
                 buffer.putInt(msg.index);
                 buffer.putInt(msg.begin);
                 buffer.putInt(msg.blockSize);
@@ -123,51 +99,51 @@ public class PeerMessage {
         }
 
 
-
         return buffer.array();
     }
+
+    // <length prefix><message ID><payload>
 
     /**
      * @param msg message to unpack
      * @return Unpacked message
      */
-    public static Message deserialize(byte[] msg){
+    public static Message deserialize(byte[] msg) {
         ByteBuffer buffer = ByteBuffer.wrap(msg);
 
         int len = buffer.getInt();
         if (len == 0)
-            return  new Message(MsgType.KEEPALIVE);
+            return new Message(MsgType.KEEPALIVE);
         byte id = buffer.get();
         if (len == 1)
             return new Message(MsgType.getById(id));
         //Have
-        if (id == 4){
+        if (id == 4) {
             return new Message(MsgType.HAVE, buffer.getInt());
         }
         //bitfield
-        if (id == 5){
-            byte[] bitfield = new byte[len-1];
-            buffer.get(bitfield, 0, len-1);
+        if (id == 5) {
+            byte[] bitfield = new byte[len - 1];
+            buffer.get(bitfield, 0, len - 1);
             return new Message(MsgType.BITFIELD, bitfield);
         }
         //request
-        if (id == 6){
+        if (id == 6) {
             return new Message(MsgType.REQUEST, buffer.getInt(), buffer.getInt(), buffer.getInt());
         }
         //piece
-        if (id == 7){
+        if (id == 7) {
             int index = buffer.getInt();
             int begin = buffer.getInt();
-            byte[] payload = new byte[len-9];
+            byte[] payload = new byte[len - 9];
 
-            buffer.get(payload, 0, len-9);
+            buffer.get(payload, 0, len - 9);
             return new Message(MsgType.PIECE, index, begin, payload);
         }
 
         //Cancel
 
-        if (id == 8)
-        {
+        if (id == 8) {
             return new Message(MsgType.CANCEL, buffer.getInt(), buffer.getInt(), buffer.getInt());
         }
 
@@ -175,6 +151,29 @@ public class PeerMessage {
         System.err.println("no matching id");
         return null;
 
+    }
+
+    public enum MsgType {
+        CHOKE,
+        UNCHOKE,
+        INTERESTED,
+        NOTINTERESTED,
+        HAVE,
+        BITFIELD,
+        REQUEST,
+        PIECE,
+        CANCEL,
+        PORT,
+        KEEPALIVE;
+        private static final MsgType[] values = MsgType.values();
+
+        public static MsgType getById(int id) {
+            return values[id];
+        }
+
+        public int getID() {
+            return ordinal();
+        }
     }
 
 

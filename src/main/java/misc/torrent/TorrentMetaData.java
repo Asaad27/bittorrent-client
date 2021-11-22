@@ -3,9 +3,11 @@ package misc.torrent;
 import java.util.Date;
 import java.util.List;
 
-/** torrent metadata model
+/**
+ * torrent metadata model
+ *
  * @author Asaad
- * */
+ */
 
 public class TorrentMetaData {
 
@@ -99,12 +101,12 @@ public class TorrentMetaData {
         return creationDate;
     }
 
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
     }
 
     public void setCreatedBy(String createdBy) {
@@ -122,7 +124,7 @@ public class TorrentMetaData {
     @Override
     public String toString() {
         return "name :  " + getName() + "\ncreationDate : " + getCreationDate() + "\ncreatedBy : " + getCreatedBy() + "\ncomment : " + getComment()
-                + "\nannounce URl : " + getAnnounceUrlString() + "\nlength : " + getLength() + "\nSSH info : " + getSHA1Info() +"\nPiece length : " + getPieceLength() +
-                "\nnumber of pieces : " + getNumberOfPieces() + "\n" ;
+                + "\nannounce URl : " + getAnnounceUrlString() + "\nlength : " + getLength() + "\nSSH info : " + getSHA1Info() + "\nPiece length : " + getPieceLength() +
+                "\nnumber of pieces : " + getNumberOfPieces() + "\n";
     }
 }
