@@ -82,10 +82,10 @@ public class Main {
 
                     int lpoffset = 0, lpcountBlocks = 0;
                     //nombre de block de 16KIB
-                    int numOfLastPieceBlocks = lastPieceSize / blockSize;
+                    int numOfLastPieceBlocks = (lastPieceSize + blockSize -1) / blockSize;
                     //le reste
                     int remainingBlockSize = lastPieceSize % blockSize;
-                    for (int j = 0; j < numOfLastPieceBlocks; j++) {
+                    for (int j = 0; j < numOfLastPieceBlocks-1; j++) {
                         Message request = new Message(PeerMessage.MsgType.REQUEST, i, lpoffset, blockSize);
                         peerDownloadHandler.sendMessage(request);
                         lpoffset += blockSize;
@@ -127,9 +127,9 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        //leecher(args);
+        leecher(args);
 
-        int PORT = 59407;
+        /*int PORT = 59407;
         String SERVER = "127.0.0.1";
         String PEERID = "2D7142343334312D395356716A36505139722D48";
         PeerDownloadHandler peerDownloadHandler = null;
@@ -144,9 +144,9 @@ public class Main {
             //LocalFileHandler localFile = new LocalFileHandler(torrentMetaData.getName(), torrentMetaData.getNumberOfPieces(), torrentMetaData.getPieceLength(), torrentMetaData.getPieces());
             //TrackerHandler tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1InfoByte(), PORT);
 
-           /* System.out.println("looking for peers");
+           *//* System.out.println("looking for peers");
             List<PeerInfo> peerLst = tracker.getPeerLst();
-            System.out.println("peerlist received");*/
+            System.out.println("peerlist received");*//*
 
             peerDownloadHandler = new PeerDownloadHandler(PORT, SERVER);
             peerDownloadHandler.initSeeder(torrentMetaData, "C:\\Users\\asaad_6stn3w\\IdeaProjects\\equipe5new\\src\\main\\javaouma.txt");
@@ -176,6 +176,7 @@ public class Main {
             e.printStackTrace();
         }
 
+        */
     }
 
 }
