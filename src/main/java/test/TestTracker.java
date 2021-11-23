@@ -6,35 +6,13 @@ import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 
 import misc.utils.Utils;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import misc.torrent.TorrentFileHandler;
 import misc.torrent.TorrentMetaData;
 import misc.tracker.TrackerHandler;
 
 public class TestTracker {
-
-	/*
-	@Test
-	public void testGenPeerId() {
-		
-		TrackerHandler tracker = new TrackerHandler(null, null, null, 0);
-		String peerId = tracker.genPeerId();
-		System.out.println(peerId);
-		
-	}
-	
-	@Test
-	public void testGenQueryUri() throws NoSuchAlgorithmException, IOException {
-		
-		TorrentFileHandler torrentHandler = new TorrentFileHandler(new FileInputStream("src/main/resources/torrents/hello_world.txt.torrent"));
-		TorrentMetaData torrentMetaData = torrentHandler.ParseTorrent();
-		
-		TrackerHandler tracker = new TrackerHandler(new URL(torrentMetaData.getAnnounceUrlString()),torrentMetaData.getSHA1Info(), null, 6969);
-		String queryURI = tracker.buildQueryURI();
-		System.out.println(queryURI);
-	}
-	*/
 	
 	@Test
 	public void testTracker() throws NoSuchAlgorithmException, IOException {
