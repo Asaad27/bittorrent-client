@@ -1,4 +1,4 @@
-package misc.peers;
+package misc.messages;
 
 /**
  * Model class for Messages

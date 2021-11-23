@@ -1,5 +1,7 @@
-package misc.peers;
+package misc.messages;
 
+
+import misc.messages.Message;
 
 import java.nio.ByteBuffer;
 

@@ -1,5 +1,7 @@
 package misc.peers;
 
+import misc.messages.Message;
+import misc.messages.PeerMessage;
 import misc.torrent.TorrentMetaData;
 import misc.tracker.TrackerHandler;
 import misc.utils.Utils;
@@ -37,6 +39,7 @@ public class PeerDownloadHandler {
     private InputStream in;
     private OutputStream out;
     private boolean isSeeder = false;
+    private boolean isChoked = true;
 
     PeerState peerState;
 
@@ -171,9 +174,16 @@ public class PeerDownloadHandler {
             } else if (receivedMessage.ID == PeerMessage.MsgType.CHOKE) {
                 System.out.println("CHOKE RECEIVED");
                 peerState.choked = false;
+                isChoked = true;
             } else if (receivedMessage.ID == PeerMessage.MsgType.UNCHOKE) {
                 System.out.println("UCHOKE RECEIVED");
                 peerState.choked = false;
+                isChoked = false;
+                try {
+                    sendMessage(new Message(PeerMessage.MsgType.UNCHOKE));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } else if (receivedMessage.ID == PeerMessage.MsgType.INTERESTED) {
                 System.out.println("INTERESTED RECEIVED");
                 peerState.interested = true;
@@ -208,7 +218,7 @@ public class PeerDownloadHandler {
                     file.read(ans);
                     Message piece = new Message(PeerMessage.MsgType.PIECE, receivedMessage.getIndex(), receivedMessage.getBegin(), ans);
                     sendMessage(piece);
-
+                    peerState.setPiece(receivedMessage.getIndex());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -219,18 +229,18 @@ public class PeerDownloadHandler {
                // System.out.println("****piece received**** index : " + receivedMessage.index + " begin : " + receivedMessage.getBegin() + " size : " + receivedMessage.getPayload().length);
                 requestedMsgs.decrementAndGet();
                 downloadedSize += receivedMessage.getPayload().length;
-                if (!hasPiece(receivedMessage.index)) {
+                if (!hasPiece(receivedMessage.getIndex())) {
                     try {
                         file.seek(((long) receivedMessage.getIndex() * pieceSize + receivedMessage.getBegin()));
                         file.write(receivedMessage.getPayload());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    pieceDownloadedBlocks.putIfAbsent(receivedMessage.index, new AtomicInteger(0));
-                    int downloadedBlocks = pieceDownloadedBlocks.get(receivedMessage.index).incrementAndGet();
+                    pieceDownloadedBlocks.putIfAbsent(receivedMessage.getIndex(), new AtomicInteger(0));
+                    int downloadedBlocks = pieceDownloadedBlocks.get(receivedMessage.getIndex()).incrementAndGet();
                     DecimalFormat df = new DecimalFormat();
                     df.setMaximumFractionDigits(2);
-                    if (receivedMessage.index == numPieces-1)
+                    if (receivedMessage.getIndex() == numPieces-1)
                     {
                         if (downloadedBlocks == numOfLastPieceBlocks)
                         {
@@ -250,7 +260,7 @@ public class PeerDownloadHandler {
                         {
                             System.out.println("PIECE DOWNLOADED : " + receivedMessage.getIndex() + "\t" + df.format(downloadedSize*1.0/torrentMetaData.getLength()*100) + "% downloaded");
                             setPiece(receivedMessage.getIndex());
-                            Message have = new Message(PeerMessage.MsgType.HAVE, receivedMessage.index);
+                            Message have = new Message(PeerMessage.MsgType.HAVE, receivedMessage.getIndex());
                             try {
                                 sendMessage(have);
                             } catch (IOException e) {
@@ -410,7 +420,10 @@ public class PeerDownloadHandler {
             Message unchoke = new Message(PeerMessage.MsgType.UNCHOKE);
             sendMessage(unchoke);
 
-
+            while (isChoked)
+            {
+                System.out.println("we are choked");
+            }
             //TODO : traiter le cas ou la taille de la piece n'est pas divisible par la taille du block
             for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
                 if (hasPiece(i))
