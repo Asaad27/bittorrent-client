@@ -37,55 +37,58 @@ public class LocalFileHandler {
 			fileAccess.setLength(pieceNb * pieceSize);
 		} catch (IOException e) { e.printStackTrace(); }
 		
-		this.bitfield = initBitfield(); 
+		this.bitfield = new BitSet(totalPieces);
+		initBitfield(); 
 		
 	}
 	
-	public BitSet initBitfield() {
-		BitSet bf = new BitSet(totalPieces);
-		bf.clear();
+	public void initBitfield() {
 		
 		try {
 			if(!localFile.createNewFile()) {
 				for(int i = 0; i < totalPieces ; i++) {
 					
-					int size = pieceSize;
-					
-					if(i == totalPieces - 1) {	
-						size = (int) ((fileLength % pieceSize == 0) ? pieceSize : fileLength % pieceSize);
-					}
-					
-					byte[] tab = new byte[size];
-					
-					// System.out.println("Piece Number " + (i + 1) + " :");
-					fileAccess.seek(i * pieceSize);
-					fileAccess.read(tab);
-					
-					try {
-						MessageDigest md = MessageDigest.getInstance("SHA-1");
-						md.update(tab);
-						byte[] pieceSHA1 = md.digest();
-						String expectedStr = piecesSHA1.substring(i * 40, Math.min((i + 1) * 40, piecesSHA1.length()));
-						byte[] expectedSHA1 = Utils.hexStringToByteArray(expectedStr);
-						
-						/*
-						System.out.println("Expected SHA1 : " + Utils.bytesToHex(expectedSHA1) + " / length : " + expectedSHA1.length);
-						System.out.println("Computed SHA1 : " + Utils.bytesToHex(pieceSHA1) + " / length : " + pieceSHA1.length);
-						*/
-						
-						if(Arrays.equals(pieceSHA1, expectedSHA1)) {
-							bf.set(i, true);
-						} else {
-							bf.set(i, false);
-						}
-						
-					} catch (NoSuchAlgorithmException e) { e.printStackTrace(); } 
+					setPieceStatus(i, verifyPieceSHA1(i));
 					
 				}
 			}
 		} catch(IOException e) { e.printStackTrace(); }
 		
-		return bf;
+	}
+	
+	public boolean verifyPieceSHA1(int pieceNb) {
+		
+		int size = pieceSize;
+		
+		if(pieceNb == totalPieces - 1) {	
+			size = (int) ((fileLength % pieceSize == 0) ? pieceSize : fileLength % pieceSize);
+		}
+		
+		try {
+			byte[] tab = new byte[size];
+			
+			// System.out.println("Piece Number " + (i + 1) + " :");
+			fileAccess.seek(pieceNb * pieceSize);
+			fileAccess.read(tab);
+			
+			MessageDigest md = MessageDigest.getInstance("SHA-1");
+			md.update(tab);
+			byte[] pieceSHA1 = md.digest();
+			String expectedStr = piecesSHA1.substring(pieceNb * 40, Math.min((pieceNb + 1) * 40, piecesSHA1.length()));
+			byte[] expectedSHA1 = Utils.hexStringToByteArray(expectedStr);
+			
+			/*
+			System.out.println("Expected SHA1 : " + Utils.bytesToHex(expectedSHA1) + " / length : " + expectedSHA1.length);
+			System.out.println("Computed SHA1 : " + Utils.bytesToHex(pieceSHA1) + " / length : " + pieceSHA1.length);
+			*/
+			
+			boolean b = Arrays.equals(pieceSHA1, expectedSHA1);
+			
+			return b;
+			
+		} catch (NoSuchAlgorithmException | IOException e) { e.printStackTrace(); return false;} 
+		
+		
 	}
 	
 	public void setPieceStatus(int pieceNb, boolean value) {
