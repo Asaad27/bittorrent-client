@@ -33,13 +33,13 @@ public class Main {
             torrentHandler = new TorrentFileHandler(new FileInputStream(args[0]));
             torrentMetaData = torrentHandler.ParseTorrent();
             peerDownloadHandler = new PeerDownloadHandler(PORT, SERVER, torrentMetaData);
-
             peerDownloadHandler.downloadTorrent();
-
 
         } catch (IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+
+
 
 /*
 
