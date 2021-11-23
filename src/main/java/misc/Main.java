@@ -12,13 +12,8 @@ import misc.utils.Utils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.net.URL;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
-import static misc.peers.PeerDownloadHandler.CHUNK_SIZE;
-import static misc.peers.PeerDownloadHandler.file;
 
 public class Main {
 

@@ -123,7 +123,7 @@ public class HandShake implements Serializable {
     @Override
     public String toString() {
         return "pstrbyte: " + Utils.bytesToHex(pstrbyte) + " \n" + "reserved : " + Utils.bytesToHex(reserved) + "\n"
-                + " SHA1INFO: " + Utils.bytesToHex(SHA1Info) + " \n" + "peerID : " + Utils.bytesToHex(peerId) + "\n";
+                + "SHA1INFO: " + Utils.bytesToHex(SHA1Info) + " \n" + "peerID : " + Utils.bytesToHex(peerId) + "\n";
     }
 
     public String getPstr() {

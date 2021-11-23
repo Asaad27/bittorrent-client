@@ -22,9 +22,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class PeerDownloadHandler {
 
-    public static final int CHUNK_SIZE = 16384;
-    public static byte[] clientBitfield = null;
-    public static RandomAccessFile file = null;
+    public final int CHUNK_SIZE = 16384;
+    public byte[] clientBitfield = null;
+    public RandomAccessFile file = null;
     //variable used to keep number of requested messages up to 5, because some bittorrent clients choke the leecher when he sends more than 5 before getting answered
     public static AtomicInteger requestedMsgs = new AtomicInteger(0);
     private final AtomicBoolean isDownloading = new AtomicBoolean(true);
@@ -37,6 +37,8 @@ public class PeerDownloadHandler {
     private InputStream in;
     private OutputStream out;
     private boolean isSeeder = false;
+
+    PeerState peerState;
 
 
     /* divide the current piece into blocks */
@@ -65,6 +67,7 @@ public class PeerDownloadHandler {
 
         initPiecesAndBlocks();
         connect();
+        peerState = new PeerState();
     }
 
     /**
@@ -94,11 +97,9 @@ public class PeerDownloadHandler {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        if (!isSeeder)
-        {
-            System.out.println("bitfield : ");
-            System.out.println(Utils.bytesToHex(clientBitfield));
-        }
+        System.out.println("bitfield : ");
+        System.out.println(Utils.bytesToHex((isSeeder) ? peerState.peerBitfield :clientBitfield ));
+
 
     }
 
@@ -169,16 +170,20 @@ public class PeerDownloadHandler {
                 }
             } else if (receivedMessage.ID == PeerMessage.MsgType.CHOKE) {
                 System.out.println("CHOKE RECEIVED");
+                peerState.choked = false;
             } else if (receivedMessage.ID == PeerMessage.MsgType.UNCHOKE) {
                 System.out.println("UCHOKE RECEIVED");
-
+                peerState.choked = false;
             } else if (receivedMessage.ID == PeerMessage.MsgType.INTERESTED) {
                 System.out.println("INTERESTED RECEIVED");
+                peerState.interested = true;
             } else if (receivedMessage.ID == PeerMessage.MsgType.NOTINTERESTED) {
                 System.out.println("NOTINTERESTED RECEIVED");
+                peerState.interested = false;
                 endConnexion();
             } else if (receivedMessage.ID == PeerMessage.MsgType.HAVE) {
                 System.out.println("HAVE RECEIVED");
+                peerState.setPiece(receivedMessage.getIndex());
                 if (!hasPiece(receivedMessage.getIndex())) {
                     Message interested = new Message(PeerMessage.MsgType.INTERESTED);
                     try {
@@ -190,8 +195,8 @@ public class PeerDownloadHandler {
 
             } else if (receivedMessage.ID == PeerMessage.MsgType.BITFIELD) {
                 System.out.println("bitfield received");
+                peerState.peerBitfield = receivedMessage.getPayload();
             } else if (receivedMessage.ID == PeerMessage.MsgType.REQUEST){
-                //TODO : implement it
                 System.out.println("request received");
                 System.out.println("index : " + receivedMessage.getIndex() + " begin : " + receivedMessage.getBegin() + " size : " + receivedMessage.getLength());
                 //we find the requested piece in the file
@@ -396,7 +401,7 @@ public class PeerDownloadHandler {
             doHandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(PEERID));
 
 
-            Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, PeerDownloadHandler.clientBitfield);
+            Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, clientBitfield);
             sendMessage(bitfield);
 
             Message interested = new Message(PeerMessage.MsgType.INTERESTED);
@@ -457,7 +462,7 @@ public class PeerDownloadHandler {
         initSeeder(path);
 
         doHandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(PEERID));
-        Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, PeerDownloadHandler.clientBitfield);
+        Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, clientBitfield);
         try {
             sendMessage(bitfield);
             Message unchoke = new Message(PeerMessage.MsgType.UNCHOKE);
