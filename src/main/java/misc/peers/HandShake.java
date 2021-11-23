@@ -85,6 +85,7 @@ public class HandShake implements Serializable {
 
     }
 
+    
     /**
      * compare two handshakes to check if the connection is valid
      *
