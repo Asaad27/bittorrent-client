@@ -36,6 +36,7 @@ public class PeerDownloadHandler {
     private String server = "127.0.0.1";
     private InputStream in;
     private OutputStream out;
+    private boolean isSeeder = false;
 
 
     /* divide the current piece into blocks */
@@ -52,7 +53,7 @@ public class PeerDownloadHandler {
 
     private int downloadedSize = 0;
 
-    private ConcurrentMap<Integer, AtomicInteger> pieceDownloadedBlocks = new ConcurrentHashMap<Integer, AtomicInteger>();
+    private final ConcurrentMap<Integer, AtomicInteger> pieceDownloadedBlocks = new ConcurrentHashMap<>();
 
     /**
      * connection et ouverture du socket
@@ -82,9 +83,7 @@ public class PeerDownloadHandler {
      */
     public void endConnexion() {
 
-        System.out.println("DOWNLOAD FINISHED");
-
-
+        System.out.println((isSeeder ) ? "Upload Finished" : "Download FINISHED");
         try {
             sendMessage(new Message(PeerMessage.MsgType.NOTINTERESTED));
             Thread.sleep(3000);
@@ -95,9 +94,11 @@ public class PeerDownloadHandler {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-
-        System.out.println("bitfield : ");
-        System.out.println(Utils.bytesToHex(clientBitfield));
+        if (!isSeeder)
+        {
+            System.out.println("bitfield : ");
+            System.out.println(Utils.bytesToHex(clientBitfield));
+        }
 
     }
 
@@ -120,8 +121,7 @@ public class PeerDownloadHandler {
     /**
      * initialize file and leecher bitfield
      */
-    //TODO : case of non 100% leecher, aka read from file an create bitfield
-    public void initLeecher(TorrentMetaData torrentMetaData) {
+    public void initLeecher() {
         int bfldSize = (numPieces+7)/ 8 ;
         clientBitfield = new byte[bfldSize];
         for (int i = 0; i < bfldSize; ++i) {
@@ -136,17 +136,16 @@ public class PeerDownloadHandler {
 
     /**
      * initialize file and seeder bitfield
-     * @param torrentMetaData
      * @param path path of the file described in the metadata
      */
-    private void initSeeder(TorrentMetaData torrentMetaData, String path){
+    private void initSeeder(String path){
+        isSeeder = true;
         pieceSize = torrentMetaData.getPieceLength();
         numPieces = torrentMetaData.getNumberOfPieces();
         int bfldSize = (numPieces + 7) / 8 ;
         clientBitfield = new byte[bfldSize];
-        for (int i = 0; i < bfldSize; ++i) {
-            clientBitfield[i] = 1;
-        }
+        for (int i = 0; i < numPieces; i++)
+            setPiece(i);
         try {
             file = new RandomAccessFile(path, "r");
         } catch (FileNotFoundException e) {
@@ -177,6 +176,7 @@ public class PeerDownloadHandler {
                 System.out.println("INTERESTED RECEIVED");
             } else if (receivedMessage.ID == PeerMessage.MsgType.NOTINTERESTED) {
                 System.out.println("NOTINTERESTED RECEIVED");
+                endConnexion();
             } else if (receivedMessage.ID == PeerMessage.MsgType.HAVE) {
                 System.out.println("HAVE RECEIVED");
                 if (!hasPiece(receivedMessage.getIndex())) {
@@ -190,6 +190,26 @@ public class PeerDownloadHandler {
 
             } else if (receivedMessage.ID == PeerMessage.MsgType.BITFIELD) {
                 System.out.println("bitfield received");
+            } else if (receivedMessage.ID == PeerMessage.MsgType.REQUEST){
+                //TODO : implement it
+                System.out.println("request received");
+                System.out.println("index : " + receivedMessage.getIndex() + " begin : " + receivedMessage.getBegin() + " size : " + receivedMessage.getLength());
+                //we find the requested piece in the file
+
+                int size = receivedMessage.getLength();
+                byte[] ans = new byte[size];
+                try {
+                    file.seek((long) (receivedMessage.getIndex()) * pieceSize + receivedMessage.getBegin());
+                    file.read(ans);
+                    Message piece = new Message(PeerMessage.MsgType.PIECE, receivedMessage.getIndex(), receivedMessage.getBegin(), ans);
+                    sendMessage(piece);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+
             } else if (receivedMessage.ID == PeerMessage.MsgType.PIECE) {
                // System.out.println("****piece received**** index : " + receivedMessage.index + " begin : " + receivedMessage.getBegin() + " size : " + receivedMessage.getPayload().length);
                 requestedMsgs.decrementAndGet();
@@ -353,8 +373,6 @@ public class PeerDownloadHandler {
      */
     public void downloadTorrent() {
 
-
-
         // Port d'écoute Bittorent
         int PORT = peerClientPort;
         String SERVER = server;
@@ -373,7 +391,7 @@ public class PeerDownloadHandler {
             //List<PeerInfo> peerLst = tracker.getPeerLst();
             //System.out.println("peerlist received");
 
-            initLeecher(torrentMetaData);
+            initLeecher();
 
             doHandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(PEERID));
 
@@ -427,6 +445,24 @@ public class PeerDownloadHandler {
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void seedTorrent(String path){
+        int PORT = peerClientPort;
+        String SERVER = server;
+        String PEERID = TrackerHandler.genPeerId();
+
+        initSeeder(path);
+
+        doHandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(PEERID));
+        Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, PeerDownloadHandler.clientBitfield);
+        try {
+            sendMessage(bitfield);
+            Message unchoke = new Message(PeerMessage.MsgType.UNCHOKE);
+            sendMessage(unchoke);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
