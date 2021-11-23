@@ -47,7 +47,44 @@ public class HandShake implements Serializable {
      *
      * @param in input stream
      */
-    
+    public static HandShake readHandshake(InputStream in) {
+        if (in == null)
+            System.err.println("error, null socket");
+
+        byte[] receivedMsg = new byte[HandshakeLength];
+        try {
+            int byteRead = 0;
+            while (byteRead < HandshakeLength) {
+                assert in != null;
+                byteRead += in.read(receivedMsg, byteRead, HandshakeLength - byteRead);
+            }
+
+        } catch (IOException e) {
+            System.err.println("error reading received handshake");
+        }
+
+
+        ByteBuffer buffer = ByteBuffer.wrap(receivedMsg);
+
+        byte[] tmp = new byte[1];
+        buffer.get(tmp);
+        byte[] pstrbyte = new byte[pstrlen];
+        buffer.get(pstrbyte);
+
+
+        byte[] reserved = new byte[8];
+        buffer.get(reserved);
+
+        byte[] SHA1Info = new byte[20];
+        buffer.get(SHA1Info);
+
+        byte[] peerId = new byte[20];
+        buffer.get(peerId);
+
+        return new HandShake(SHA1Info, peerId, reserved, pstrbyte);
+
+    }
+
     
     /**
      * compare two handshakes to check if the connection is valid
