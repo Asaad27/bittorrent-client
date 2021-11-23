@@ -10,6 +10,8 @@ import java.io.*;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -103,8 +105,49 @@ public class PeerDownloadHandler {
         System.out.println("bitfield : ");
         System.out.println(Utils.bytesToHex((isSeeder) ? (peerState.peerBitfield == null ? new byte[0] : peerState.peerBitfield ) :clientBitfield ));
 
+        if (!isSeeder)
+            verifyDownloadedFile();
+
     }
 
+    /**
+     * method to verify that all the pieces of the downloaded file are correct
+     * @return boolean value describing the result of the verification
+     */
+    public boolean verifyDownloadedFile(){
+
+        for (int i = 0; i < numPieces; i++)
+        {
+            byte[] piece;
+            if (i == numPieces-1)
+                piece = new byte[lastPieceSize];
+            else
+                piece = new byte[pieceSize];
+            try {
+                file.seek((long) i * pieceSize);
+                file.read(piece);
+
+                MessageDigest digest=MessageDigest.getInstance("SHA-1");
+                digest.update(piece);
+                byte[] sha = digest.digest();
+                String originalHash = torrentMetaData.getPiecesList().get(i);
+                String downloadedHash = Utils.bytesToHex(sha);
+                if (!downloadedHash.equals(originalHash))
+                {
+                    System.err.println("piece id : " + i + "\noriginal hash : " + originalHash + "\ndownloaded hash : " + downloadedHash);
+                    return false;
+                }
+
+            } catch (IOException | NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
+        System.out.println("FILE CHECK : SUCCESS");
+        return true;
+    }
     /**
     * pre-compute sizes of pieces, and blocks per pieces
      */

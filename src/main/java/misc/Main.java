@@ -13,13 +13,16 @@ public class Main {
 
     public enum PORTCLIENT {
         VUZE(12314),
-        QBITTORRENT(59407)
+        QBITTORRENT(59407),
+        DELUGE(53244),
+        UTORRENT(33580)
         ;
 
         public final int port;
         PORTCLIENT(int port) {
             this.port = port;
         }
+
     }
 
     public static void main(String[] args) {
@@ -28,9 +31,9 @@ public class Main {
         //int PORT = 59407;
         //vuze
         //int PORT = 12314;
-        int PORT = PORTCLIENT.VUZE.port;
+        int PORT = PORTCLIENT.UTORRENT.port;
         String SERVER = "127.0.0.1";
-        String filePath = "";  //path of the file to seed
+        String filePath = "C:\\Users\\asaad_6stn3w\\IdeaProjects\\equipe5new\\src\\main\\2. SOLID Principles of OOP.mp4";  //path of the file to seed
         PeerDownloadHandler peerDownloadHandler = null;
         TorrentFileHandler torrentHandler = null;
         TorrentMetaData torrentMetaData = null;
@@ -39,9 +42,10 @@ public class Main {
             torrentMetaData = torrentHandler.ParseTorrent();
             System.out.println(torrentMetaData);
             peerDownloadHandler = new PeerDownloadHandler(PORT, SERVER, torrentMetaData);
-            peerDownloadHandler.downloadTorrent();
+            //peerDownloadHandler.downloadTorrent();
 
             //peerDownloadHandler.seedTorrent(filePath);
+
 
         } catch (IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
