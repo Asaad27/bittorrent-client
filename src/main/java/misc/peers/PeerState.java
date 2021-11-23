@@ -15,6 +15,7 @@ public class PeerState{
     }
 
     public boolean hasPiece(int index) {
+
         int byteIndex = index / 8;
         int offset = index % 8;
 
@@ -25,6 +26,10 @@ public class PeerState{
      * set a bit for the bitfield
      */
     public void setPiece(int index) {
+        if (peerBitfield == null) {
+            //in case we did not receive the peer bitfield
+            return;
+        }
         int byteIndex = index / 8;
         int offset = index % 8;
         peerBitfield[byteIndex] |= 1 << (7 - offset);

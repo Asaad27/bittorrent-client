@@ -101,8 +101,7 @@ public class PeerDownloadHandler {
             e.printStackTrace();
         }
         System.out.println("bitfield : ");
-        System.out.println(Utils.bytesToHex((isSeeder) ? peerState.peerBitfield :clientBitfield ));
-
+        System.out.println(Utils.bytesToHex((isSeeder) ? (peerState.peerBitfield == null ? new byte[0] : peerState.peerBitfield ) :clientBitfield ));
 
     }
 
@@ -219,9 +218,13 @@ public class PeerDownloadHandler {
                     Message piece = new Message(PeerMessage.MsgType.PIECE, receivedMessage.getIndex(), receivedMessage.getBegin(), ans);
                     sendMessage(piece);
                     peerState.setPiece(receivedMessage.getIndex());
+                    downloadedSize += size;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+                if (downloadedSize == torrentMetaData.getLength())
+                    endConnexion();
 
 
 
