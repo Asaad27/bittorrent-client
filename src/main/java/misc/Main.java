@@ -22,118 +22,26 @@ import static misc.peers.PeerDownloadHandler.file;
 
 public class Main {
 
-    public static void leecher(String[] args) {
+    public static void main(String[] args) {
 
-        //CAS LEECHER 100%
-
-        // Port d'écoute Bittorent
         int PORT = 59407;
         String SERVER = "127.0.0.1";
-
-        String PEERID = TrackerHandler.genPeerId();
-        // On initialise le TorrentFileHandler à partir du fichier Torrent d'entrée
         PeerDownloadHandler peerDownloadHandler = null;
-
+        TorrentFileHandler torrentHandler = null;
+        TorrentMetaData torrentMetaData = null;
         try {
+            torrentHandler = new TorrentFileHandler(new FileInputStream(args[0]));
+            torrentMetaData = torrentHandler.ParseTorrent();
+            peerDownloadHandler = new PeerDownloadHandler(PORT, SERVER, torrentMetaData);
 
-            TorrentFileHandler torrentHandler = new TorrentFileHandler(new FileInputStream(args[0]));
-            TorrentMetaData torrentMetaData = torrentHandler.ParseTorrent();
-
-            System.out.println(torrentMetaData.toString());
-            URL announceURL = new URL(torrentMetaData.getAnnounceUrlString());
-
-            //LocalFileHandler localFile = new LocalFileHandler(torrentMetaData.getName(), torrentMetaData.getNumberOfPieces(), torrentMetaData.getPiece_length(), torrentMetaData.getPieces());
-
-            //TrackerHandler tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1InfoByte(), localFile, PORT);
-
-            //System.out.println("looking for peers");
-            //List<PeerInfo> peerLst = tracker.getPeerLst();
-            //System.out.println("peerlist received");
-            peerDownloadHandler = new PeerDownloadHandler(PORT, SERVER);
-
-            peerDownloadHandler.initLeecher(torrentMetaData);
-
-            peerDownloadHandler.doHandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(PEERID));
+            peerDownloadHandler.downloadTorrent();
 
 
-            Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, PeerDownloadHandler.clientBitfield);
-            peerDownloadHandler.sendMessage(bitfield);
-
-            Message interested = new Message(PeerMessage.MsgType.INTERESTED);
-            peerDownloadHandler.sendMessage(interested);
-
-            Message unchoke = new Message(PeerMessage.MsgType.UNCHOKE);
-            peerDownloadHandler.sendMessage(unchoke);
-
-            /* divide the current piece into blocks */
-            // if it's the last piece compute it's size
-            int blockSize = CHUNK_SIZE;
-            int lastBlockSize = (torrentMetaData.getPieceLength() % blockSize != 0) ? torrentMetaData.getPieceLength() % blockSize : blockSize;
-            int numOfBlocks = (torrentMetaData.getPieceLength() + blockSize - 1) / blockSize;
-            int pieceSize = torrentMetaData.getPieceLength();
-            int lastPieceSize = (torrentMetaData.getLength() % pieceSize == 0) ? pieceSize : (int) (torrentMetaData.getLength() % pieceSize);
-            //TODO : traiter le cas ou la taille de la piece n'est pas divisible par la taille du block
-            //TODO : gerer le bitfield
-
-            for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
-
-
-                if (i == torrentMetaData.getNumberOfPieces() - 1) {
-
-                    int lpoffset = 0, lpcountBlocks = 0;
-                    //nombre de block de 16KIB
-                    int numOfLastPieceBlocks = (lastPieceSize + blockSize -1) / blockSize;
-                    //le reste
-                    int remainingBlockSize = lastPieceSize % blockSize;
-                    for (int j = 0; j < numOfLastPieceBlocks-1; j++) {
-                        Message request = new Message(PeerMessage.MsgType.REQUEST, i, lpoffset, blockSize);
-                        peerDownloadHandler.sendMessage(request);
-                        lpoffset += blockSize;
-                        lpcountBlocks++;
-
-                    }
-                    //we send the last block
-                    if (remainingBlockSize != 0) {
-                        Message request = new Message(PeerMessage.MsgType.REQUEST, i, lpoffset, remainingBlockSize);
-                        peerDownloadHandler.sendMessage(request);
-                        System.out.println("request number : " + i);
-                    }
-
-                } else {
-                    int offset = 0, countBlocks = 0;
-                    while (offset < pieceSize) {
-                        while (PeerDownloadHandler.requestedMsgs.get() >= 5) {
-                            //System.out.println("waiting to free requests");
-                        }
-
-                        PeerDownloadHandler.requestedMsgs.incrementAndGet();
-
-                        Message request = new Message(PeerMessage.MsgType.REQUEST, i, offset, blockSize);
-                        peerDownloadHandler.sendMessage(request);
-                        countBlocks++;
-                        offset += (countBlocks == numOfBlocks) ? lastBlockSize : blockSize;
-                    }
-                }
-
-            }
-            //var notInter = new Message(PeerMessage.MsgType.NOTINTERESTED);
-            //peerConnectionHandler.sendMessage(notInter);
-
-        } catch (Exception e) {
-
+        } catch (IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
-
         }
-    }
 
-    public static void main(String[] args) {
-        leecher(args);
-
-        /*int PORT = 59407;
-        String SERVER = "127.0.0.1";
-        String PEERID = "2D7142343334312D395356716A36505139722D48";
-        PeerDownloadHandler peerDownloadHandler = null;
-
+/*
 
         try {
             TorrentFileHandler torrentHandler = new TorrentFileHandler(new FileInputStream(args[0]));
@@ -144,7 +52,7 @@ public class Main {
             //LocalFileHandler localFile = new LocalFileHandler(torrentMetaData.getName(), torrentMetaData.getNumberOfPieces(), torrentMetaData.getPieceLength(), torrentMetaData.getPieces());
             //TrackerHandler tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1InfoByte(), PORT);
 
-           *//* System.out.println("looking for peers");
+            /*System.out.println("looking for peers");
             List<PeerInfo> peerLst = tracker.getPeerLst();
             System.out.println("peerlist received");*//*
 
@@ -175,8 +83,9 @@ public class Main {
         } catch (IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+       */
 
-        */
     }
+
 
 }
