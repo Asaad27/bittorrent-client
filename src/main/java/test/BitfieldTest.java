@@ -13,7 +13,7 @@ import misc.utils.Utils;
 
 public class BitfieldTest {
 	@Test
-	public void bitfieldGen() throws IOException, NoSuchAlgorithmException {
+	public void localBitfield() throws IOException, NoSuchAlgorithmException {
 		TorrentFileHandler torrent = new TorrentFileHandler(new FileInputStream("src/main/resources/torrents/lorem.txt.torrent"));
 		TorrentMetaData metaData = torrent.ParseTorrent();
 		
@@ -24,7 +24,7 @@ public class BitfieldTest {
 		
 		String CURR_DIR = "/home/cheylusp/Documents/Bittorent/equipe5/src/main/resources/torrents/";
 		LocalFileHandler localFile = new LocalFileHandler(CURR_DIR + metaData.getName(),metaData.getPieceLength(), metaData.getNumberOfPieces(), metaData.getLength(), metaData.getPieces());
-		System.out.println(localFile.bitfieldStr());
+		System.out.println(localFile.getBitfield());
 	}
 
 }

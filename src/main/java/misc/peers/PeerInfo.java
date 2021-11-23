@@ -1,18 +1,21 @@
 package misc.peers;
 
 import java.net.InetAddress;
+import java.util.BitSet;
+
+import misc.torrent.Bitfield;
 
 public class PeerInfo {
 
     private final InetAddress addr;
     private final int port;
-    private byte[] bitfield;
+    private Bitfield bitfield;
     private PeerState peerState;
 
-    public PeerInfo(InetAddress addr, int port) {
+    public PeerInfo(InetAddress addr, int port, int totalPieces) {
         this.addr = addr;
         this.port = port;
-        this.bitfield = new byte[]{0};
+        this.bitfield = new Bitfield(totalPieces);
     }
 
     public InetAddress getAddr() {
@@ -23,12 +26,16 @@ public class PeerInfo {
         return port;
     }
 
-    public byte[] getBitfield() {
-        return bitfield;
+    public BitSet getBitfield() {
+        return bitfield.getValue();
     }
-
+    
     public void setBitfield(byte[] bitfield) {
-        this.bitfield = bitfield;
+    	this.bitfield.setValue(bitfield);
+    }
+    
+    public void setBitfieldByPiece(int pieceNb, boolean value) {
+    	this.bitfield.set(pieceNb, value);
     }
 
     @Override

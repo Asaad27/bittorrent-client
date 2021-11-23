@@ -26,12 +26,14 @@ public class TrackerHandler {
 	private URL announceURL;
 	private byte[] SHA1Info;
 	private int port;
+	private int totalPieces;
 	
-	public TrackerHandler(URL announceURL, byte[] SHA1Info, int port) {
+	public TrackerHandler(URL announceURL, byte[] SHA1Info, int port, int totalPieces) {
 		
 		this.announceURL = announceURL;
 		this.SHA1Info = SHA1Info;
 		this.port = port;
+		this.totalPieces = totalPieces;
 		this.PEER_ID = genPeerId();
 	}
 	
@@ -129,11 +131,13 @@ public class TrackerHandler {
 					ByteBuffer wrapped = ByteBuffer.wrap(port_byte);
 					int port = wrapped.getShort();
 					
+					/*
 					System.out.println("Peer Info n°" + i);
 					System.out.println("Addresse IPv4 : " + addr.toString());
 					System.out.println("Port : " + port);
+					*/
 					
-					PeerInfo peer = new PeerInfo(addr,port);
+					PeerInfo peer = new PeerInfo(addr,port, totalPieces);
 					lst.add(peer);
 					
 				} catch (UnknownHostException e) {

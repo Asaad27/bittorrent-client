@@ -16,7 +16,7 @@ public class LocalFileHandler {
 	private String filename;
 	private File localFile;
 	private RandomAccessFile fileAccess;
-	private BitSet bitfield;
+	private Bitfield bitfield;
 	private int pieceSize;
 	private int totalPieces;
 	private double fileLength;
@@ -34,10 +34,10 @@ public class LocalFileHandler {
 		
 		try {
 			this.fileAccess = new RandomAccessFile(localFile, "rw");
-			fileAccess.setLength(pieceNb * pieceSize);
+			fileAccess.setLength((int) length);
 		} catch (IOException e) { e.printStackTrace(); }
 		
-		this.bitfield = new BitSet(totalPieces);
+		this.bitfield = new Bitfield(totalPieces);
 		initBitfield(); 
 		
 	}
@@ -82,9 +82,7 @@ public class LocalFileHandler {
 			System.out.println("Computed SHA1 : " + Utils.bytesToHex(pieceSHA1) + " / length : " + pieceSHA1.length);
 			*/
 			
-			boolean b = Arrays.equals(pieceSHA1, expectedSHA1);
-			
-			return b;
+			return Arrays.equals(pieceSHA1, expectedSHA1);
 			
 		} catch (NoSuchAlgorithmException | IOException e) { e.printStackTrace(); return false;} 
 		
@@ -95,8 +93,8 @@ public class LocalFileHandler {
 		this.bitfield.set(pieceNb, value);
 	}
 	
-	public byte[] getBitfield() {
-		return this.bitfield.toByteArray();
+	public Bitfield getBitfield() {
+		return this.bitfield;
 	}
 	
 	public void writePieceBlock(int pieceNb, int offset, byte[] data) {
@@ -131,23 +129,6 @@ public class LocalFileHandler {
 		}
 	}
 	
-	public String bitfieldStr() {
-		String s = new String("{");
-		for(int i = 0; i < totalPieces; i++) {
-			String val = new String();
-			if(bitfield.get(i)) {
-				val = "1";
-			} else {
-				val = "0";
-			}
-			s = s.concat(val);
-			if(i != totalPieces - 1) {
-				s = s.concat(", ");
-			}
-		}
-		
-		s = s.concat("}");
-		return s;
-	}
+	
 	
 }
