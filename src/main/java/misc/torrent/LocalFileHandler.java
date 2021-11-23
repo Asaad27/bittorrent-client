@@ -129,6 +129,10 @@ public class LocalFileHandler {
 		}
 	}
 	
-	
+	public void close() {
+		try {
+			fileAccess.close();
+		} catch (IOException e){ e.printStackTrace(); }
+	}
 	
 }
