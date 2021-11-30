@@ -22,8 +22,16 @@ public class TorrentContext {
 		strat.download(peers, status, totalPieces);
 	}
 	
-	public void setStrategy(IDownloadStrat strat) {
-		this.strat = strat;
+	private void chooseStrategy() {
+		
+		// TODO : Choisir la stratégie à appliquer en fonction du contexte 
+		/* RAREST FIRST : Début
+		 * RANDOM : Tous les peers ont les pièces manquantes
+		 * ENGAME : Toutes les pièces sont Requested
+		 */
+		
+		this.strat = RarestFirst.instance();
+		
 	}
 
 }

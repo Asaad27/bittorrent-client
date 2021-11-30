@@ -6,6 +6,8 @@ import java.util.List;
 import misc.peers.PeerInfo;
 
 public class RarestFirst extends DownloadStrat {
+	
+	private static RarestFirst instance;
 
 	@Override
 	public void download(List<PeerInfo> peers, TorrentStatus status, int totalPieces) {
@@ -15,6 +17,13 @@ public class RarestFirst extends DownloadStrat {
 		
 		//TODO : le Download
 		
+	}
+	
+	public static RarestFirst instance() {
+		if (instance == null) {
+			instance = new RarestFirst();
+		}
+		return instance;
 	}
 
 	public int rarestPiece(List<PeerInfo> peers, TorrentStatus status, int totalPieces) {
@@ -38,7 +47,7 @@ public class RarestFirst extends DownloadStrat {
 		
 		int min = 0;
 		for(int i = 0;  i < totalPieces; i++) {
-			if((pieceCount[i] < pieceCount[min]) && (status.getStatus().get(i) == PieceStatus.ToBeDownloaded)) {
+			if((pieceCount[i] < pieceCount[min]) && (status.getStatus().get(i) == PieceStatus.ToBeDownloaded) && (pieceCount[i] > 0)) {
 				min = i;
 			}
 		}
