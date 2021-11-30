@@ -32,7 +32,7 @@ public class Bitfield {
 	}
 	
 	public void setValue(byte[] bitfield) {
-		// TODO : Remplir value avec une array
+		this.value = BitSet.valueOf(bitfield);
 	}
 	
 	public byte[] toByteArray() {

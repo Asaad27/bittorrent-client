@@ -84,7 +84,10 @@ public class LocalFileHandler {
 			
 			return Arrays.equals(pieceSHA1, expectedSHA1);
 			
-		} catch (NoSuchAlgorithmException | IOException e) { e.printStackTrace(); return false;} 
+		} catch (NoSuchAlgorithmException | IOException e) { 
+			e.printStackTrace(); 
+			return false;
+		} 
 		
 		
 	}
