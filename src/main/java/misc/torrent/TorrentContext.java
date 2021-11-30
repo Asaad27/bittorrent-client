@@ -18,6 +18,10 @@ public class TorrentContext {
 		this.status = new TorrentStatus(totalPieces, localBf);
 	}
 	
+	public void setPeers(List<PeerInfo> peers) {
+		this.peers = peers;
+	}
+	
 	public void download() {
 		strat.download(peers, status, totalPieces);
 	}
