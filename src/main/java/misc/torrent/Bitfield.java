@@ -26,6 +26,39 @@ public class Bitfield {
 			throw new IndexOutOfBoundsException();
 		}
 	}
+	public BitSet getValue() {
+		return this.value;
+	}
+	
+	public void setValue(byte[] bitfield) {
+		this.value = BitSet.valueOf(bitfield);
+	}
+	
+	public byte[] toByteArray() {
+		return this.value.toByteArray();
+	}
+	
+	@Override
+	public String toString() {
+		
+		String s = new String("{");
+		
+		for(int i = 0; i < maxindex; i++) {
+			String val = new String();
+			if(value.get(i)) {
+				val = "1";
+			} else {
+				val = "0";
+			}
+			s = s.concat(val);
+			if(i != maxindex - 1) {
+				s = s.concat(", ");
+			}
+		}
+		s = s.concat("}");
+		
+		return s;
+	}
 	
 	
 	
