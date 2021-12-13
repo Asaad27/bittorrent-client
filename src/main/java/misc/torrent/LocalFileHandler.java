@@ -23,7 +23,38 @@ public class LocalFileHandler {
 	private boolean lock = Boolean.FALSE;
 	private String piecesSHA1;
 	
+	public LocalFileHandler(String filename, int pieceSize, int pieceNb, double length, String piecesSHA1) {
+		
+		this.filename = filename;
+		this.localFile = new File(filename);
+		this.pieceSize = pieceSize;
+		this.totalPieces = pieceNb;
+		this.piecesSHA1 = piecesSHA1;
+		this.fileLength = length;
+		
+		try {
+			this.fileAccess = new RandomAccessFile(localFile, "rw");
+			fileAccess.setLength((int) length);
+		} catch (IOException e) { e.printStackTrace(); }
+		
+		this.bitfield = new Bitfield(totalPieces);
+		initBitfield(); 
+		
+	}
 	
+	public void initBitfield() {
+		
+		try {
+			if(!localFile.createNewFile()) {
+				for(int i = 0; i < totalPieces ; i++) {
+					
+					setPieceStatus(i, verifyPieceSHA1(i));
+					
+				}
+			}
+		} catch(IOException e) { e.printStackTrace(); }
+		
+	}
 	
 	public boolean verifyPieceSHA1(int pieceNb) {
 		
