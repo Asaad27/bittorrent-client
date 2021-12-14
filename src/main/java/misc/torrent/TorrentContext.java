@@ -1,5 +1,4 @@
 package misc.torrent;
-import misc.peers.ClientState;
 import misc.peers.PeerInfo;
 import java.util.List;
 
@@ -30,8 +29,41 @@ public class TorrentContext {
 	}
 	
 	public void updatePeerState() {
+		chooseStrategy();
 		int piece = strat.updatePeerState(peers, status, totalPieces);
-		status.getStatus().set(piece, PieceStatus.Requested);
+		if(piece != -1) { // EndGame : -1
+			status.getStatus().set(piece, PieceStatus.Requested);
+		}
+	}
+	
+	public boolean allPeersHaveAllPieces() {
+		for(PeerInfo peer : peers) {
+			for(int i = 0; i < totalPieces; i++) {
+				if(!(peer.getPeerState().bitfield.hasPiece(i))) {
+					return false;
+				}
+			}
+			
+		}
+		return true;
+	}
+	
+	public boolean allPiecesAreRequested() {
+		for(PieceStatus pieceStat : status.getStatus()) {
+			if(pieceStat == PieceStatus.ToBeDownloaded) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public boolean allPiecesAreDownloaded() {
+		for(PieceStatus pieceStat : status.getStatus()) {
+			if((pieceStat != PieceStatus.Downloaded) && (pieceStat != PieceStatus.Verified)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	private void chooseStrategy() {
@@ -42,8 +74,19 @@ public class TorrentContext {
 		 * ENGAME : Toutes les pièces sont Requested
 		 */
 		
-		this.strat = RarestFirst.instance();
-		
+		if(allPiecesAreDownloaded()) {
+			// this.strat = Seeder.instance();
+		} else {
+			if(allPiecesAreRequested()) {
+				this.strat = EndGame.instance();
+			} else {
+				if(allPeersHaveAllPieces()) {
+					this.strat = RandomPiece.instance();
+				} else {
+					this.strat = RarestFirst.instance();
+				}
+			}
+		}
 	}
 
 }
