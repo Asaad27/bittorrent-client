@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 
 
 /**
@@ -40,8 +41,43 @@ public class HandShake implements Serializable {
         this.peerId = peerId;
         this.reserved = reserved;
         this.pstrbyte = pstrbyte;
+
+
     }
 
+    public static HandShake readHandshake(SocketChannel socketChannel){
+        byte[] receivedMsg = new byte[HandshakeLength];
+        ByteBuffer buffer = ByteBuffer.wrap(receivedMsg);
+        try {
+            int byteRead = 0;
+            while (byteRead < HandshakeLength) {
+                byteRead += socketChannel.read(buffer);
+            }
+
+        } catch (IOException e) {
+            System.err.println("error reading received handshake");
+        }
+        buffer.flip();
+
+        byte[] tmp = new byte[1];
+        buffer.get(tmp);
+        byte[] pstrbyte = new byte[pstrlen];
+        buffer.get(pstrbyte);
+
+
+        byte[] reserved = new byte[8];
+        buffer.get(reserved);
+
+        byte[] SHA1Info = new byte[20];
+        buffer.get(SHA1Info);
+
+        byte[] peerId = new byte[20];
+        buffer.get(peerId);
+
+        return new HandShake(SHA1Info, peerId, reserved, pstrbyte);
+
+
+    }
     /**
      * read recieved handshake
      *
@@ -85,7 +121,7 @@ public class HandShake implements Serializable {
 
     }
 
-    
+
     /**
      * compare two handshakes to check if the connection is valid
      *

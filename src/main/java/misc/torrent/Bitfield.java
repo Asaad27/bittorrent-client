@@ -26,7 +26,6 @@ public class Bitfield {
 			throw new IndexOutOfBoundsException();
 		}
 	}
-	
 	public BitSet getValue() {
 		return this.value;
 	}
@@ -60,6 +59,8 @@ public class Bitfield {
 		
 		return s;
 	}
+	
+	
 	
 	
 }

@@ -7,10 +7,18 @@ public class TorrentContext {
 	private List<PeerInfo> peers; 
 	private IDownloadStrat strat;
 	private int totalPieces;
-	private Bitfield localBf;
+	private ByteBitfield localBf;
 	private TorrentStatus status;
 	
-	public TorrentContext(List<PeerInfo> peers, Bitfield localBf, IDownloadStrat strat, int totalPieces) {
+	/*public TorrentContext(List<PeerInfo> peers, Bitfield localBf, IDownloadStrat strat, int totalPieces) {
+		this.peers = peers;			//TODO : bitfield
+		this.localBf = localBf;
+		this.strat = strat;
+		this.totalPieces = totalPieces;
+		this.status = new TorrentStatus(totalPieces, localBf);
+	}*/
+
+	public TorrentContext(List<PeerInfo> peers, ByteBitfield localBf, IDownloadStrat strat, int totalPieces) {
 		this.peers = peers;
 		this.localBf = localBf;
 		this.strat = strat;

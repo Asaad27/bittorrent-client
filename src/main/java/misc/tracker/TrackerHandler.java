@@ -21,7 +21,7 @@ import java.net.InetAddress;
 public class TrackerHandler {
 	
 	private static String PEER_ID_HEAD = "-PYA501-";
-	private String PEER_ID;
+	public static  String PEER_ID;
 	
 	private URL announceURL;
 	private byte[] SHA1Info;
@@ -131,11 +131,11 @@ public class TrackerHandler {
 					ByteBuffer wrapped = ByteBuffer.wrap(port_byte);
 					int port = wrapped.getShort();
 					
-					/*
-					System.out.println("Peer Info n°" + i);
+
+					/*System.out.println("Peer Info n°" + i);
 					System.out.println("Addresse IPv4 : " + addr.toString());
-					System.out.println("Port : " + port);
-					*/
+					System.out.println("Port : " + port);*/
+
 					
 					PeerInfo peer = new PeerInfo(addr,port, totalPieces);
 					lst.add(peer);
@@ -172,4 +172,6 @@ public class TrackerHandler {
 	
 		return peerId;
 	}
+
+
 }

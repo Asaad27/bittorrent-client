@@ -72,7 +72,7 @@ public class PeerDownloadHandler {
 
         initPiecesAndBlocks();
         connect();
-        peerState = new PeerState();
+        peerState = new PeerState(torrentMetaData.getNumberOfPieces());
     }
 
     /**
@@ -103,7 +103,7 @@ public class PeerDownloadHandler {
             e.printStackTrace();
         }
         System.out.println("bitfield : ");
-        System.out.println(Utils.bytesToHex((isSeeder) ? (peerState.peerBitfield == null ? new byte[0] : peerState.peerBitfield ) :clientBitfield ));
+        System.out.println(Utils.bytesToHex((isSeeder) ? (peerState.bitfield == null ? new byte[0] : peerState.bitfield.value) :clientBitfield ));
 
         if (!isSeeder)
             verifyDownloadedFile();
@@ -247,7 +247,7 @@ public class PeerDownloadHandler {
 
             } else if (receivedMessage.ID == PeerMessage.MsgType.BITFIELD) {
                 System.out.println("bitfield received");
-                peerState.peerBitfield = receivedMessage.getPayload();
+                peerState.bitfield.value = receivedMessage.getPayload();
             } else if (receivedMessage.ID == PeerMessage.MsgType.REQUEST){
                 System.out.println("request received");
                 System.out.println("index : " + receivedMessage.getIndex() + " begin : " + receivedMessage.getBegin() + " size : " + receivedMessage.getLength());

@@ -1,7 +1,8 @@
 package test;
 
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static junit.framework.TestCase.assertEquals;
+
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,7 +14,8 @@ import be.adaxisoft.bencode.InvalidBEncodingException;
 import misc.torrent.TorrentFileHandler;
 import misc.torrent.TorrentMetaData;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+
 
 public class InfoHashTest {
 	
