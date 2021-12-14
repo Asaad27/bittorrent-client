@@ -9,7 +9,7 @@ public class RarestFirst extends DownloadStrat {
 	private static RarestFirst instance;
 
 	@Override
-	public void updatePeerState(List<PeerInfo> peers, TorrentState status, int totalPieces) {
+	public int updatePeerState(List<PeerInfo> peers, TorrentState status, int totalPieces) {
 		
 		int rarest = rarestPiece(peers, status, totalPieces); // On calcule la pièce la plus rare
 		List<PeerInfo> valuablePeers =  peersByPieceIndex(peers, rarest); // Les peers qui ont la pièce en question
@@ -17,6 +17,8 @@ public class RarestFirst extends DownloadStrat {
 		for (PeerInfo peer : valuablePeers) {
 			peer.getPeerState().addPieceToRequest(rarest);
 		}
+		
+		return rarest;
 		
 	}
 	

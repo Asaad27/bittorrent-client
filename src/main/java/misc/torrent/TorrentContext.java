@@ -30,7 +30,8 @@ public class TorrentContext {
 	}
 	
 	public void updatePeerState() {
-		strat.updatePeerState(peers, status, totalPieces);
+		int piece = strat.updatePeerState(peers, status, totalPieces);
+		status.getStatus().set(piece, PieceStatus.Requested);
 	}
 	
 	private void chooseStrategy() {

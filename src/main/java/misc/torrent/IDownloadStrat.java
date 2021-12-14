@@ -6,6 +6,6 @@ import misc.peers.PeerInfo;
 
 public interface IDownloadStrat {
 
-	public abstract void updatePeerState(List<PeerInfo> peers, TorrentState status, int totalPieces);
+	public abstract int updatePeerState(List<PeerInfo> peers, TorrentState status, int totalPieces);
 
 }

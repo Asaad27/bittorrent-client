@@ -7,9 +7,9 @@ import misc.peers.PeerInfo;
 public class EndGame extends DownloadStrat {
 
 	@Override
-	public void updatePeerState(List<PeerInfo> peers, TorrentState status, int totalPieces) {
+	public int updatePeerState(List<PeerInfo> peers, TorrentState status, int totalPieces) {
 		// TODO Auto-generated method stub
-
+		return 0;
 	}
 
 }
