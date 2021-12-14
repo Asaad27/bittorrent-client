@@ -7,10 +7,9 @@ public class TorrentStatus {
 	
 	List<PieceStatus> status;
 	
-	public TorrentStatus(int totalPieces, Bitfield localBf) {
+	/*public TorrentStatus(int totalPieces, Bitfield localBf) {   //TODO :
 		
 		status = initStatus(totalPieces, localBf);
-		
 	}
 	
 	private List<PieceStatus> initStatus(int totalPieces, Bitfield localBf) {
@@ -26,7 +25,26 @@ public class TorrentStatus {
 		}
 		
 		return status;
-		
+	}*/
+
+	public TorrentStatus(int totalPieces, ByteBitfield localBf) {   //TODO :
+
+		status = initStatus(totalPieces, localBf);
+	}
+
+	private List<PieceStatus> initStatus(int totalPieces, ByteBitfield localBf) {
+
+		List<PieceStatus> status = new ArrayList<PieceStatus>();
+
+		for(int i = 0; i < totalPieces; i++) {
+			if(localBf.hasPiece(i)) {
+				status.add(PieceStatus.Verified);
+			} else {
+				status.add(PieceStatus.ToBeDownloaded);
+			}
+		}
+
+		return status;
 	}
 	
 	public List<PieceStatus> getStatus() {

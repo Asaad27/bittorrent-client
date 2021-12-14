@@ -28,21 +28,30 @@ public class RarestFirst extends DownloadStrat {
 
 	public int rarestPiece(List<PeerInfo> peers, TorrentStatus status, int totalPieces) {
 		
-		List<BitSet> bitfields = new LinkedList<BitSet>();
-		for(PeerInfo peer : peers) {
+		/*List<BitSet> bitfields = new LinkedList<BitSet>();
+		for(PeerInfo peer : peers) {					//TODO : fix
 			bitfields.add(peer.getBitfield());
+		}*/
+		List<ByteBitfield> bitfields = new LinkedList<>();
+		for (PeerInfo peer : peers){
+			bitfields.add(peer.getPeerState().bitfield);
 		}
-		
 		int[] pieceCount = new int[totalPieces]; // Array du nombre de peers possédant les pieces
 		
-		for(BitSet bf : bitfields) {
-			
+		/*for(BitSet bf : bitfields) {
 			for(int i = 0; i < totalPieces; i++) {
 				if(bf.get(i)) {
 					pieceCount[i]+=1;
 				}
 			}
-			
+		}*/
+
+		for(ByteBitfield bf : bitfields) {
+			for(int i = 0; i < totalPieces; i++) {
+				if(bf.hasPiece(i)) {
+					pieceCount[i]+=1;
+				}
+			}
 		}
 		
 		int min = 0;
