@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class ClientState extends State{
-    public Queue<Message> writeMessageQ= new LinkedList<>();
+
 
     public ClientState(int numPieces) {
         super(numPieces);

@@ -6,6 +6,8 @@ public abstract class State {
     public boolean choked = true;
     public boolean interested;
     public boolean handshake = false;
+    public boolean weAreChokedByPeer = true;
+    public boolean requested = false;
     public boolean isConnected;
     public ByteBitfield bitfield = null;
 

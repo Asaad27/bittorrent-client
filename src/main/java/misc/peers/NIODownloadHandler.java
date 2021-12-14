@@ -10,12 +10,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NIODownloadHandler {
 
-    public PeerState peerState;
     public ClientState clientState;
     public TorrentMetaData torrentMetaData;
     public TorrentState torrentState;
@@ -26,7 +26,7 @@ public class NIODownloadHandler {
         this.torrentMetaData = torrentMetaData;
         torrentState = new TorrentState(torrentMetaData);
         clientState = new ClientState(torrentMetaData.getNumberOfPieces());
-        peerState = new PeerState(torrentMetaData.getNumberOfPieces());
+        //peerState = new PeerState(torrentMetaData.getNumberOfPieces());
 
         clientState.choked = false;
         clientState.bitfield.initLeecher();
@@ -40,7 +40,9 @@ public class NIODownloadHandler {
     /**
      * Thread qui gere la lecture des messages recus
      */
-    public void messageHandler(Message receivedMessage, Queue<Message> writeMessageQ) {
+    public void messageHandler(Message receivedMessage, PeerState peerState) {
+        //PeerState peerState = peerList.get(peerIndex).getPeerState();
+
         if (receivedMessage.ID == PeerMessage.MsgType.KEEPALIVE) {
             System.out.println("KEEP ALIVE RECEIVED");
             try {
@@ -70,7 +72,7 @@ public class NIODownloadHandler {
             peerState.setPiece(receivedMessage.getIndex());
             if (!clientState.hasPiece(receivedMessage.getIndex())) {
                 Message interested = new Message(PeerMessage.MsgType.INTERESTED);
-                writeMessageQ.add(interested);
+                peerState.writeMessageQ.add(interested);
             }
 
         } else if (receivedMessage.ID == PeerMessage.MsgType.BITFIELD) {
@@ -87,7 +89,7 @@ public class NIODownloadHandler {
                 file.seek((long) (receivedMessage.getIndex()) * torrentState.getPieceSize() + receivedMessage.getBegin());
                 file.read(ans);
                 Message piece = new Message(PeerMessage.MsgType.PIECE, receivedMessage.getIndex(), receivedMessage.getBegin(), ans);
-                writeMessageQ.add(piece);
+                peerState.writeMessageQ.add(piece);
                 //sendMessage(piece);
                 peerState.setPiece(receivedMessage.getIndex());
                 torrentState.setDownloadedSize(torrentState.getDownloadedSize() + size);
@@ -121,7 +123,7 @@ public class NIODownloadHandler {
                         System.out.println("PIECE DOWNLOADED : " + receivedMessage.getIndex() + "\t" + df.format(torrentState.getDownloadedSize()*1.0/torrentMetaData.getLength()*100) + "% downloaded" );
                         clientState.setPiece(receivedMessage.getIndex());
                         Message have = new Message(PeerMessage.MsgType.HAVE, torrentState.numPieces-1);
-                        writeMessageQ.add(have);
+                        peerState.writeMessageQ.add(have);
                     }
                 }
                 else
@@ -131,10 +133,13 @@ public class NIODownloadHandler {
                         System.out.println("PIECE DOWNLOADED : " + receivedMessage.getIndex() + "\t" + df.format(torrentState.getDownloadedSize()*1.0/torrentMetaData.getLength()*100) + "% downloaded");
                         clientState.setPiece(receivedMessage.getIndex());
                         Message have = new Message(PeerMessage.MsgType.HAVE, receivedMessage.getIndex());
-                        writeMessageQ.add(have);
+                        peerState.writeMessageQ.add(have);
                     }
                 }
+
             }
+            else
+                DEBUG.log("we already have the piece***************");
             if (torrentState.getDownloadedSize() == torrentMetaData.getLength())
                 endConnexion();
         }
@@ -145,15 +150,20 @@ public class NIODownloadHandler {
         System.out.println("connexion ended");
     }
 
+    //send bitfield and interested to all peers
+    public void leechTorrent(List<PeerInfo> peerList) {
 
-    public void leechTorrent(Queue<Message> writeMessageQ) {
-        //TODO ;
+        for (int i = 0; i < peerList.size(); i++){
+            if (peerList.get(i).getPort() == TCPClient.CLIENTPORT)
+                continue;
 
-        Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, clientState.getBitfield());
-        writeMessageQ.add(bitfield);
+            PeerState peerState = peerList.get(i).getPeerState();
+            Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, clientState.getBitfield());
+            peerState.writeMessageQ.add(bitfield);
 
-        Message interested = new Message(PeerMessage.MsgType.INTERESTED);
-        writeMessageQ.add(interested);
+            Message interested = new Message(PeerMessage.MsgType.INTERESTED);
+            peerState.writeMessageQ.add(interested);
+        }
 
     }
 }

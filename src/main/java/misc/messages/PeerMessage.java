@@ -39,7 +39,7 @@ public class PeerMessage {
                 break;
 
             case INTERESTED:
-                System.out.println("we are in interested");
+                //System.out.println("we are in interested");
                  /*buffer = ByteBuffer.allocate(5);
                  buffer.put((byte) 1).putInt(2);*/
                 buffer = ByteBuffer.allocate(5);
