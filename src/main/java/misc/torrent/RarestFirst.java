@@ -1,6 +1,5 @@
 package misc.torrent;
 
-import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.List;
 import misc.peers.PeerInfo;
@@ -10,12 +9,14 @@ public class RarestFirst extends DownloadStrat {
 	private static RarestFirst instance;
 
 	@Override
-	public void download(List<PeerInfo> peers, TorrentStatus status, int totalPieces) {
+	public void updatePeerState(List<PeerInfo> peers, TorrentState status, int totalPieces) {
 		
 		int rarest = rarestPiece(peers, status, totalPieces); // On calcule la pièce la plus rare
 		List<PeerInfo> valuablePeers =  peersByPieceIndex(peers, rarest); // Les peers qui ont la pièce en question
 		
-		//TODO : le Download
+		for (PeerInfo peer : valuablePeers) {
+			peer.getPeerState().addPieceToRequest(rarest);
+		}
 		
 	}
 	
@@ -26,7 +27,7 @@ public class RarestFirst extends DownloadStrat {
 		return instance;
 	}
 
-	public int rarestPiece(List<PeerInfo> peers, TorrentStatus status, int totalPieces) {
+	public int rarestPiece(List<PeerInfo> peers, TorrentState status, int totalPieces) {
 		
 		/*List<BitSet> bitfields = new LinkedList<BitSet>();
 		for(PeerInfo peer : peers) {					//TODO : fix

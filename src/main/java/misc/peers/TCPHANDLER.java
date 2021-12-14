@@ -3,6 +3,7 @@ package misc.peers;
 import misc.messages.Message;
 import misc.messages.PeerMessage;
 import misc.torrent.TorrentMetaData;
+import misc.torrent.TorrentState;
 import misc.tracker.TrackerHandler;
 import misc.utils.Utils;
 
@@ -26,10 +27,10 @@ public class TCPHANDLER {
     //public Queue<Message> writeMessageQ= new LinkedList<>();
     //public boolean handshaken = false;
 
-    public TCPHANDLER(TorrentMetaData torrentMetaData, List<PeerInfo> peerList) {
+    public TCPHANDLER(TorrentMetaData torrentMetaData, List<PeerInfo> peerList, ClientState clientState, TorrentState torrentState) {
 
         this.torrentMetaData = torrentMetaData;
-        this.peerDownloadHandler = new NIODownloadHandler(torrentMetaData);
+        this.peerDownloadHandler = new NIODownloadHandler(torrentMetaData, clientState, torrentState);
         this.peerList = peerList;
 
         //TODO : tracker should not return our client as a peer

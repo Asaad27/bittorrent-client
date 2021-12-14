@@ -1,8 +1,10 @@
 package misc.peers;
 
 import misc.Main;
+import misc.torrent.TorrentContext;
 import misc.torrent.TorrentFileHandler;
 import misc.torrent.TorrentMetaData;
+import misc.torrent.TorrentState;
 import misc.tracker.TrackerHandler;
 
 import java.io.FileInputStream;
@@ -35,15 +37,15 @@ public class TCPClient {
         System.out.println(peerInfoList);
 
         String server = "127.0.0.1";
-
-
-
-
-
+        
+        ClientState clientState = new ClientState(torrentMetaData.getNumberOfPieces());
+        TorrentState torrentState = new TorrentState(torrentMetaData, clientState);
+        TorrentContext torrentContext = new TorrentContext(peerInfoList, torrentMetaData.getNumberOfPieces(), torrentState);
 
         Selector selector = Selector.open();
+        
 
-        TCPHANDLER tcphandler = new TCPHANDLER(torrentMetaData, peerInfoList);
+        TCPHANDLER tcphandler = new TCPHANDLER(torrentMetaData, peerInfoList, clientState, torrentState);
 
         for (int i = 0; i < peerInfoList.size(); i++) {
             if (peerInfoList.get(i).getPort() == CLIENTPORT || peerInfoList.get(i).getPort() < 0)
@@ -66,7 +68,7 @@ public class TCPClient {
                 System.out.print(".");
                 continue;
             }
-
+            torrentContext.updatePeerState();
             Iterator<SelectionKey> keyIter = selector.selectedKeys().iterator();
             while (keyIter.hasNext()) {
                 SelectionKey key = keyIter.next();

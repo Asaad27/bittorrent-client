@@ -1,5 +1,4 @@
 package misc.peers;
-
 import misc.torrent.ByteBitfield;
 
 public abstract class State {
@@ -10,12 +9,13 @@ public abstract class State {
     public boolean requested = false;
     public boolean isConnected;
     public ByteBitfield bitfield = null;
+    
 
     public State(int numPieces) {
         bitfield = new ByteBitfield(numPieces);
     }
 
-
+    
 
     public boolean hasPiece(int index) {
         return bitfield.hasPiece(index);
@@ -27,7 +27,5 @@ public abstract class State {
     public void setPiece(int index) {
         bitfield.setPiece(index);
     }
-
-
 
 }

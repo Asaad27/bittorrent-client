@@ -1,8 +1,12 @@
 package misc.torrent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import misc.peers.ClientState;
 
 public class TorrentState {
 
@@ -22,9 +26,15 @@ public class TorrentState {
     private int remainingBlockSize;
 
     private int downloadedSize = 0;
+    
+    // TorrentStatus fusion
+    List<PieceStatus> status;
+    ClientState clientState;
 
-    public TorrentState(TorrentMetaData torrentMetaData) {
+    public TorrentState(TorrentMetaData torrentMetaData, ClientState clientState) {
         this.torrentMetaData = torrentMetaData;
+        this.clientState = clientState;
+        this.status = initStatus();
         initPiecesAndBlocks();
     }
 
@@ -102,4 +112,23 @@ public class TorrentState {
         this.downloadedSize = downloadedSize;
         return this;
     }
+    
+    private List<PieceStatus> initStatus() {
+
+		List<PieceStatus> status = new ArrayList<PieceStatus>();
+
+		for(int i = 0; i < numPieces; i++) {
+			if(clientState.bitfield.hasPiece(i)) {
+				status.add(PieceStatus.Verified);
+			} else {
+				status.add(PieceStatus.ToBeDownloaded);
+			}
+		}
+
+		return status;
+	}
+	
+	public List<PieceStatus> getStatus() {
+		return this.status;
+	}
 }

@@ -1,4 +1,5 @@
 package misc.torrent;
+import misc.peers.ClientState;
 import misc.peers.PeerInfo;
 import java.util.List;
 
@@ -7,8 +8,7 @@ public class TorrentContext {
 	private List<PeerInfo> peers; 
 	private IDownloadStrat strat;
 	private int totalPieces;
-	private ByteBitfield localBf;
-	private TorrentStatus status;
+	private TorrentState status;
 	
 	/*public TorrentContext(List<PeerInfo> peers, Bitfield localBf, IDownloadStrat strat, int totalPieces) {
 		this.peers = peers;			//TODO : bitfield
@@ -18,20 +18,19 @@ public class TorrentContext {
 		this.status = new TorrentStatus(totalPieces, localBf);
 	}*/
 
-	public TorrentContext(List<PeerInfo> peers, ByteBitfield localBf, IDownloadStrat strat, int totalPieces) {
+	public TorrentContext(List<PeerInfo> peers, int totalPieces, TorrentState torrentState) {
 		this.peers = peers;
-		this.localBf = localBf;
-		this.strat = strat;
+		chooseStrategy();
 		this.totalPieces = totalPieces;
-		this.status = new TorrentStatus(totalPieces, localBf);
+		this.status = torrentState;
 	}
 	
 	public void setPeers(List<PeerInfo> peers) {
 		this.peers = peers;
 	}
 	
-	public void download() {
-		strat.download(peers, status, totalPieces);
+	public void updatePeerState() {
+		strat.updatePeerState(peers, status, totalPieces);
 	}
 	
 	private void chooseStrategy() {

@@ -22,10 +22,10 @@ public class NIODownloadHandler {
     public RandomAccessFile file = null;
 
 
-    public NIODownloadHandler(TorrentMetaData torrentMetaData) {
+    public NIODownloadHandler(TorrentMetaData torrentMetaData, ClientState clientState, TorrentState torrentState) {
         this.torrentMetaData = torrentMetaData;
-        torrentState = new TorrentState(torrentMetaData);
-        clientState = new ClientState(torrentMetaData.getNumberOfPieces());
+        this.clientState = clientState;
+        this.torrentState = torrentState;
         //peerState = new PeerState(torrentMetaData.getNumberOfPieces());
 
         clientState.choked = false;
