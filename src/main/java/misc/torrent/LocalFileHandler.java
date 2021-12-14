@@ -1,31 +1,26 @@
 package misc.torrent;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.BitSet;
 
 import misc.utils.Utils;
 
 public class LocalFileHandler {
 
-	private String filename;
 	private File localFile;
 	private RandomAccessFile fileAccess;
 	private Bitfield bitfield;
 	private int pieceSize;
 	private int totalPieces;
 	private double fileLength;
-	private boolean lock = Boolean.FALSE;
 	private String piecesSHA1;
 	
 	public LocalFileHandler(String filename, int pieceSize, int pieceNb, double length, String piecesSHA1) {
 		
-		this.filename = filename;
 		this.localFile = new File(filename);
 		this.pieceSize = pieceSize;
 		this.totalPieces = pieceNb;
@@ -101,24 +96,16 @@ public class LocalFileHandler {
 	}
 	
 	public void writePieceBlock(int pieceNb, int offset, byte[] data) {
-		if (!lock) {
 			
-			try {
-				
-				fileAccess.write(data, pieceNb * pieceSize + offset, data.length);
-				
-			} catch (IOException e) { e.printStackTrace(); }
+		try {
 			
+			fileAccess.write(data, pieceNb * pieceSize + offset, data.length);
 			
-		} else {
-			// TODO : Wait pour l'écriture, Mutex ?
-		}
+		} catch (IOException e) { e.printStackTrace(); }
+			
 	}
 	
 	public byte[] getPieceBlock(int pieceNb, int offset, int len) {
-		// TODO : Ajouter mutex pour l'accès concurrent au fichier ?
-		
-		// On vérifie que l'on a cette pièce
 		if(bitfield.get(pieceNb)) {
 		
 			byte[] data = new byte[len];
