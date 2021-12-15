@@ -31,7 +31,7 @@ public class TCPHANDLER {
     public TCPHANDLER(TorrentMetaData torrentMetaData, List<PeerInfo> peerList, ClientState clientState, TorrentState torrentState) {
 
         this.torrentMetaData = torrentMetaData;
-        this.peerDownloadHandler = new NIODownloadHandler(torrentMetaData, clientState, torrentState);
+        this.peerDownloadHandler = new NIODownloadHandler(torrentMetaData, clientState, torrentState, peerList);
         this.peerList = peerList;
 
         //TODO : tracker should not return our client as a peer
@@ -88,7 +88,6 @@ public class TCPHANDLER {
             e.printStackTrace();
         }
         switch (message.getID()){
-            case HAVE:
             case BITFIELD:
             case INTERESTED:
                 key.interestOps(SelectionKey.OP_WRITE);
@@ -97,10 +96,13 @@ public class TCPHANDLER {
             case REQUEST:
                 key.interestOps(SelectionKey.OP_READ);
                 break;
+            case HAVE:
+                key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+                break;
+
         }
         DEBUG.log("sent message ", message.getID().toString(), "to peer number", String.valueOf(channelIntegerMap.get(socketChannel.socket().getPort())));
     }
-
 
     public void handleRead(SelectionKey key) {
         SocketChannel clntChan = (SocketChannel) key.channel();
@@ -118,11 +120,13 @@ public class TCPHANDLER {
             Message message = receiveMessage(clntChan, key);
             DEBUG.log("recieved message ", message.getID().toString(), "from peer number", String.valueOf(peerIndex));
 
-            if (message.getID() == PeerMessage.MsgType.UNCHOKE)
+            if (message.getID() == PeerMessage.MsgType.UNCHOKE) {
                 peerState.weAreChokedByPeer = false;
+            }
+
             /* DEBUG.log("the bitfield payload", Utils.bytesToHex(message.getPayload()));*/
             peerDownloadHandler.messageHandler(message, peerState);
-            //key.interestOps(SelectionKey.OP_WRITE);
+
         }
         key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
         //key.interestOps(SelectionKey.OP_WRITE);

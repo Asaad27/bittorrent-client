@@ -8,7 +8,7 @@ import misc.torrent.Bitfield;
 public class PeerInfo {
 
     private final InetAddress addr;
-    private final int port;
+    public int port;
     //private Bitfield bitfield;  //TODO : fix
     private PeerState peerState;
 
@@ -35,7 +35,11 @@ public class PeerInfo {
         return port;
     }
 
-    /*public BitSet getBitfield() {
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+   /*public BitSet getBitfield() {
         return bitfield.getValue();
     }*/
     

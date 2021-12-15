@@ -21,12 +21,14 @@ public class NIODownloadHandler {
     public TorrentMetaData torrentMetaData;
     public TorrentState torrentState;
     public RandomAccessFile file = null;
+    public List<PeerInfo> peerInfoList;         //TODO : NOTIFY WHEN PEERLIST CHANGES
 
 
-    public NIODownloadHandler(TorrentMetaData torrentMetaData, ClientState clientState, TorrentState torrentState) {
+    public NIODownloadHandler(TorrentMetaData torrentMetaData, ClientState clientState, TorrentState torrentState, List<PeerInfo> peerInfoList) {
         this.torrentMetaData = torrentMetaData;
         this.clientState = clientState;
         this.torrentState = torrentState;
+        this.peerInfoList = peerInfoList;
         //peerState = new PeerState(torrentMetaData.getNumberOfPieces());
 
         clientState.choked = false;
@@ -45,7 +47,7 @@ public class NIODownloadHandler {
         //PeerState peerState = peerList.get(peerIndex).getPeerState();
 
         if (receivedMessage.ID == PeerMessage.MsgType.KEEPALIVE) {
-            System.out.println("KEEP ALIVE RECEIVED");
+            //System.out.println("KEEP ALIVE RECEIVED");
             try {
                 Thread.sleep(4000);
             } catch (InterruptedException e) {
@@ -116,21 +118,24 @@ public class NIODownloadHandler {
                 int downloadedBlocks = torrentState.pieceDownloadedBlocks.get(receivedMessage.getIndex()).incrementAndGet();
                 DecimalFormat df = new DecimalFormat();
                 df.setMaximumFractionDigits(2);
+                boolean downloaded = false;
                 if (receivedMessage.getIndex() == torrentState.numPieces - 1) {
                     if (downloadedBlocks == torrentState.getNumOfLastPieceBlocks()) {
-                        torrentState.getStatus().set(receivedMessage.getIndex(), PieceStatus.Downloaded);
-                        System.out.println("PIECE DOWNLOADED : " + receivedMessage.getIndex() + "\t" + df.format(torrentState.getDownloadedSize() * 1.0 / torrentMetaData.getLength() * 100) + "% downloaded");
-                        clientState.setPiece(receivedMessage.getIndex());
-                        Message have = new Message(PeerMessage.MsgType.HAVE, torrentState.numPieces - 1);
-                        peerState.writeMessageQ.add(have);
+                        downloaded = true;
                     }
                 } else {
                     if (downloadedBlocks == torrentState.getNumOfBlocks()) {
-                        System.out.println("PIECE DOWNLOADED : " + receivedMessage.getIndex() + "\t" + df.format(torrentState.getDownloadedSize() * 1.0 / torrentMetaData.getLength() * 100) + "% downloaded");
-                        clientState.setPiece(receivedMessage.getIndex());
-                        torrentState.getStatus().set(receivedMessage.getIndex(), PieceStatus.Downloaded);
-                        Message have = new Message(PeerMessage.MsgType.HAVE, receivedMessage.getIndex());
-                        peerState.writeMessageQ.add(have);
+                        downloaded = true;
+                    }
+                }
+                if (downloaded){
+                    System.out.println("PIECE DOWNLOADED : " + receivedMessage.getIndex() + "\t" + df.format(torrentState.getDownloadedSize() * 1.0 / torrentMetaData.getLength() * 100) + "% downloaded");
+                    clientState.setPiece(receivedMessage.getIndex());
+                    torrentState.getStatus().set(receivedMessage.getIndex(), PieceStatus.Downloaded);
+                    Message have = new Message(PeerMessage.MsgType.HAVE, torrentState.numPieces - 1);
+                    //we send have to all peers
+                    for (PeerInfo peerInfo : peerInfoList) {
+                        peerInfo.getPeerState().writeMessageQ.add(have);
                     }
                 }
 
@@ -150,13 +155,12 @@ public class NIODownloadHandler {
     public void leechTorrent(List<PeerInfo> peerList) {
 
         for (int i = 0; i < peerList.size(); i++) {
-            if (peerList.get(i).getPort() == TCPClient.CLIENTPORT)
-                continue;
 
             PeerState peerState = peerList.get(i).getPeerState();
             Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, clientState.getBitfield());
             peerState.writeMessageQ.add(bitfield);
-
+            Message unchoke = new Message(PeerMessage.MsgType.UNCHOKE);
+            peerState.writeMessageQ.add(unchoke);
             Message interested = new Message(PeerMessage.MsgType.INTERESTED);
             peerState.writeMessageQ.add(interested);
         }

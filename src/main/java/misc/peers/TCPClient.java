@@ -32,14 +32,17 @@ public class TCPClient {
         URL announceURL = new URL(torrentMetaData.getAnnounceUrlString());
         TrackerHandler tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1InfoByte(), CLIENTPORT, torrentMetaData.getNumberOfPieces());
         List<PeerInfo> peerInfoList = tracker.getPeerLst();
+        //System.out.println(peerInfoList);
         //Remove our own client returned by tracker
-        int d;
-        for (d = 0; d < peerInfoList.size(); d++){
-            if (peerInfoList.get(d).getPort() == CLIENTPORT || peerInfoList.get(d).getPort() < 0)
-                break;
+        int tod = -1;
+        for (int d = 0; d < peerInfoList.size(); d++){
+/*            if(peerInfoList.get(d).getPort() < 0)  //TODO : delete, this is just for debugging
+                peerInfoList.get(d).port = 63533;*/
+            if (peerInfoList.get(d).getPort() == CLIENTPORT )
+                tod = d;
         }
-        if (d < peerInfoList.size())
-            peerInfoList.remove(d);
+        if (tod != -1)
+            peerInfoList.remove(tod);
 
         System.out.println(peerInfoList);
 

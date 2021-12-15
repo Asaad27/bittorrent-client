@@ -48,7 +48,7 @@ public class RarestFirst extends DownloadStrat {
 		}
 
 		for (int i = 0; i < totalPieces; i++) {
-			if (status.getStatus().get(i) == PieceStatus.ToBeDownloaded)
+			if (status.getStatus().get(i) == PieceStatus.ToBeDownloaded && pieceCount[i] != 0)
 				minHeap.add(new Pair(pieceCount[i], i));
 		}
 
