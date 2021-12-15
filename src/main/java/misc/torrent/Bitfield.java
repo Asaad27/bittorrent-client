@@ -35,8 +35,28 @@ public class Bitfield {
 	}
 	
 	public byte[] toByteArray() {
-		return this.value.toByteArray();
+		byte[] array = this.value.toByteArray();
+		reverse(array);
+		return array;
+		
 	}
+	
+	public static void reverse(byte[] in) {
+	      if (in == null) {
+	          return;
+	      }
+	      int i = 0;
+	      int j = in.length - 1;
+	      byte tmp;
+	      while (j > i) {
+	          tmp = in[j];
+	          in[j] = in[i];
+	          in[i] = tmp;
+	          j--;
+	          i++;
+	      }
+	  }
+
 	
 	@Override
 	public String toString() {

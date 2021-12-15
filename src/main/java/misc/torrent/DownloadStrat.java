@@ -1,7 +1,9 @@
 package misc.torrent;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import misc.peers.PeerInfo;
 
@@ -21,6 +23,17 @@ public abstract class DownloadStrat implements IDownloadStrat {
 		}
 		
 		return valuablePeers;
+	}
+	
+	public Set<Integer> remainingPieces(TorrentState status, int totalPieces){
+		Set<Integer> pieceSet = new LinkedHashSet<>();
+		for (int i = 0; i < totalPieces; i++) {
+			if(status.getStatus().get(i) == PieceStatus.ToBeDownloaded) {
+				pieceSet.add(i);
+			}
+		}
+		
+		return pieceSet;
 	}
 	
 }
