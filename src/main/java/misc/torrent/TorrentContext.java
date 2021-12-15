@@ -1,5 +1,5 @@
 package misc.torrent;
-import misc.peers.ClientState;
+import misc.utils.DEBUG;
 import misc.peers.PeerInfo;
 import java.util.List;
 
@@ -31,7 +31,11 @@ public class TorrentContext {
 	
 	public void updatePeerState() {
 		int piece = strat.updatePeerState(peers, status, totalPieces);
-		status.getStatus().set(piece, PieceStatus.Requested);
+		//status.getStatus().set(piece, PieceStatus.Requested);
+		/*if (piece != -1)
+			DEBUG.log("*********************** la piece la plus rare est ", String.valueOf(piece));
+			*/
+
 	}
 	
 	private void chooseStrategy() {

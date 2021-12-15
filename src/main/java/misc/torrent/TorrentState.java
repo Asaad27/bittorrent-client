@@ -34,8 +34,9 @@ public class TorrentState {
     public TorrentState(TorrentMetaData torrentMetaData, ClientState clientState) {
         this.torrentMetaData = torrentMetaData;
         this.clientState = clientState;
-        this.status = initStatus();
         initPiecesAndBlocks();
+        this.status = initStatus();
+
     }
 
     private void initPiecesAndBlocks()

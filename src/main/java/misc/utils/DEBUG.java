@@ -1,4 +1,4 @@
-package misc.peers;
+package misc.utils;
 
 public class DEBUG {
 
@@ -11,5 +11,14 @@ public class DEBUG {
             System.out.print(strings[i] + " / ");
         }
         System.out.println("");
+    }
+
+    public static final void loge(String ...strings) {
+        if (!flag)
+            return ;
+        for (int i = 0; i < strings.length ; i++) {
+            System.err.print(strings[i] + " / ");
+        }
+        System.err.println("");
     }
 }

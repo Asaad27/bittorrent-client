@@ -1,11 +1,11 @@
 package misc.peers;
 
-import misc.Main;
 import misc.torrent.TorrentContext;
 import misc.torrent.TorrentFileHandler;
 import misc.torrent.TorrentMetaData;
 import misc.torrent.TorrentState;
 import misc.tracker.TrackerHandler;
+import misc.utils.DEBUG;
 
 import java.io.FileInputStream;
 import java.net.InetSocketAddress;
@@ -13,10 +13,8 @@ import java.net.URL;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public class TCPClient {
 
@@ -34,6 +32,15 @@ public class TCPClient {
         URL announceURL = new URL(torrentMetaData.getAnnounceUrlString());
         TrackerHandler tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1InfoByte(), CLIENTPORT, torrentMetaData.getNumberOfPieces());
         List<PeerInfo> peerInfoList = tracker.getPeerLst();
+        //Remove our own client returned by tracker
+        int d;
+        for (d = 0; d < peerInfoList.size(); d++){
+            if (peerInfoList.get(d).getPort() == CLIENTPORT || peerInfoList.get(d).getPort() < 0)
+                break;
+        }
+        if (d < peerInfoList.size())
+            peerInfoList.remove(d);
+
         System.out.println(peerInfoList);
 
         String server = "127.0.0.1";
@@ -43,13 +50,12 @@ public class TCPClient {
         TorrentContext torrentContext = new TorrentContext(peerInfoList, torrentMetaData.getNumberOfPieces(), torrentState);
 
         Selector selector = Selector.open();
-        
 
         TCPHANDLER tcphandler = new TCPHANDLER(torrentMetaData, peerInfoList, clientState, torrentState);
 
         for (int i = 0; i < peerInfoList.size(); i++) {
-            if (peerInfoList.get(i).getPort() == CLIENTPORT || peerInfoList.get(i).getPort() < 0)
-                continue;
+
+            assert peerInfoList.get(i).getPort() >= 0;
 
             SocketChannel clntChan = SocketChannel.open();
             clntChan.configureBlocking(false);
@@ -81,19 +87,23 @@ public class TCPClient {
 
                     boolean isConnected = clntChan.finishConnect();
                     assert isConnected;
+                    //TODO : send handshake && bitfield && interested
 
                     key.interestOps(SelectionKey.OP_WRITE);
                 }
 
                 if (key.isValid() && key.isWritable()) {
-
+                    //DEBUG.log("writing");
                     tcphandler.handleWrite(key);
-
+                    //key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+                    //key.interestOps(SelectionKey.OP_READ);
                 }
 
                 if (key.isReadable()) {
+                    //DEBUG.log("reading");
                     tcphandler.handleRead(key);
-
+                    //key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+                   // key.interestOps(SelectionKey.OP_WRITE);
                 }
 
                 keyIter.remove(); // remove from set of selected keys

@@ -1,8 +1,10 @@
 package misc.torrent;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+
+
 import misc.peers.PeerInfo;
+import misc.utils.Pair;
 
 public class RarestFirst extends DownloadStrat {
 	
@@ -12,6 +14,10 @@ public class RarestFirst extends DownloadStrat {
 	public int updatePeerState(List<PeerInfo> peers, TorrentState status, int totalPieces) {
 		
 		int rarest = rarestPiece(peers, status, totalPieces); // On calcule la pièce la plus rare
+
+		if (rarest == -1)	//on a request/donwload tous les pieces
+			return -1;
+
 		List<PeerInfo> valuablePeers =  peersByPieceIndex(peers, rarest); // Les peers qui ont la pièce en question
 		
 		for (PeerInfo peer : valuablePeers) {
@@ -19,7 +25,6 @@ public class RarestFirst extends DownloadStrat {
 		}
 		
 		return rarest;
-		
 	}
 	
 	public static RarestFirst instance() {
@@ -30,41 +35,34 @@ public class RarestFirst extends DownloadStrat {
 	}
 
 	public int rarestPiece(List<PeerInfo> peers, TorrentState status, int totalPieces) {
-		
-		/*List<BitSet> bitfields = new LinkedList<BitSet>();
-		for(PeerInfo peer : peers) {					//TODO : fix
-			bitfields.add(peer.getBitfield());
-		}*/
-		List<ByteBitfield> bitfields = new LinkedList<>();
-		for (PeerInfo peer : peers){
-			bitfields.add(peer.getPeerState().bitfield);
-		}
-		int[] pieceCount = new int[totalPieces]; // Array du nombre de peers possédant les pieces
-		
-		/*for(BitSet bf : bitfields) {
-			for(int i = 0; i < totalPieces; i++) {
-				if(bf.get(i)) {
-					pieceCount[i]+=1;
-				}
-			}
-		}*/
+		//TODO : if a peer gets disconnected, or a peer is connected, then make the queue a member variable
 
-		for(ByteBitfield bf : bitfields) {
+		int[] pieceCount = new int[totalPieces];
+		PriorityQueue<Pair> minHeap = new PriorityQueue<>();
+		for (PeerInfo peer : peers){
+			ByteBitfield bf = peer.getPeerState().bitfield;
 			for(int i = 0; i < totalPieces; i++) {
-				if(bf.hasPiece(i)) {
+				if(bf.hasPiece(i))
 					pieceCount[i]+=1;
-				}
 			}
 		}
-		
-		int min = 0;
-		for(int i = 0;  i < totalPieces; i++) {
-			if((pieceCount[i] < pieceCount[min]) && (status.getStatus().get(i) == PieceStatus.ToBeDownloaded) && (pieceCount[i] > 0)) {
-				min = i;
-			}
+
+		for (int i = 0; i < totalPieces; i++) {
+			if (status.getStatus().get(i) == PieceStatus.ToBeDownloaded)
+				minHeap.add(new Pair(pieceCount[i], i));
 		}
-		
-		return min;
-		
+
+		if (minHeap.isEmpty()){
+			//DEBUG.log("empty heap");
+			return -1;
+		}
+
+
+		return minHeap.poll().getIndex();
 	}
 }
+
+//WE CALCULATE FIRST THE RAREST PIECES
+//WE PUT THEM IN A PRIORITY QUEUE <PIECEINDEX, RARETY>
+//WE POLL EACH TIME AN EVENT HAPPENS
+//WE UPDATE THE PIECE TO REQUEST FOR EACH PEER
