@@ -52,10 +52,13 @@ public class HandShake implements Serializable {
             int byteRead = 0;
             while (byteRead < HandshakeLength) {
                 byteRead += socketChannel.read(buffer);
+                if (byteRead == -1)
+                    return null;
             }
 
         } catch (IOException e) {
             System.err.println("error reading received handshake");
+            return null;
         }
         buffer.flip();
 

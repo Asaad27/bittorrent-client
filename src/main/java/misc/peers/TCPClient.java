@@ -8,17 +8,19 @@ import misc.tracker.TrackerHandler;
 import misc.utils.DEBUG;
 
 import java.io.FileInputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class TCPClient {
 
-    public static int CLIENTPORT = 12315;
+    public static int CLIENTPORT = 12327;
     public static void main(String args[]) throws Exception {
 
 
@@ -31,18 +33,25 @@ public class TCPClient {
 
         URL announceURL = new URL(torrentMetaData.getAnnounceUrlString());
         TrackerHandler tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1InfoByte(), CLIENTPORT, torrentMetaData.getNumberOfPieces());
-        List<PeerInfo> peerInfoList = tracker.getPeerLst();
+        /*List<PeerInfo> peerInfoList = tracker.getPeerLst();
         //System.out.println(peerInfoList);
         //Remove our own client returned by tracker
         int tod = -1;
         for (int d = 0; d < peerInfoList.size(); d++){
-/*            if(peerInfoList.get(d).getPort() < 0)  //TODO : delete, this is just for debugging
-                peerInfoList.get(d).port = 63533;*/
+*//*            if(peerInfoList.get(d).getPort() < 0)  //TODO : delete, this is just for debugging
+                peerInfoList.get(d).port = 63533;*//*
             if (peerInfoList.get(d).getPort() == CLIENTPORT )
                 tod = d;
         }
         if (tod != -1)
-            peerInfoList.remove(tod);
+            peerInfoList.remove(tod);*/
+
+        List<PeerInfo> peerInfoList = new ArrayList<>();
+
+        PeerInfo qbitorrent = new PeerInfo(InetAddress.getLocalHost(), 12316, torrentMetaData.getNumberOfPieces());
+        PeerInfo vuze = new PeerInfo(InetAddress.getLocalHost(), 12319, torrentMetaData.getNumberOfPieces());
+        peerInfoList.add(qbitorrent);
+        peerInfoList.add(vuze);
 
         System.out.println(peerInfoList);
 
@@ -64,7 +73,6 @@ public class TCPClient {
             clntChan.configureBlocking(false);
             clntChan.register(selector, SelectionKey.OP_CONNECT);
 
-            //boolean flag = clntChan.connect(new InetSocketAddress(server, (i == 0 ? Main.PORTCLIENT.VUZE.port : Main.PORTCLIENT.QBITTORRENT.port)));
             int port = peerInfoList.get(i).getPort();
 
             boolean flag = clntChan.connect(new InetSocketAddress(server, port));
@@ -73,6 +81,7 @@ public class TCPClient {
         }
 
         while (true) {
+            System.err.println("/");
             if (selector.select(3000) == 0) {
                 System.out.print(".");
                 continue;
@@ -80,26 +89,16 @@ public class TCPClient {
             torrentContext.updatePeerState();
             Iterator<SelectionKey> keyIter = selector.selectedKeys().iterator();
             while (keyIter.hasNext()) {
+
                 SelectionKey key = keyIter.next();
 
                 if (key.isConnectable()) {
-
-                    SocketChannel clntChan = (SocketChannel) key.channel();
-
-                    System.out.println("remote adresses " + clntChan.getRemoteAddress());
-
-                    boolean isConnected = clntChan.finishConnect();
-                    assert isConnected;
-                    //TODO : send handshake && bitfield && interested
-
-                    key.interestOps(SelectionKey.OP_WRITE);
+                    tcphandler.handleConnection(key);
                 }
 
                 if (key.isValid() && key.isWritable()) {
-                    //DEBUG.log("writing");
+
                     tcphandler.handleWrite(key);
-                    //key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-                    //key.interestOps(SelectionKey.OP_READ);
                 }
 
                 if (key.isReadable()) {

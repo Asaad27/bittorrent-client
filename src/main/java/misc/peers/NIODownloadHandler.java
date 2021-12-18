@@ -75,7 +75,7 @@ public class NIODownloadHandler {
             peerState.setPiece(receivedMessage.getIndex());
             if (!clientState.hasPiece(receivedMessage.getIndex())) {
                 Message interested = new Message(PeerMessage.MsgType.INTERESTED);
-                peerState.writeMessageQ.add(interested);
+                peerState.writeMessageQ.addFirst(interested);
             }
 
         } else if (receivedMessage.ID == PeerMessage.MsgType.BITFIELD) {
@@ -129,13 +129,13 @@ public class NIODownloadHandler {
                     }
                 }
                 if (downloaded){
-                    System.out.println("PIECE DOWNLOADED : " + receivedMessage.getIndex() + "\t" + df.format(torrentState.getDownloadedSize() * 1.0 / torrentMetaData.getLength() * 100) + "% downloaded");
+                    System.err.println("PIECE DOWNLOADED : " + receivedMessage.getIndex() + "\t" + df.format(torrentState.getDownloadedSize() * 1.0 / torrentMetaData.getLength() * 100) + "% downloaded");
                     clientState.setPiece(receivedMessage.getIndex());
                     torrentState.getStatus().set(receivedMessage.getIndex(), PieceStatus.Downloaded);
                     Message have = new Message(PeerMessage.MsgType.HAVE, torrentState.numPieces - 1);
                     //we send have to all peers
                     for (PeerInfo peerInfo : peerInfoList) {
-                        peerInfo.getPeerState().writeMessageQ.add(have);
+                        peerInfo.getPeerState().writeMessageQ.addFirst(have);
                     }
                 }
 
@@ -152,7 +152,7 @@ public class NIODownloadHandler {
     }
 
     //send bitfield and interested to all peers
-    public void leechTorrent(List<PeerInfo> peerList) {
+    /*public void leechTorrent(List<PeerInfo> peerList) {
 
         for (int i = 0; i < peerList.size(); i++) {
 
@@ -164,7 +164,7 @@ public class NIODownloadHandler {
             Message interested = new Message(PeerMessage.MsgType.INTERESTED);
             peerState.writeMessageQ.add(interested);
         }
-    }
+    }*/
 
     public boolean sendFullPieceRequest(int pieceIndex, PeerState peerState) {
         //Iterator<Integer> it = peerState.piecesToRequest.iterator();
