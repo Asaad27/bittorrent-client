@@ -60,8 +60,8 @@ public class NIODownloadHandler {
         } else if (receivedMessage.ID == PeerMessage.MsgType.UNCHOKE) {
             System.out.println("UCHOKE RECEIVED");
             peerState.choked = false;
-            clientState.choked = false;
-            //writeMessageQ.add(new Message(PeerMessage.MsgType.UNCHOKE));
+            peerState.weAreChokedByPeer = false;
+            peerState.writeMessageQ.add(new Message(PeerMessage.MsgType.UNCHOKE));
 
         } else if (receivedMessage.ID == PeerMessage.MsgType.INTERESTED) {
             System.out.println("INTERESTED RECEIVED");
@@ -69,18 +69,20 @@ public class NIODownloadHandler {
         } else if (receivedMessage.ID == PeerMessage.MsgType.NOTINTERESTED) {
             System.out.println("NOTINTERESTED RECEIVED");
             peerState.interested = false;
-            endConnexion();
+            //endConnexion();
         } else if (receivedMessage.ID == PeerMessage.MsgType.HAVE) {
             System.out.println("HAVE RECEIVED");
             peerState.setPiece(receivedMessage.getIndex());
             if (!clientState.hasPiece(receivedMessage.getIndex())) {
                 Message interested = new Message(PeerMessage.MsgType.INTERESTED);
                 peerState.writeMessageQ.addFirst(interested);
+                peerState.writeMessageQ.addFirst(new Message(PeerMessage.MsgType.UNCHOKE));
             }
 
         } else if (receivedMessage.ID == PeerMessage.MsgType.BITFIELD) {
             DEBUG.log("the bitfield payload", Utils.bytesToHex(receivedMessage.getPayload()));
             peerState.bitfield.value = receivedMessage.getPayload();
+            peerState.sentBitfield = true;
         } else if (receivedMessage.ID == PeerMessage.MsgType.REQUEST) {
             System.out.println("request received");
             System.out.println("index : " + receivedMessage.getIndex() + " begin : " + receivedMessage.getBegin() + " size : " + receivedMessage.getLength());
@@ -92,10 +94,9 @@ public class NIODownloadHandler {
                 file.seek((long) (receivedMessage.getIndex()) * torrentState.getPieceSize() + receivedMessage.getBegin());
                 file.read(ans);
                 Message piece = new Message(PeerMessage.MsgType.PIECE, receivedMessage.getIndex(), receivedMessage.getBegin(), ans);
-                peerState.writeMessageQ.add(piece);
+                peerState.writeMessageQ.addFirst(piece);
                 //sendMessage(piece);
                 peerState.setPiece(receivedMessage.getIndex());
-                torrentState.setDownloadedSize(torrentState.getDownloadedSize() + size);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -132,10 +133,11 @@ public class NIODownloadHandler {
                     System.err.println("PIECE DOWNLOADED : " + receivedMessage.getIndex() + "\t" + df.format(torrentState.getDownloadedSize() * 1.0 / torrentMetaData.getLength() * 100) + "% downloaded");
                     clientState.setPiece(receivedMessage.getIndex());
                     torrentState.getStatus().set(receivedMessage.getIndex(), PieceStatus.Downloaded);
-                    Message have = new Message(PeerMessage.MsgType.HAVE, torrentState.numPieces - 1);
+                    Message have = new Message(PeerMessage.MsgType.HAVE, receivedMessage.getIndex());
                     //we send have to all peers
                     for (PeerInfo peerInfo : peerInfoList) {
-                        peerInfo.getPeerState().writeMessageQ.addFirst(have);
+                            if (!peerInfo.getPeerState().hasPiece(receivedMessage.getIndex()))
+                                peerInfo.getPeerState().writeMessageQ.addFirst(have);
                     }
                 }
 
@@ -149,6 +151,7 @@ public class NIODownloadHandler {
     public void endConnexion() {
         //TODO : endconnexion
         System.out.println("connexion ended");
+        //TODO : if peer finished downloading and we have all pieces he has, choke
     }
 
     //send bitfield and interested to all peers

@@ -9,6 +9,7 @@ import misc.utils.DEBUG;
 import misc.utils.Utils;
 
 import java.io.IOException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -38,7 +39,6 @@ public class TCPHANDLER {
     }
 
     private Message receiveMessage(SocketChannel socketChannel, SelectionKey key) {
-        System.err.println("here");
         byte[] buffLen = new byte[4];
         ByteBuffer buffer = ByteBuffer.wrap(buffLen);
 
@@ -47,19 +47,31 @@ public class TCPHANDLER {
             while (bRead < 4)
             {
                 bRead += socketChannel.read(buffer);
-                if( bRead == 0 || bRead == -1){
+                if(bRead == -1){
+                    socketChannel.close();
+                    key.cancel();
+                    return null;
+                }
+                if (bRead == 0){
                     return null;
                 }
             }
 
         } catch (IOException e) {
             e.printStackTrace();
-
+            return null;
         }
 
         assert (bRead == 4);
         buffer.flip();
-        int len = buffer.getInt();
+        int len = 0;
+        try{
+            len = buffer.getInt();
+        }catch (BufferUnderflowException e){
+            e.printStackTrace();
+            return null;
+        }
+
         //buffer.flip();
         byte[] finalData = new byte[4 + len];
         for (int i = 0; i < 4; i++)
@@ -72,18 +84,20 @@ public class TCPHANDLER {
                 byteRead += socketChannel.read(buffer);
             } catch (IOException e) {
                 e.printStackTrace();
+                return null;
             }
         }
         //buffer.flip();
         for (int i = 0; i < len; i++)
             finalData[i + 4] = buffer.array()[i];
 
-        assert (byteRead == len);
+        if (byteRead != len)
+            return null;
 
         return PeerMessage.deserialize(finalData);
     }
 
-    private void sendMessage(SocketChannel socketChannel, Message message, SelectionKey key) {
+    private boolean sendMessage(SocketChannel socketChannel, Message message, SelectionKey key) {
         byte[] msg = PeerMessage.serialize(message);
         ByteBuffer writeBuf = ByteBuffer.wrap(msg);
         try {
@@ -91,26 +105,15 @@ public class TCPHANDLER {
         } catch (IOException e) {
             System.err.println("error : " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
-/*        switch (message.getID()){
-            case BITFIELD:
-            case INTERESTED:
-                key.interestOps(SelectionKey.OP_WRITE);
-                break;
-
-            case REQUEST:
-                key.interestOps(SelectionKey.OP_READ);
-                break;
-            case HAVE:
-                key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
-                break;
-
-        }*/
         DEBUG.log("sent message ", message.getID().toString(), "to peer number", String.valueOf(channelIntegerMap.get(socketChannel.socket().getPort())));
+
+        return true;
     }
 
     public void handleRead(SelectionKey key) {
-        System.err.println("read");
+        //System.err.println("read");
         SocketChannel clntChan = (SocketChannel) key.channel();
         int peerIndex = channelIntegerMap.get(clntChan.socket().getPort());
         PeerState peerState = peerList.get(peerIndex).getPeerState();
@@ -119,7 +122,7 @@ public class TCPHANDLER {
         if (!peerState.sentHandshake) {
             HandShake hd = HandShake.readHandshake(clntChan);
             if (hd == null){
-                key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+               //// key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
                 return;
             }
 
@@ -127,22 +130,26 @@ public class TCPHANDLER {
             peerState.sentHandshake = true;
 
             if (!peerState.receivedHandshake)
+            {
                 key.interestOps(SelectionKey.OP_WRITE);
-            key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+                //TCPClient.waitingConnections.add(peerList.get(peerIndex));
+            }
+
+
+            //key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
 
         } else {
-            DEBUG.log("recieving message", "from peer number", String.valueOf(peerIndex));
+            //DEBUG.log("recieving message", "from peer number", String.valueOf(peerIndex));
             Message message = receiveMessage(clntChan, key);
             if (message == null){
                 DEBUG.log("no message received");
-                key.interestOps(SelectionKey.OP_WRITE);
                 return;
             }
 
             DEBUG.log("recieved message ", message.getID().toString(), "from peer number", String.valueOf(peerIndex));
 
-            if (message.getID() == PeerMessage.MsgType.UNCHOKE) {
-                peerState.weAreChokedByPeer = false;
+            if (message.getID() == PeerMessage.MsgType.PIECE){
+                peerState.waitingRequests--;
             }
 
             /* DEBUG.log("the bitfield payload", Utils.bytesToHex(message.getPayload()));*/
@@ -155,7 +162,7 @@ public class TCPHANDLER {
 
     //TODO : we need to write only a small number of requests
     public void handleWrite(SelectionKey key) {
-        System.err.println("write");
+        //System.err.println("write");
         SocketChannel clntChan = (SocketChannel) key.channel();
         int peerIndex = channelIntegerMap.get(clntChan.socket().getPort());
         PeerState peerState = peerList.get(peerIndex).getPeerState();
@@ -173,39 +180,65 @@ public class TCPHANDLER {
                 System.err.println("error cannot send handshake");
                 return;
             }
+
             //our peer received our handshake
             peerState.receivedHandshake = true;
-            if (!peerState.sentHandshake)
+            if (!peerState.sentHandshake){
+                TCPClient.waitingConnections.add(peerList.get(peerIndex));
                 key.interestOps(SelectionKey.OP_READ);
-            else
-                key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+            }
+
+            /*else
+                key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);*/
             return;
         }
         else{
-            if (!peerState.writeMessageQ.isEmpty()){
-                Message writeMessage = peerState.writeMessageQ.poll();
-                if (writeMessage == null)
-                    System.out.println("null message");
-                else{
+            if (!peerState.welcomeQ.isEmpty()){
+                while(!peerState.welcomeQ.isEmpty()){
+                    Message writeMessage = peerState.welcomeQ.poll();
                     sendMessage(clntChan, writeMessage, key);
-                    if (writeMessage.getID() == PeerMessage.MsgType.REQUEST)
-                    {
-                        key.interestOps(SelectionKey.OP_READ);
-                        return;
-                    }
-
                 }
+                TCPClient.waitingConnections.remove(peerList.get(peerIndex));
+
+            }
+
+            else if (!peerState.writeMessageQ.isEmpty()){
+
+                while (!peerState.writeMessageQ.isEmpty() && peerState.waitingRequests < 7) {
+                    Message writeMessage = peerState.writeMessageQ.poll();
+                    if (writeMessage == null)
+                        System.out.println("null message");
+                    else{
+                        sendMessage(clntChan, writeMessage, key);
+                        if (writeMessage.getID() == PeerMessage.MsgType.REQUEST)
+                        {
+                            peerState.waitingRequests++;
+                        }
+                        else{
+                            //TODO : wait till have is sent to all other peers, or just make sure one have is sent per time to peers eq when sending have, try to send the have for the one the peer doens t have, then wait for an interested message from him
+                            break;
+                           // return;
+                        }
+                    }
+                }
+                if (peerState.waitingRequests > 0)
+                {
+                    key.interestOps(SelectionKey.OP_READ);
+                    return;
+                }
+
             }
             //the messageQueue is empty, so we check if we can make a new request
             else{
                 //we have no request to send, we wait for messages from peer
                 if(!handleRequest(key)){
-                    key.interestOps(SelectionKey.OP_READ);
+
+                    key.interestOps(SelectionKey.OP_READ |SelectionKey.OP_WRITE);
                     return;
                 }
             }
         }
-        key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+       key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
 
     }
 
@@ -226,19 +259,25 @@ public class TCPHANDLER {
 
 
             Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, clientState.getBitfield());
-            peerState.writeMessageQ.add(bitfield);
+            peerState.welcomeQ.add(bitfield);
             Message unchoke = new Message(PeerMessage.MsgType.UNCHOKE);
-            peerState.writeMessageQ.add(unchoke);
+            peerState.welcomeQ.add(unchoke);
             Message interested = new Message(PeerMessage.MsgType.INTERESTED);
-            peerState.writeMessageQ.add(interested);
-
-            key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+            peerState.welcomeQ.add(interested);
 
 
         } catch (IOException e) {
             e.printStackTrace();
-        }
 
+        }
+        //Todo : catch connexion errors
+
+        try {
+            if (clntChan.finishConnect())
+                key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return isConnected;
     }
@@ -252,8 +291,8 @@ public class TCPHANDLER {
         if (peerState.weAreChokedByPeer)
         {
             //need to get unchoked
-            Message unchoke = new Message(PeerMessage.MsgType.UNCHOKE);
-            peerState.writeMessageQ.add(unchoke);
+            /*Message unchoke = new Message(PeerMessage.MsgType.UNCHOKE);
+            peerState.writeMessageQ.add(unchoke);*/
 
             //wait untill we are unchoked
             key.interestOps(SelectionKey.OP_READ);

@@ -8,19 +8,19 @@ import misc.tracker.TrackerHandler;
 import misc.utils.DEBUG;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class TCPClient {
 
     public static int CLIENTPORT = 12327;
+    public static Queue<PeerInfo> waitingConnections = new LinkedList<>();
     public static void main(String args[]) throws Exception {
 
 
@@ -49,9 +49,11 @@ public class TCPClient {
         List<PeerInfo> peerInfoList = new ArrayList<>();
 
         PeerInfo qbitorrent = new PeerInfo(InetAddress.getLocalHost(), 12316, torrentMetaData.getNumberOfPieces());
-        PeerInfo vuze = new PeerInfo(InetAddress.getLocalHost(), 12319, torrentMetaData.getNumberOfPieces());
+        PeerInfo vuze = new PeerInfo(InetAddress.getLocalHost(), 12369, torrentMetaData.getNumberOfPieces());
+        PeerInfo transmission = new PeerInfo(InetAddress.getLocalHost(), 51413, torrentMetaData.getNumberOfPieces());
         peerInfoList.add(qbitorrent);
         peerInfoList.add(vuze);
+        peerInfoList.add(transmission);
 
         System.out.println(peerInfoList);
 
@@ -81,32 +83,40 @@ public class TCPClient {
         }
 
         while (true) {
-            System.err.println("/");
-            if (selector.select(3000) == 0) {
+            //System.err.println("/");
+            if (selector.select(1000) == 0) {
                 System.out.print(".");
                 continue;
             }
-            torrentContext.updatePeerState();
+
+            //TODO : find where to put it
+            //torrentContext.updatePeerState();
+
             Iterator<SelectionKey> keyIter = selector.selectedKeys().iterator();
             while (keyIter.hasNext()) {
 
+                torrentContext.updatePeerState();
+
                 SelectionKey key = keyIter.next();
+                SocketChannel clntChan = (SocketChannel) key.channel();
+
+                int peerIndex = tcphandler.channelIntegerMap.get(clntChan.socket().getPort());
+                PeerState peerState = peerInfoList.get(peerIndex).getPeerState();
+                //System.out.println("peer : " + peerIndex + " : " + peerState.writeMessageQ);
 
                 if (key.isConnectable()) {
                     tcphandler.handleConnection(key);
                 }
 
-                if (key.isValid() && key.isWritable()) {
+                if (key.isReadable()) {
+                    tcphandler.handleRead(key);
+                }
 
+                if (key.isValid() && key.isWritable()) {
                     tcphandler.handleWrite(key);
                 }
 
-                if (key.isReadable()) {
-                    //DEBUG.log("reading");
-                    tcphandler.handleRead(key);
-                    //key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-                   // key.interestOps(SelectionKey.OP_WRITE);
-                }
+
 
                 keyIter.remove(); // remove from set of selected keys
             }

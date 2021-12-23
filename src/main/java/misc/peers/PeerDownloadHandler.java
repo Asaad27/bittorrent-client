@@ -190,7 +190,7 @@ public class PeerDownloadHandler {
         numPieces = torrentMetaData.getNumberOfPieces();
         int bfldSize = (numPieces + 7) / 8 ;
         clientBitfield = new byte[bfldSize];
-        for (int i = 0; i < numPieces; i++)
+        for (int i = 3*numPieces/4; i < numPieces; i++)
             setPiece(i);
         try {
             file = new RandomAccessFile(path, "r");

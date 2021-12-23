@@ -32,9 +32,9 @@ public class Main {
         //vuze
         //int PORT = 12314;
         //int PORT = 57675;
-        int PORT = PORTCLIENT.VUZE.port;
+        int PORT = 51413;
         String SERVER = "127.0.0.1";
-        String filePath = "C:\\Users\\asaad_6stn3w\\IdeaProjects\\latestequipe5\\src\\main\\Associated_Legendre_Polynomials_and_Spherical_Harm.pdf";  //path of the file to seed
+        String filePath = "C:\\Users\\asaad_6stn3w\\IdeaProjects\\latestequipe5\\src\\main\\CTos-8.2-2004-VB-64bit.7z";  //path of the file to seed
         PeerDownloadHandler peerDownloadHandler = null;
         TorrentFileHandler torrentHandler = null;
         TorrentMetaData torrentMetaData = null;

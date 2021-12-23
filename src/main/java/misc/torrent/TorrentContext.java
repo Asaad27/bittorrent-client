@@ -33,8 +33,8 @@ public class TorrentContext {
 		int piece = strat.updatePeerState(peers, status, totalPieces);
 		//status.getStatus().set(piece, PieceStatus.Requested);
 		/*if (piece != -1)
-			DEBUG.log("*********************** la piece la plus rare est ", String.valueOf(piece));
-			*/
+			DEBUG.log("*********************** la piece la plus rare est ", String.valueOf(piece));*/
+
 
 	}
 	

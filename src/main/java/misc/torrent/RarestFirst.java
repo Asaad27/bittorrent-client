@@ -4,6 +4,7 @@ import java.util.*;
 
 
 import misc.peers.PeerInfo;
+import misc.utils.DEBUG;
 import misc.utils.Pair;
 
 public class RarestFirst extends DownloadStrat {
@@ -19,10 +20,14 @@ public class RarestFirst extends DownloadStrat {
 			return -1;
 
 		List<PeerInfo> valuablePeers =  peersByPieceIndex(peers, rarest); // Les peers qui ont la pièce en question
-		
-		for (PeerInfo peer : valuablePeers) {
+
+		int n = valuablePeers.size();
+		Random random = new Random();
+		int randomNumber = random.nextInt(n);
+		valuablePeers.get(randomNumber).getPeerState().addPieceToRequest(rarest);
+		/*for (PeerInfo peer : valuablePeers) {
 			peer.getPeerState().addPieceToRequest(rarest);
-		}
+		}*/
 		
 		return rarest;
 	}
@@ -53,7 +58,8 @@ public class RarestFirst extends DownloadStrat {
 		}
 
 		if (minHeap.isEmpty()){
-			//DEBUG.log("empty heap");
+			//DEBUG.loge("empty heap ********************");
+
 			return -1;
 		}
 

@@ -13,6 +13,7 @@ public abstract class State {
     public boolean requested = false;
     public boolean isConnected = false;
     public ByteBitfield bitfield = null;
+    public int numberNonResponseIter = 0;
     
 
     public State(int numPieces) {
