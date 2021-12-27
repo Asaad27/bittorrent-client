@@ -14,8 +14,7 @@ public class PeerState extends State {
     public Deque<Message> writeMessageQ= new LinkedList<>();
     public Queue<Message> welcomeQ = new LinkedList<>();
 
-    public int waitingRequests = 0;
-    public int requestReceivedFromPeer = 0;
+
 
     public PeerState(int numPieces) {
         super(numPieces);
@@ -31,8 +30,6 @@ public class PeerState extends State {
     }
 
     public void removePieceToRequest(int n) {
-    	if(piecesToRequest.contains(n)) {
-    		piecesToRequest.remove(n);
-    	}
+        piecesToRequest.remove(n);
     }
 }

@@ -32,24 +32,8 @@ public class PeerInfo {
         return port;
     }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-   /*public BitSet getBitfield() {
-        return bitfield.getValue();
-    }*/
-    
-    /*public void setBitfield(byte[] bitfield) {
-    	this.bitfield.setValue(bitfield);
-    }
-    
-    public void setBitfieldByPiece(int pieceNb, boolean value) {
-    	this.bitfield.set(pieceNb, value);
-    }*/
-
     @Override
     public String toString() {
-        return "peer\nport : " + port + " addr : " + addr + "\n";
+        return "peer\nport : " + port + " addr : " + addr;
     }
 }

@@ -88,38 +88,7 @@ public class LocalFileHandler {
 
 	}
 
-	/*public boolean verifyDownloadedFile(){
 
-		for (int i = 0; i < numPieces; i++)
-		{
-			byte[] piece;
-			if (i == numPieces-1)
-				piece = new byte[lastPieceSize];
-			else
-				piece = new byte[pieceSize];
-			try {
-				file.seek((long) i * pieceSize);
-				file.read(piece);
-
-				MessageDigest digest=MessageDigest.getInstance("SHA-1");
-				digest.update(piece);
-				byte[] sha = digest.digest();
-				String originalHash = torrentMetaData.getPiecesList().get(i);
-				String downloadedHash = Utils.bytesToHex(sha);
-				if (!downloadedHash.equals(originalHash))
-				{
-					System.err.println("piece id : " + i + "\noriginal hash : " + originalHash + "\ndownloaded hash : " + downloadedHash);
-					return false;
-				}
-
-			} catch (IOException | NoSuchAlgorithmException e) {
-				e.printStackTrace();
-			}
-		}
-
-		System.out.println("FILE CHECK : SUCCESS");
-		return true;
-	}*/
 	
 	public void setPieceStatus(int pieceNb, boolean value) {
 		this.bitfield.set(pieceNb, value);

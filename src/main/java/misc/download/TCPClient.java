@@ -35,7 +35,7 @@ public class TCPClient implements Runnable{
 
     private TrackerHandler tracker;
     private List<PeerInfo> peerInfoList;
-    private final TCPMessagesHandler TCPMessagesHandler;
+    private final TCPMessagesHandler tcpMessagesHandler;
     private Selector selector;
 
 
@@ -50,7 +50,7 @@ public class TCPClient implements Runnable{
         clientState = new ClientState(torrentMetaData.getNumberOfPieces());
         torrentState = TorrentState.getInstance(torrentMetaData, clientState);
         torrentContext = new TorrentContext(peerInfoList, torrentState, subject);
-        TCPMessagesHandler = new TCPMessagesHandler(torrentMetaData, peerInfoList, clientState, torrentState, subject);
+        tcpMessagesHandler = new TCPMessagesHandler(torrentMetaData, peerInfoList, clientState, torrentState, subject);
 
         initializeSelector();
     }
@@ -71,22 +71,22 @@ public class TCPClient implements Runnable{
             Iterator<SelectionKey> keyIter = selector.selectedKeys().iterator();
             while (keyIter.hasNext()) {
 
-                if(TCPMessagesHandler.fetchRequests()){
+                if(tcpMessagesHandler.fetchRequests()){
                     //System.err.println("request fetched");
                 }
 
                 SelectionKey key = keyIter.next();
 
                 if (key.isConnectable()) {
-                    TCPMessagesHandler.handleConnection(key);
+                    tcpMessagesHandler.handleConnection(key);
                 }
 
                 if (key.isValid() && key.isReadable()) {
-                    TCPMessagesHandler.handleRead(key);
+                    tcpMessagesHandler.handleRead(key);
                 }
 
                 if (key.isValid() && key.isWritable()) {
-                    TCPMessagesHandler.handleWrite(key);
+                    tcpMessagesHandler.handleWrite(key);
                 }
 
                 keyIter.remove();
