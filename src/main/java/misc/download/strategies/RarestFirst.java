@@ -1,8 +1,9 @@
-package misc.torrent;
+package misc.download.strategies;
 
 import misc.messages.ByteBitfield;
 import misc.peers.PeerInfo;
 import misc.peers.PeerState;
+import misc.torrent.*;
 import misc.utils.Pair;
 
 import java.util.HashSet;
@@ -19,14 +20,11 @@ public class RarestFirst extends DownloadStrat implements IObservable {
     private final TorrentState status;
     private final PriorityQueue<Pair> minHeap = new PriorityQueue<>();
 
-    private final Observer subject;
-
 
     private RarestFirst(List<PeerInfo> peers, TorrentState status, Observer subject) {
         this.peers = peers;
         this.status = status;
-        this.subject = subject;
-        this.subject.attach(this);
+        subject.attach(this);
         initAlgo();
     }
 
@@ -65,7 +63,7 @@ public class RarestFirst extends DownloadStrat implements IObservable {
 
     @Override
     public String getName() {
-        return getClass().getName();
+        return Strategies.RAREST_FIRST.toString();
     }
 
     private void initRarity() {

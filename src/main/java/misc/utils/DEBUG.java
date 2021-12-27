@@ -13,18 +13,18 @@ public class DEBUG {
             return ;
 
             for (int i = 0; i < strings.length ; i++) {
-                System.out.print(strings[i] + " / ");
+                System.out.print(strings[i] + " | ");
             }
-            System.out.println("");
+            System.out.println();
     }
 
     public static void loge(String ...strings) {
         if (!flag)
             return ;
         for (int i = 0; i < strings.length ; i++) {
-            System.err.print(strings[i] + " / ");
+            System.err.print(strings[i] + " | ");
         }
-        System.err.println("");
+        System.err.println();
     }
 
     public static void switchIOToFile(){
@@ -38,5 +38,10 @@ public class DEBUG {
         }
         System.setOut(fileOut);
         System.setErr(fileErr);
+    }
+
+    public static void printError(Exception e, String name){
+        DEBUG.loge("error exception : ",name, e.getMessage(), e.getLocalizedMessage());
+        e.printStackTrace();
     }
 }

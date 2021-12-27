@@ -44,7 +44,7 @@ public class NIODownloadHandler{
     }
 
     /**
-     * Thread qui gere la lecture des messages recus
+     * fonction qui gere la lecture des messages recus
      */
     public void messageHandler(Message receivedMessage, PeerState peerState) {
         //PeerState peerState = peerList.get(peerIndex).getPeerState();
@@ -71,7 +71,6 @@ public class NIODownloadHandler{
             peerState.interested = false;
             //endConnexion();
         } else if (receivedMessage.ID == PeerMessage.MsgType.HAVE) {
-            System.out.println("HAVE RECEIVED : " + receivedMessage.getIndex());
             if (!peerState.hasPiece(receivedMessage.getIndex())){
                 observer.notifyAllObservers(receivedMessage.getIndex());
             }
@@ -83,13 +82,10 @@ public class NIODownloadHandler{
             }
 
         } else if (receivedMessage.ID == PeerMessage.MsgType.BITFIELD) {
-            DEBUG.log("the bitfield payload", Utils.bytesToHex(receivedMessage.getPayload()));
             peerState.bitfield.value = receivedMessage.getPayload();
             peerState.sentBitfield = true;
             observer.notifyAllObservers(Events.PEER_CONNECTED, peerState);
         } else if (receivedMessage.ID == PeerMessage.MsgType.REQUEST) {
-            System.out.println("request received");
-            System.out.println("index : " + receivedMessage.getIndex() + " begin : " + receivedMessage.getBegin() + " size : " + receivedMessage.getLength());
             //we find the requested piece in the file
 
             int size = receivedMessage.getLength();

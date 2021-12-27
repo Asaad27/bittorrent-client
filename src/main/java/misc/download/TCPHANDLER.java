@@ -8,15 +8,15 @@ import misc.peers.PeerInfo;
 import misc.peers.PeerState;
 import misc.torrent.*;
 import misc.torrent.Observer;
+import misc.download.strategies.DownloadStrat;
 import misc.tracker.TrackerHandler;
 import misc.utils.DEBUG;
 import misc.utils.Utils;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
+
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.*;
@@ -41,7 +41,6 @@ public class TCPHANDLER {
         this.peerList = peerList;
         this.clientState = clientState;
         //TODO : tracker should not return our client as a peer
-        //peerDownloadHandler.leechTorrent(peerList);
     }
 
     private Message receiveMessage(SocketChannel socketChannel, SelectionKey key) {
@@ -68,19 +67,17 @@ public class TCPHANDLER {
             key.cancel();
             return null;
         } catch(BufferUnderflowException e) {
-            e.printStackTrace();
-            System.err.println(e.getMessage());
+            DEBUG.printError(e, getClass().getName());
             return null;
         }
 
         assert (bRead == 4);
         buffer.flip();
-        int len = 0;
+        int len;
         try{
             len = buffer.getInt();
         }catch (BufferUnderflowException e) {
-            e.printStackTrace();
-            System.err.println(e.getMessage());
+            DEBUG.printError(e, getClass().getName());
             return null;
         }
 
@@ -95,8 +92,7 @@ public class TCPHANDLER {
             try {
                 byteRead += socketChannel.read(buffer);
             } catch (IOException | BufferUnderflowException e) {
-                e.printStackTrace();
-                System.err.println(e.getMessage());
+                DEBUG.printError(e, getClass().getName());
                 return null;
             }
         }
@@ -110,34 +106,24 @@ public class TCPHANDLER {
         return PeerMessage.deserialize(finalData);
     }
 
-    private boolean sendMessage(SocketChannel socketChannel, Message message, SelectionKey key) {
+    private boolean sendMessage(SocketChannel socketChannel, Message message) {
         byte[] msg = PeerMessage.serialize(message);
         ByteBuffer writeBuf = ByteBuffer.wrap(msg);
         try {
             socketChannel.write(writeBuf);
         } catch (IOException e) {
-            System.err.println("error : " + e.getMessage());
-            e.printStackTrace();
+            DEBUG.printError(e, getClass().getName());
             return false;
         }
-        DEBUG.log("sent message ", message.getID().toString(), "to peer number", String.valueOf(channelIntegerMap.get(socketChannel.socket().getPort())));
-        if (message.getID() == PeerMessage.MsgType.REQUEST)
-            DEBUG.log("piece requested : " + message.getIndex());
-        if (message.getID() == PeerMessage.MsgType.HAVE)
-            DEBUG.log("have number : " + message.getIndex());
-
-
+        DEBUG.log("sent message ", message.toString(), "to peer number", String.valueOf(channelIntegerMap.get(socketChannel.socket().getPort())));
 
         return true;
     }
 
-    int btfld = 0;
     public void handleRead(SelectionKey key) {
-        //System.err.println("read");
         SocketChannel clntChan = (SocketChannel) key.channel();
         int peerIndex = channelIntegerMap.get(clntChan.socket().getPort());
         PeerState peerState = peerList.get(peerIndex).getPeerState();
-        //DEBUG.log("peerIndex", String.valueOf(peerIndex));
 
         if (!peerState.sentHandshake) {
             HandShake hd = HandShake.readHandshake(clntChan);
@@ -152,20 +138,18 @@ public class TCPHANDLER {
             if (!peerState.receivedHandshake)
             {
                 key.interestOps(SelectionKey.OP_WRITE);
-                //TCPClient.waitingConnections.add(peerList.get(peerIndex));
+                TCPClient.waitingConnections.add(peerList.get(peerIndex));
             }
 
             return;
-            //key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
         }
-            //DEBUG.log("recieving message", "from peer number", String.valueOf(peerIndex));
         Message message = receiveMessage(clntChan, key);
         if (message == null){
-            DEBUG.log("no message received");
+           // DEBUG.log("no message received");
             return;
         }
 
-        DEBUG.log("recieved message ", message.getID().toString(), (message.getID() == PeerMessage.MsgType.PIECE ? String.valueOf(message.getIndex()) : ""), " from peer number", String.valueOf(peerIndex));
+        DEBUG.log("recieved message ", message.toString(), " from peer number", String.valueOf(peerIndex));
 
         if (message.getID() == PeerMessage.MsgType.PIECE){
             peerState.waitingRequests--;
@@ -178,9 +162,8 @@ public class TCPHANDLER {
 
     }
 
-    //TODO : we need to write only a small number of requests
     public void handleWrite(SelectionKey key) {
-        //System.err.println("write");
+
         SocketChannel clntChan = (SocketChannel) key.channel();
         int peerIndex = channelIntegerMap.get(clntChan.socket().getPort());
         PeerState peerState = peerList.get(peerIndex).getPeerState();
@@ -198,6 +181,7 @@ public class TCPHANDLER {
                 clntChan.write(writeBuf);
             } catch (IOException e) {
                 System.err.println("error cannot send handshake");
+                DEBUG.printError(e, getClass().getName());
                 return;
             }
 
@@ -215,7 +199,7 @@ public class TCPHANDLER {
             if (!peerState.welcomeQ.isEmpty()){
                 while(!peerState.welcomeQ.isEmpty()){
                     Message writeMessage = peerState.welcomeQ.poll();
-                    sendMessage(clntChan, writeMessage, key);
+                    sendMessage(clntChan, writeMessage);
                 }
                 TCPClient.waitingConnections.remove(peerList.get(peerIndex));
             }
@@ -230,7 +214,7 @@ public class TCPHANDLER {
                     if (writeMessage == null)
                         System.out.println("null message to write");
                     else{
-                        sendMessage(clntChan, writeMessage, key);
+                        sendMessage(clntChan, writeMessage);
                         if (writeMessage.getID() == PeerMessage.MsgType.REQUEST)
                         {
                             peerState.waitingRequests++;
@@ -253,7 +237,7 @@ public class TCPHANDLER {
 
     }
 
-    public void handleConnection(SelectionKey key) throws IOException {
+    public void handleConnection(SelectionKey key) {
         SocketChannel clntChan = (SocketChannel) key.channel();
         int peerIndex = channelIntegerMap.get(clntChan.socket().getPort());
         PeerState peerState = peerList.get(peerIndex).getPeerState();
@@ -279,23 +263,32 @@ public class TCPHANDLER {
 
         } catch (IOException connectException){
             peerState.killed = true;
-            clntChan.close();
+            try {
+                clntChan.close();
+            } catch (IOException e) {
+                DEBUG.printError(e, getClass().getName());
+            }
             key.cancel();
         }
-        //Todo : catch connexion errors
+
 
         try {
             if (clntChan.finishConnect())
                 key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
         } catch (IOException e) {
+            DEBUG.printError(e, getClass().getName());
             peerState.killed = true;
-            clntChan.close();
+            try {
+                clntChan.close();
+            } catch (IOException ex) {
+                DEBUG.printError(e, getClass().getName());
+            }
             key.cancel();
         }
 
     }
 
-    //TODO : algo de selection des pieces
+
     public static boolean fetchRequests(){
 
         boolean everyoneIsConnected = true;

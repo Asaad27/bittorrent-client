@@ -1,5 +1,7 @@
 package misc.messages;
 
+import misc.utils.Utils;
+
 /**
  * Model class for Messages
  * @author Asaad
@@ -8,9 +10,9 @@ package misc.messages;
 public class Message {
     public PeerMessage.MsgType ID;
     byte[] payload;
-    int index;
-    int begin;
-    int length;
+    private int index;
+    private int begin;
+    private int length;
     int blockSize;
 
 
@@ -46,16 +48,8 @@ public class Message {
         return ID;
     }
 
-    public void setID(PeerMessage.MsgType ID) {
-        this.ID = ID;
-    }
-
     public byte[] getPayload() {
         return payload;
-    }
-
-    public void setPayload(byte[] payload) {
-        this.payload = payload;
     }
 
     public int getIndex() {
@@ -70,10 +64,6 @@ public class Message {
         return begin;
     }
 
-    public void setBegin(int begin) {
-        this.begin = begin;
-    }
-
     public int getLength() {
         return length;
     }
@@ -86,7 +76,26 @@ public class Message {
         return blockSize;
     }
 
-    public void setBlockSize(int blockSize) {
-        this.blockSize = blockSize;
+    @Override
+    public String toString() {
+        switch (getID()){
+            case CHOKE:
+            case KEEPALIVE:
+            case UNCHOKE:
+            case INTERESTED:
+            case NOTINTERESTED:
+                return ID.name();
+            case HAVE:
+                return ID.name() + " " + "piece : " + getIndex();
+            case BITFIELD:
+                return ID.name() + " " + " payload : " + Utils.bytesToHex(getPayload());
+            case REQUEST:
+            case CANCEL:
+                return ID.name() + " " + " piece : " + getIndex() + " begin : " + getBegin() + " length : " + getLength();
+            case PIECE:
+                return ID.name() + " " + " piece : " + getIndex() + " begin : " + getBegin();
+            default:
+                return "unknown message";
+        }
     }
 }

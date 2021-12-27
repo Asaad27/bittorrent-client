@@ -1,8 +1,4 @@
-package misc.torrent;
-
-import java.util.List;
-
-import misc.peers.PeerInfo;
+package misc.download.strategies;
 
 public interface IDownloadStrat {
 

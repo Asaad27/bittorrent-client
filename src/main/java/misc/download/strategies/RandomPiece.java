@@ -1,9 +1,12 @@
-package misc.torrent;
+package misc.download.strategies;
 
 import java.util.*;
 
 import misc.peers.PeerInfo;
 import misc.peers.PeerState;
+import misc.torrent.IObservable;
+import misc.torrent.Observer;
+import misc.torrent.TorrentState;
 
 public class RandomPiece extends DownloadStrat implements IObservable {
 
@@ -13,9 +16,9 @@ public class RandomPiece extends DownloadStrat implements IObservable {
 	private TorrentState status;
 	private Set<Integer> piecesWithNoPeers;
 
-	private final Observer subject;
+	private final misc.torrent.Observer subject;
 
-	private RandomPiece(List<PeerInfo> peers, TorrentState status, Observer subject) {
+	private RandomPiece(List<PeerInfo> peers, TorrentState status, misc.torrent.Observer subject) {
 		this.peers = peers;
 		this.status = status;
 		this.subject = subject;
@@ -54,7 +57,7 @@ public class RandomPiece extends DownloadStrat implements IObservable {
 
 	@Override
 	public String getName() {
-		return getClass().getName();
+		return "RANDOM";
 	}
 
 	public static IDownloadStrat instance(List<PeerInfo> peers, TorrentState status, Observer subject) {

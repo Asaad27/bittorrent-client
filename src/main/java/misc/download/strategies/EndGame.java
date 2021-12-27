@@ -1,23 +1,21 @@
-package misc.torrent;
+package misc.download.strategies;
 
 import java.util.List;
 import java.util.Set;
 
 import misc.peers.PeerInfo;
 import misc.peers.PeerState;
+import misc.torrent.*;
 
-public class EndGame extends DownloadStrat implements IObservable{
+public class EndGame extends DownloadStrat implements IObservable {
 	
 	private static EndGame instance;
-	private List<PeerInfo> peers;
-	private TorrentState status;
-
-	private final Observer subject;
+	private final List<PeerInfo> peers;
+	private final TorrentState status;
 
 	public EndGame(List<PeerInfo> peers, TorrentState status, Observer subject) {
 		this.peers = peers;
 		this.status = status;
-		this.subject = subject;
 		subject.attach(this);
 	}
 
@@ -35,7 +33,7 @@ public class EndGame extends DownloadStrat implements IObservable{
 
 	@Override
 	public String getName() {
-		return getClass().getName();
+		return "ENDGAME";
 	}
 
 	public static IDownloadStrat instance(List<PeerInfo> peers, TorrentState status, Observer subject) {

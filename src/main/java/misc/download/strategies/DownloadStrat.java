@@ -1,8 +1,10 @@
-package misc.torrent;
+package misc.download.strategies;
 
 import java.util.*;
 
 import misc.peers.PeerInfo;
+import misc.torrent.PieceStatus;
+import misc.torrent.TorrentState;
 
 public abstract class DownloadStrat implements IDownloadStrat {
 

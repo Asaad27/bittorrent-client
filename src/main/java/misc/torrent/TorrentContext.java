@@ -1,5 +1,6 @@
 package misc.torrent;
 import misc.download.NIODownloadHandler;
+import misc.download.strategies.*;
 import misc.utils.DEBUG;
 import misc.peers.PeerInfo;
 import java.util.List;
@@ -30,7 +31,7 @@ public class TorrentContext {
 			DEBUG.log("*********************** la piece  est ", String.valueOf(piece), strat.getName());
 
 		if (piece == -3){
-			DEBUG.loge("changing strat ****************************************************");
+			DEBUG.loge("changing strategie ****************************************************");
 			chooseStrategy(Strategies.RANDOM);
 		}
 

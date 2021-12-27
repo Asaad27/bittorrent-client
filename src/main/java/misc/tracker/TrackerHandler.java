@@ -21,7 +21,7 @@ import java.net.InetAddress;
 public class TrackerHandler {
 	
 	private static String PEER_ID_HEAD = "-PYA501-";
-	public static  String PEER_ID;
+	public static final  String PEER_ID = genPeerId();
 	
 	private URL announceURL;
 	private byte[] SHA1Info;
@@ -34,7 +34,6 @@ public class TrackerHandler {
 		this.SHA1Info = SHA1Info;
 		this.port = port;
 		this.totalPieces = totalPieces;
-		this.PEER_ID = genPeerId();
 	}
 	
 	public String buildQueryURI() {

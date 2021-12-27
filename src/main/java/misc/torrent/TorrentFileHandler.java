@@ -4,6 +4,7 @@ import be.adaxisoft.bencode.BDecoder;
 import be.adaxisoft.bencode.BEncodedValue;
 import be.adaxisoft.bencode.BEncoder;
 import be.adaxisoft.bencode.InvalidBEncodingException;
+import misc.utils.DEBUG;
 import misc.utils.Utils;
 
 import java.io.ByteArrayOutputStream;
@@ -44,14 +45,14 @@ public class TorrentFileHandler {
 
         } catch (InvalidBEncodingException e) {
 
-            System.out.println("BEncodage du fichier torrent invalide");
-            System.err.println("error : " + e.getMessage());
+            System.err.println("BEncodage du fichier torrent invalide");
+            DEBUG.printError(e, getClass().getName());
             return null;
 
         } catch (IOException e) {
 
-            System.out.println("Fichier d'entrée invalide lors du décodage du fichier Torrent");
-            System.err.println(e.getMessage());
+            System.err.println("Fichier d'entrée invalide lors du décodage du fichier Torrent");
+            DEBUG.printError(e, getClass().getName());
             return null;
 
         }

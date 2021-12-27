@@ -6,6 +6,7 @@ import misc.messages.HandShake;
 import misc.peers.PeerState;
 import misc.torrent.TorrentMetaData;
 import misc.tracker.TrackerHandler;
+import misc.utils.DEBUG;
 import misc.utils.Utils;
 
 import java.io.*;
@@ -294,7 +295,7 @@ public class PeerDownloadHandler {
                             try {
                                 sendMessage(have);
                             } catch (IOException e) {
-                                System.err.println(e.getMessage());
+                                DEBUG.printError(e, getClass().getName());
                             }
                         }
                     }
@@ -308,7 +309,7 @@ public class PeerDownloadHandler {
                             try {
                                 sendMessage(have);
                             } catch (IOException e) {
-                                System.err.println(e.getMessage());
+                                DEBUG.printError(e, getClass().getName());
                             }
                         }
                     }
@@ -383,8 +384,7 @@ public class PeerDownloadHandler {
             out.write(msg);
             out.flush();
         } catch (IOException e) {
-            System.err.println("error : " + e.getMessage());
-            e.printStackTrace();
+            DEBUG.printError(e, getClass().getName());
         }
         //System.out.println(message.ID.toString() + " sent" + " content : " + Utils.bytesToHex(msg));
     }

@@ -58,7 +58,7 @@ public class PeerMessage {
                 buffer = ByteBuffer.allocate(9);
                 buffer.putInt(5);
                 buffer.put((byte) 4);
-                buffer.putInt(msg.index);
+                buffer.putInt(msg.getIndex());
                 break;
 
             case BITFIELD:
@@ -72,8 +72,8 @@ public class PeerMessage {
                 buffer = ByteBuffer.allocate(13 + msg.payload.length);
                 buffer.putInt(9 + msg.payload.length);
                 buffer.put((byte) 7);
-                buffer.putInt(msg.index);
-                buffer.putInt(msg.begin);
+                buffer.putInt(msg.getIndex());
+                buffer.putInt(msg.getBegin());
                 buffer.put(msg.payload, 0, msg.payload.length);
                 break;
 
@@ -81,18 +81,18 @@ public class PeerMessage {
                 buffer = ByteBuffer.allocate(17);
                 buffer.putInt(13);
                 buffer.put((byte) 6);
-                buffer.putInt(msg.index);
-                buffer.putInt(msg.begin);
-                buffer.putInt(msg.length);
+                buffer.putInt(msg.getIndex());
+                buffer.putInt(msg.getBegin());
+                buffer.putInt(msg.getLength());
                 break;
 
             case CANCEL:
                 buffer = ByteBuffer.allocate(13);
                 buffer.putInt(13);
                 buffer.put((byte) 8);
-                buffer.putInt(msg.index);
-                buffer.putInt(msg.begin);
-                buffer.putInt(msg.blockSize);
+                buffer.putInt(msg.getIndex());
+                buffer.putInt(msg.getBegin());
+                buffer.putInt(msg.getBlockSize());
                 break;
 
             default:
