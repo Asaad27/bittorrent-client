@@ -52,6 +52,11 @@ public class RandomPiece extends DownloadStrat implements IObservable {
 		return random;
 	}
 
+	@Override
+	public String getName() {
+		return getClass().getName();
+	}
+
 	public static IDownloadStrat instance(List<PeerInfo> peers, TorrentState status, Observer subject) {
 		if (instance == null) {
 			instance = new RandomPiece(peers, status, subject);

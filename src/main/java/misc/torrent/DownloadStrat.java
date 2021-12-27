@@ -12,6 +12,8 @@ public abstract class DownloadStrat implements IDownloadStrat {
 		List<PeerInfo> valuablePeers = new ArrayList<PeerInfo>();
 		
 		for(PeerInfo peer : peers) {
+			if (peer.getPeerState().killed)
+				continue;
 			if (peer.getPeerState().hasPiece(pieceNb)){
 				valuablePeers.add(peer);
 			}

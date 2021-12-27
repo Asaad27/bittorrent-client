@@ -60,7 +60,9 @@ public class TorrentState {
         numOfBlocks = (pieceSize + blockSize - 1) / blockSize;
         lastPieceSize = (torrentMetaData.getLength() % pieceSize == 0) ? pieceSize : (int) (torrentMetaData.getLength() % pieceSize);
         numOfLastPieceBlocks = (lastPieceSize + blockSize -1) / blockSize;
-        remainingBlockSize = lastPieceSize % blockSize;
+
+        remainingBlockSize =( lastPieceSize % blockSize != 0) ? lastPieceSize%blockSize : blockSize;
+
         numberOfPieces = torrentMetaData.getNumberOfPieces();
     }
 

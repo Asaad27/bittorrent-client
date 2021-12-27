@@ -1,13 +1,14 @@
 package misc.torrent;
 
-import misc.download.NIODownloadHandler;
 import misc.messages.ByteBitfield;
-import misc.peers.ClientState;
 import misc.peers.PeerInfo;
 import misc.peers.PeerState;
 import misc.utils.Pair;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.PriorityQueue;
 
 public class RarestFirst extends DownloadStrat implements IObservable {
 
@@ -18,26 +19,26 @@ public class RarestFirst extends DownloadStrat implements IObservable {
     private final TorrentState status;
     private final PriorityQueue<Pair> minHeap = new PriorityQueue<>();
 
-	private final Observer subject;
+    private final Observer subject;
 
 
     private RarestFirst(List<PeerInfo> peers, TorrentState status, Observer subject) {
         this.peers = peers;
         this.status = status;
-		this.subject = subject;
-		this.subject.attach(this);
+        this.subject = subject;
+        this.subject.attach(this);
         initAlgo();
     }
 
     public static IDownloadStrat instance(List<PeerInfo> peers, TorrentState status, Observer subject) {
         if (instance == null) {
-            instance = new RarestFirst(peers, status,  subject);
+            instance = new RarestFirst(peers, status, subject);
         }
         return instance;
     }
 
-    public boolean receivedAllBitfields(){
-        for (PeerInfo peer: peers) {
+    public boolean receivedAllBitfields() {
+        for (PeerInfo peer : peers) {
             if (!peer.getPeerState().sentBitfield)
                 return false;
         }
@@ -60,6 +61,11 @@ public class RarestFirst extends DownloadStrat implements IObservable {
 
 
         return rarest.getIndex();
+    }
+
+    @Override
+    public String getName() {
+        return getClass().getName();
     }
 
     private void initRarity() {
@@ -119,7 +125,7 @@ public class RarestFirst extends DownloadStrat implements IObservable {
     }
 }
 
-//WE CALCULATE FIRST THE RAREST PIECES
+//WE CALCULATE FIRST m THE RAREST PIECES
 //WE PUT THEM IN A PRIORITY QUEUE <PIECEINDEX, RARETY>
 //WE POLL EACH TIME AN EVENT HAPPENS
 //WE UPDATE THE PIECE TO REQUEST FOR EACH PEER

@@ -13,8 +13,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.text.DecimalFormat;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -88,7 +86,7 @@ public class NIODownloadHandler{
             DEBUG.log("the bitfield payload", Utils.bytesToHex(receivedMessage.getPayload()));
             peerState.bitfield.value = receivedMessage.getPayload();
             peerState.sentBitfield = true;
-            observer.notifyAllObservers(EVENTS.PEER_CONNECTED, peerState);
+            observer.notifyAllObservers(Events.PEER_CONNECTED, peerState);
         } else if (receivedMessage.ID == PeerMessage.MsgType.REQUEST) {
             System.out.println("request received");
             System.out.println("index : " + receivedMessage.getIndex() + " begin : " + receivedMessage.getBegin() + " size : " + receivedMessage.getLength());
@@ -234,7 +232,7 @@ public class NIODownloadHandler{
         int numberOfPeers = valuablePeers.size();
         Random random = new Random();
 
-        int numberOfBlocks = (pieceIndex == torrentState.getNumberOfPieces()-1 ? torrentState.getNumOfBlocks() : torrentState.getNumOfLastPieceBlocks());
+        int numberOfBlocks = torrentState.getNumOfBlocks();
 
         if (pieceIndex == torrentState.getNumberOfPieces()-1){
             int lpoffset = 0;

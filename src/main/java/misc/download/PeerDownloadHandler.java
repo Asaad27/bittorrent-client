@@ -231,7 +231,6 @@ public class PeerDownloadHandler {
             } else if (receivedMessage.ID == PeerMessage.MsgType.NOTINTERESTED) {
                 System.out.println("NOTINTERESTED RECEIVED");
                 peerState.interested = false;
-                endConnexion();
             } else if (receivedMessage.ID == PeerMessage.MsgType.HAVE) {
                 System.out.println("HAVE RECEIVED");
                 peerState.setPiece(receivedMessage.getIndex());

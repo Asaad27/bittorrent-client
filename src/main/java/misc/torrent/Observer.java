@@ -13,7 +13,7 @@ public class Observer {
         observables.add(instance);
     }
 
-    public void notifyAllObservers(EVENTS event, PeerState peerState){
+    public void notifyAllObservers(Events event, PeerState peerState){
         switch (event){
             case PEER_CONNECTED:
                 for (IObservable observable: observables) {

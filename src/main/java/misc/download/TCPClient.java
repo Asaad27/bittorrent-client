@@ -12,7 +12,6 @@ import misc.tracker.TrackerHandler;
 import misc.utils.DEBUG;
 
 import java.io.FileInputStream;
-import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
@@ -53,13 +52,19 @@ public class TCPClient {
 
         List<PeerInfo> peerInfoList = new ArrayList<>();
 
-        PeerInfo qbitorrent = new PeerInfo(InetAddress.getLocalHost(), 12316, torrentMetaData.getNumberOfPieces());
-        PeerInfo vuze = new PeerInfo(InetAddress.getLocalHost(), 12369, torrentMetaData.getNumberOfPieces());
-        PeerInfo transmission = new PeerInfo(InetAddress.getLocalHost(), 51413, torrentMetaData.getNumberOfPieces());
+        //PeerInfo qbitorrent = new PeerInfo(InetAddress.getLocalHost(), 12316, torrentMetaData.getNumberOfPieces());
+        //PeerInfo vuze = new PeerInfo(InetAddress.getLocalHost(), 12369, torrentMetaData.getNumberOfPieces());
+        //PeerInfo transmission = new PeerInfo(InetAddress.getLocalHost(), 51413, torrentMetaData.getNumberOfPieces());
         //peerInfoList.add(qbitorrent);
-        peerInfoList.add(vuze);
+        //peerInfoList.add(vuze);
         //peerInfoList.add(transmission);
 
+        PeerInfo peer1 = new PeerInfo(InetAddress.getLocalHost(), 2001, torrentMetaData.getNumberOfPieces());
+        PeerInfo peer2 = new PeerInfo(InetAddress.getLocalHost(), 2002, torrentMetaData.getNumberOfPieces());
+        PeerInfo peer3 = new PeerInfo(InetAddress.getLocalHost(), 2003, torrentMetaData.getNumberOfPieces());
+        peerInfoList.add(peer1);
+        peerInfoList.add(peer2);
+        peerInfoList.add(peer3);
         System.out.println(peerInfoList);
 
         String server = "127.0.0.1";

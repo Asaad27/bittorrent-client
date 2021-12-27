@@ -1,6 +1,6 @@
 package misc.torrent;
 
-public enum EVENTS {
+public enum Events {
     PEER_DISCONNECTED,
     PEER_CONNECTED
 }

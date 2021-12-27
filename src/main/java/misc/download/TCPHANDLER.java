@@ -13,8 +13,10 @@ import misc.utils.DEBUG;
 import misc.utils.Utils;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.*;
@@ -251,12 +253,12 @@ public class TCPHANDLER {
 
     }
 
-    public void handleConnection(SelectionKey key){
+    public void handleConnection(SelectionKey key) throws IOException {
         SocketChannel clntChan = (SocketChannel) key.channel();
         int peerIndex = channelIntegerMap.get(clntChan.socket().getPort());
         PeerState peerState = peerList.get(peerIndex).getPeerState();
 
-        boolean isConnected = false;
+        boolean isConnected;
         try {
             DEBUG.log("connecting to " + clntChan.getRemoteAddress());
             isConnected = clntChan.finishConnect();
@@ -275,9 +277,10 @@ public class TCPHANDLER {
             peerState.welcomeQ.add(interested);
 
 
-        } catch (IOException e) {
-            e.printStackTrace();
-
+        } catch (IOException connectException){
+            peerState.killed = true;
+            clntChan.close();
+            key.cancel();
         }
         //Todo : catch connexion errors
 
@@ -285,7 +288,9 @@ public class TCPHANDLER {
             if (clntChan.finishConnect())
                 key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
         } catch (IOException e) {
-            e.printStackTrace();
+            peerState.killed = true;
+            clntChan.close();
+            key.cancel();
         }
 
     }
@@ -295,7 +300,10 @@ public class TCPHANDLER {
 
         boolean everyoneIsConnected = true;
         for (PeerInfo peer: NIODownloadHandler.peerInfoList) {
-            everyoneIsConnected = everyoneIsConnected && peer.getPeerState().isConnected();
+            PeerState peerState = peer.getPeerState();
+            if (peerState.killed)
+                continue;
+            everyoneIsConnected = everyoneIsConnected && peerState.isConnected();
         }
         if (!everyoneIsConnected){
             return false;
@@ -304,7 +312,6 @@ public class TCPHANDLER {
         boolean sent = false;
         if (NIODownloadHandler.clientState.piecesToRequest.size() < 4){
             TCPClient.torrentContext.updatePeerState();
-
 
             Iterator<Integer> it = NIODownloadHandler.clientState.piecesToRequest.iterator();
 

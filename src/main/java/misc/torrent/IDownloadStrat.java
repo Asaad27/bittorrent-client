@@ -7,5 +7,6 @@ import misc.peers.PeerInfo;
 public interface IDownloadStrat {
 
 	int updatePeerState();
+	String getName();
 
 }

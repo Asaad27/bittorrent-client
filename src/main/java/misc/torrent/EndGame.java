@@ -4,16 +4,21 @@ import java.util.List;
 import java.util.Set;
 
 import misc.peers.PeerInfo;
+import misc.peers.PeerState;
 
-public class EndGame extends DownloadStrat {
+public class EndGame extends DownloadStrat implements IObservable{
 	
 	private static EndGame instance;
 	private List<PeerInfo> peers;
 	private TorrentState status;
 
-	public EndGame(List<PeerInfo> peers, TorrentState status) {
+	private final Observer subject;
+
+	public EndGame(List<PeerInfo> peers, TorrentState status, Observer subject) {
 		this.peers = peers;
 		this.status = status;
+		this.subject = subject;
+		subject.attach(this);
 	}
 
 	@Override
@@ -28,11 +33,30 @@ public class EndGame extends DownloadStrat {
 		return -1;
 	}
 
-	public static IDownloadStrat instance(List<PeerInfo> peers,  TorrentState status) {
+	@Override
+	public String getName() {
+		return getClass().getName();
+	}
+
+	public static IDownloadStrat instance(List<PeerInfo> peers, TorrentState status, Observer subject) {
 		if (instance == null) {
-			instance = new EndGame(peers, status);
+			instance = new EndGame(peers, status, subject);
 		}
 		return instance;
 	}
 
+	@Override
+	public void peerHasPiece(int index) {
+
+	}
+
+	@Override
+	public void peerConnection(PeerState peerState) {
+
+	}
+
+	@Override
+	public void peerDisconnection(PeerState peerState) {
+
+	}
 }
