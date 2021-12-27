@@ -1,5 +1,8 @@
 package misc.utils;
 
+import java.util.Objects;
+import java.util.Random;
+
 public class Pair implements Comparable<Pair> {
     private Integer value;
     private Integer index;
@@ -29,7 +32,11 @@ public class Pair implements Comparable<Pair> {
 
     @Override
     public int compareTo(Pair o) {
-        return value - o.value;
+        Random random = new Random();
+        if (!Objects.equals(value, o.value))
+            return value - o.value;
+        else
+            return random.nextInt(2) - random.nextInt(2) ;
     }
 
     @Override

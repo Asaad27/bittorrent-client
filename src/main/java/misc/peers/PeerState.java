@@ -24,7 +24,11 @@ public class PeerState extends State {
     public void addPieceToRequest(int n) {
     	piecesToRequest.add(n);
     }
-    
+
+    public boolean isConnected(){
+        return !weAreChokedByPeer && welcomeQ.isEmpty();
+    }
+
     public void removePieceToRequest(int n) {
     	if(piecesToRequest.contains(n)) {
     		piecesToRequest.remove(n);

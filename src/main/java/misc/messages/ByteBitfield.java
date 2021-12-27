@@ -1,4 +1,4 @@
-package misc.torrent;
+package misc.messages;
 
 public class ByteBitfield {
     public byte[] value;

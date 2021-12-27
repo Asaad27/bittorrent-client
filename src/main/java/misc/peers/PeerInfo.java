@@ -1,9 +1,6 @@
 package misc.peers;
 
 import java.net.InetAddress;
-import java.util.BitSet;
-
-import misc.torrent.Bitfield;
 
 public class PeerInfo {
 

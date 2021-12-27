@@ -1,5 +1,9 @@
-package misc.peers;
+package misc.download;
 
+
+import misc.peers.ClientState;
+import misc.peers.PeerInfo;
+import misc.torrent.Observer;
 import misc.torrent.TorrentContext;
 import misc.torrent.TorrentFileHandler;
 import misc.torrent.TorrentMetaData;
@@ -8,7 +12,7 @@ import misc.tracker.TrackerHandler;
 import misc.utils.DEBUG;
 
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
@@ -21,7 +25,8 @@ public class TCPClient {
 
     public static int CLIENTPORT = 12327;
     public static Queue<PeerInfo> waitingConnections = new LinkedList<>();
-    public static void main(String args[]) throws Exception {
+    public static TorrentContext torrentContext;
+    public static void main(String[] args) throws Exception {
 
 
         TorrentFileHandler torrentHandler = null;
@@ -51,21 +56,24 @@ public class TCPClient {
         PeerInfo qbitorrent = new PeerInfo(InetAddress.getLocalHost(), 12316, torrentMetaData.getNumberOfPieces());
         PeerInfo vuze = new PeerInfo(InetAddress.getLocalHost(), 12369, torrentMetaData.getNumberOfPieces());
         PeerInfo transmission = new PeerInfo(InetAddress.getLocalHost(), 51413, torrentMetaData.getNumberOfPieces());
-        peerInfoList.add(qbitorrent);
+        //peerInfoList.add(qbitorrent);
         peerInfoList.add(vuze);
-        peerInfoList.add(transmission);
+        //peerInfoList.add(transmission);
 
         System.out.println(peerInfoList);
 
         String server = "127.0.0.1";
-        
+
+        //DEBUG.switchIOToFile();
+
+        Observer subject = new Observer();
         ClientState clientState = new ClientState(torrentMetaData.getNumberOfPieces());
-        TorrentState torrentState = new TorrentState(torrentMetaData, clientState);
-        TorrentContext torrentContext = new TorrentContext(peerInfoList, torrentMetaData.getNumberOfPieces(), torrentState);
+        TorrentState torrentState = TorrentState.getInstance(torrentMetaData, clientState);
+        torrentContext = new TorrentContext(peerInfoList, torrentState, subject);
 
         Selector selector = Selector.open();
 
-        TCPHANDLER tcphandler = new TCPHANDLER(torrentMetaData, peerInfoList, clientState, torrentState);
+        TCPHANDLER tcphandler = new TCPHANDLER(torrentMetaData, peerInfoList, clientState, torrentState, subject);
 
         for (int i = 0; i < peerInfoList.size(); i++) {
 
@@ -83,32 +91,26 @@ public class TCPClient {
         }
 
         while (true) {
-            //System.err.println("/");
-            if (selector.select(1000) == 0) {
+            if (selector.select(3000) == 0) {
                 System.out.print(".");
                 continue;
             }
 
-            //TODO : find where to put it
-            //torrentContext.updatePeerState();
 
             Iterator<SelectionKey> keyIter = selector.selectedKeys().iterator();
             while (keyIter.hasNext()) {
 
-                torrentContext.updatePeerState();
+                if(TCPHANDLER.fetchRequests()){
+                    System.err.println("request fetched");
+                }
 
                 SelectionKey key = keyIter.next();
-                SocketChannel clntChan = (SocketChannel) key.channel();
-
-                int peerIndex = tcphandler.channelIntegerMap.get(clntChan.socket().getPort());
-                PeerState peerState = peerInfoList.get(peerIndex).getPeerState();
-                //System.out.println("peer : " + peerIndex + " : " + peerState.writeMessageQ);
 
                 if (key.isConnectable()) {
                     tcphandler.handleConnection(key);
                 }
 
-                if (key.isReadable()) {
+                if (key.isValid() && key.isReadable()) {
                     tcphandler.handleRead(key);
                 }
 
@@ -116,9 +118,7 @@ public class TCPClient {
                     tcphandler.handleWrite(key);
                 }
 
-
-
-                keyIter.remove(); // remove from set of selected keys
+                keyIter.remove();
             }
         }
     }

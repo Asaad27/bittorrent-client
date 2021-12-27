@@ -1,4 +1,4 @@
-package misc.torrent;
+package misc.messages;
 
 import java.util.BitSet;
 

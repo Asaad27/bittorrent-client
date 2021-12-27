@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
+import misc.messages.Bitfield;
+import misc.messages.ByteBitfield;
 import misc.torrent.*;
 import org.junit.Test;
 
@@ -41,14 +43,6 @@ public class BitfieldTest {
 		pieceSize = metaData.getPieceLength();
 		int numPieces = metaData.getNumberOfPieces();
 
-		/*System.out.println("Name : " + metaData.getName());
-		System.out.println("Number of pieces : " + metaData.getNumberOfPieces());
-		System.out.println("Piece length : " + metaData.getPieceLength());
-		System.out.println("SHA-1 Hash : " + metaData.getPieces());
-
-		String CURR_DIR = "/home/cheylusp/Documents/Bittorent/equipe5/src/main/resources/torrents/";
-		LocalFileHandler localFile = new LocalFileHandler(CURR_DIR + metaData.getName(),metaData.getPieceLength(), metaData.getNumberOfPieces(), metaData.getLength(), metaData.getPieces());
-		System.out.println(localFile.getBitfield());*/
 		int bfldSize = (numPieces + 7) / 8 ;
 
 		clientBitfield= new byte[bfldSize];

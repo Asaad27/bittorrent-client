@@ -1,22 +1,17 @@
 package misc.torrent;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import misc.peers.PeerInfo;
 
 public abstract class DownloadStrat implements IDownloadStrat {
 
-	public List<PeerInfo> peersByPieceIndex(List<PeerInfo> peers, int pieceNb) {
+
+	public static List<PeerInfo> peersByPieceIndex(List<PeerInfo> peers, int pieceNb) {
 		
 		List<PeerInfo> valuablePeers = new ArrayList<PeerInfo>();
 		
 		for(PeerInfo peer : peers) {
-			/*if(peer.getBitfield().get(pieceNb)) {  //TODO : fix bitfield class
-				valuablePeers.add(peer);
-			}*/
 			if (peer.getPeerState().hasPiece(pieceNb)){
 				valuablePeers.add(peer);
 			}
@@ -25,9 +20,9 @@ public abstract class DownloadStrat implements IDownloadStrat {
 		return valuablePeers;
 	}
 	
-	public Set<Integer> remainingPieces(TorrentState status, int totalPieces){
+	public Set<Integer> remainingPieces(TorrentState status){
 		Set<Integer> pieceSet = new LinkedHashSet<>();
-		for (int i = 0; i < totalPieces; i++) {
+		for (int i = 0; i < status.getNumberOfPieces(); i++) {
 			if(status.getStatus().get(i) == PieceStatus.ToBeDownloaded) {
 				pieceSet.add(i);
 			}
@@ -35,5 +30,8 @@ public abstract class DownloadStrat implements IDownloadStrat {
 		
 		return pieceSet;
 	}
+
+
+
 	
 }

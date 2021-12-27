@@ -7,6 +7,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
+import misc.messages.Bitfield;
 import misc.utils.Utils;
 
 public class LocalFileHandler {

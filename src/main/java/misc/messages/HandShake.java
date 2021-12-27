@@ -1,4 +1,4 @@
-package misc.peers;
+package misc.messages;
 
 import misc.utils.Utils;
 

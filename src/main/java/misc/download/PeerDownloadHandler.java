@@ -1,7 +1,9 @@
-package misc.peers;
+package misc.download;
 
 import misc.messages.Message;
 import misc.messages.PeerMessage;
+import misc.messages.HandShake;
+import misc.peers.PeerState;
 import misc.torrent.TorrentMetaData;
 import misc.tracker.TrackerHandler;
 import misc.utils.Utils;
@@ -143,8 +145,6 @@ public class PeerDownloadHandler {
             }
         }
 
-
-
         System.out.println("FILE CHECK : SUCCESS");
         return true;
     }
@@ -218,7 +218,6 @@ public class PeerDownloadHandler {
                 peerState.choked = false;
                 isChoked = true;
             } else if (receivedMessage.ID == PeerMessage.MsgType.UNCHOKE) {
-                System.out.println("UCHOKE RECEIVED");
                 peerState.choked = false;
                 isChoked = false;
                 try {

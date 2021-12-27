@@ -1,6 +1,6 @@
 package misc;
 
-import misc.peers.PeerDownloadHandler;
+import misc.download.PeerDownloadHandler;
 import misc.torrent.TorrentFileHandler;
 import misc.torrent.TorrentMetaData;
 

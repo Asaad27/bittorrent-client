@@ -8,10 +8,17 @@ import misc.peers.PeerInfo;
 public class EndGame extends DownloadStrat {
 	
 	private static EndGame instance;
+	private List<PeerInfo> peers;
+	private TorrentState status;
+
+	public EndGame(List<PeerInfo> peers, TorrentState status) {
+		this.peers = peers;
+		this.status = status;
+	}
 
 	@Override
-	public int updatePeerState(List<PeerInfo> peers, TorrentState status, int totalPieces) {
-		Set<Integer> pieces = remainingPieces(status, totalPieces);
+	public int updatePeerState() {
+		Set<Integer> pieces = remainingPieces(status);
 		for(int n : pieces) {
 			for(PeerInfo peer : peers) {
 				peer.getPeerState().addPieceToRequest(n);
@@ -20,10 +27,10 @@ public class EndGame extends DownloadStrat {
 		
 		return -1;
 	}
-	
-	public static IDownloadStrat instance() {
+
+	public static IDownloadStrat instance(List<PeerInfo> peers,  TorrentState status) {
 		if (instance == null) {
-			instance = new EndGame();
+			instance = new EndGame(peers, status);
 		}
 		return instance;
 	}
