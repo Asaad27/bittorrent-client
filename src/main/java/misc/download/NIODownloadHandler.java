@@ -12,6 +12,8 @@ import misc.utils.Utils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Random;
@@ -154,11 +156,65 @@ public class NIODownloadHandler{
         System.out.println("connexion ended");
         for (PeerInfo peerInfo : peerInfoList){
             System.out.println(peerInfo);
-            System.out.println("number of requests : " + peerInfo.getPeerState().numberOfRequests);
-
+            System.out.println("number of requests we sent to them : " + peerInfo.getPeerState().numberOfRequests);
+            System.out.println("number of blocks we received from them : " + peerInfo.getPeerState().requestReceivedFromPeer);
         }
         System.out.println("peer  : ");
+
+        if(verifyDownloadedFile()) {
+            System.out.println("FILE CHECK : SUCCESS");
+        }
+        else{
+            System.out.println("FILE CHECK : FAILED");
+        }
         //TODO : if peer finished downloading and we have all pieces he has, choke
+    }
+
+    public static boolean verifyPiece(int index){
+        int numPieces = torrentState.getNumberOfPieces();
+        int lastPieceSize = torrentState.getLastPieceSize();
+        int pieceSize = torrentState.getPieceSize();
+        byte[] piece;
+        if (index == numPieces-1)
+            piece = new byte[lastPieceSize];
+        else
+            piece = new byte[pieceSize];
+        try {
+            file.seek((long) index * pieceSize);
+            file.read(piece);
+
+            MessageDigest digest=MessageDigest.getInstance("SHA-1");
+            digest.update(piece);
+            byte[] sha = digest.digest();
+            String originalHash = torrentMetaData.getPiecesList().get(index);
+            String downloadedHash = Utils.bytesToHex(sha);
+            if (!downloadedHash.equals(originalHash))
+            {
+                System.err.println("piece id : " + index + "\noriginal hash : " + originalHash + "\ndownloaded hash : " + downloadedHash);
+                return false;
+            }
+
+        } catch (IOException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        return true;
+
+    }
+    public static boolean verifyDownloadedFile(){
+
+        int numPieces = torrentState.getNumberOfPieces();
+        int lastPieceSize = torrentState.getLastPieceSize();
+        int pieceSize = torrentState.getPieceSize();
+        for (int i = 0; i < numPieces; i++)
+        {
+           if(!verifyPiece(i)) {
+               //TODO : redownload
+               return false;
+           }
+        }
+
+        return true;
     }
 
     public boolean sendFullPieceRequest(int pieceIndex, PeerState peerState) {

@@ -56,6 +56,7 @@ public class TorrentState {
     private void initPiecesAndBlocks()
     {
         pieceSize = torrentMetaData.getPieceLength();
+
         lastBlockSize = (pieceSize % blockSize != 0) ? pieceSize % blockSize : blockSize;
         numOfBlocks = (pieceSize + blockSize - 1) / blockSize;
         lastPieceSize = (torrentMetaData.getLength() % pieceSize == 0) ? pieceSize : (int) (torrentMetaData.getLength() % pieceSize);
@@ -100,6 +101,10 @@ public class TorrentState {
 
     public int getDownloadedSize() {
         return downloadedSize;
+    }
+
+    public int getLastPieceSize() {
+        return lastPieceSize;
     }
 
     public TorrentState setDownloadedSize(int downloadedSize) {

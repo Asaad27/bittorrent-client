@@ -30,10 +30,12 @@ public class TCPClient implements Runnable{
     public TorrentMetaData torrentMetaData;
     public ClientState clientState;
     public TorrentState torrentState;
+    //map port -> index of peer in List<PeerInfo>
+    public static final Map<Integer, Integer> channelIntegerMap = new HashMap<>();
 
     private TrackerHandler tracker;
     private List<PeerInfo> peerInfoList;
-    private TCPHANDLER tcphandler;
+    private final TCPMessagesHandler TCPMessagesHandler;
     private Selector selector;
 
 
@@ -42,12 +44,13 @@ public class TCPClient implements Runnable{
         Observer subject = new Observer();
         parseTorrent(torrentPath);
         peerInfoList = new ArrayList<>();
-        generatePeerList(2001, 2002, 2003);
+        //generatePeerList(2001, 2002, 2003);
         //trackerList();
+        generatePeerList(12316, 12369);
         clientState = new ClientState(torrentMetaData.getNumberOfPieces());
         torrentState = TorrentState.getInstance(torrentMetaData, clientState);
         torrentContext = new TorrentContext(peerInfoList, torrentState, subject);
-        tcphandler = new TCPHANDLER(torrentMetaData, peerInfoList, clientState, torrentState, subject);
+        TCPMessagesHandler = new TCPMessagesHandler(torrentMetaData, peerInfoList, clientState, torrentState, subject);
 
         initializeSelector();
     }
@@ -68,22 +71,22 @@ public class TCPClient implements Runnable{
             Iterator<SelectionKey> keyIter = selector.selectedKeys().iterator();
             while (keyIter.hasNext()) {
 
-                if(TCPHANDLER.fetchRequests()){
-                    System.err.println("request fetched");
+                if(TCPMessagesHandler.fetchRequests()){
+                    //System.err.println("request fetched");
                 }
 
                 SelectionKey key = keyIter.next();
 
                 if (key.isConnectable()) {
-                    tcphandler.handleConnection(key);
+                    TCPMessagesHandler.handleConnection(key);
                 }
 
                 if (key.isValid() && key.isReadable()) {
-                    tcphandler.handleRead(key);
+                    TCPMessagesHandler.handleRead(key);
                 }
 
                 if (key.isValid() && key.isWritable()) {
-                    tcphandler.handleWrite(key);
+                    TCPMessagesHandler.handleWrite(key);
                 }
 
                 keyIter.remove();
@@ -106,7 +109,7 @@ public class TCPClient implements Runnable{
 
                 boolean flag = clntChan.connect(new InetSocketAddress(SERVER, port));
                 DEBUG.log(String.valueOf(flag), String.valueOf(i), "port : ", String.valueOf(peerInfoList.get(i).getPort()));
-                tcphandler.channelIntegerMap.put(port, i);
+                channelIntegerMap.put(port, i);
             }
         } catch (IOException e) {
             e.printStackTrace();

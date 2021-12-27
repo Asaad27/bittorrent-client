@@ -1,14 +1,16 @@
 package misc.download;
 
+import misc.download.strategies.DownloadStrat;
+import misc.messages.HandShake;
 import misc.messages.Message;
 import misc.messages.PeerMessage;
 import misc.peers.ClientState;
-import misc.messages.HandShake;
 import misc.peers.PeerInfo;
 import misc.peers.PeerState;
-import misc.torrent.*;
 import misc.torrent.Observer;
-import misc.download.strategies.DownloadStrat;
+import misc.torrent.PieceStatus;
+import misc.torrent.TorrentMetaData;
+import misc.torrent.TorrentState;
 import misc.tracker.TrackerHandler;
 import misc.utils.DEBUG;
 import misc.utils.Utils;
@@ -16,25 +18,24 @@ import misc.utils.Utils;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 
-public class TCPHANDLER {
-    //public boolean requested = false;
-    //public boolean weAreChokedByPeer = true;
+
+public class TCPMessagesHandler {
+
+    public static final int NUMBER_OF_PIECES_PER_REQUEST = 1;
+    public static final int NUMBER_OF_REQUEST_PER_PEER = 10;
 
     public NIODownloadHandler peerDownloadHandler;
     public List<PeerInfo> peerList;
     public TorrentMetaData torrentMetaData;
     public ClientState clientState;
 
-    //map port -> index of peer in List<PeerInfo>
-    public final Map<Integer, Integer> channelIntegerMap = new HashMap<>();
 
-
-    public TCPHANDLER(TorrentMetaData torrentMetaData, List<PeerInfo> peerList, ClientState clientState, TorrentState torrentState, Observer observer) {
+    public TCPMessagesHandler(TorrentMetaData torrentMetaData, List<PeerInfo> peerList, ClientState clientState, TorrentState torrentState, Observer observer) {
 
         this.torrentMetaData = torrentMetaData;
         this.peerDownloadHandler = new NIODownloadHandler(torrentMetaData, clientState, torrentState, peerList, observer);
@@ -43,30 +44,56 @@ public class TCPHANDLER {
         //TODO : tracker should not return our client as a peer
     }
 
+    public static boolean fetchRequests() {
+
+        boolean everyoneIsConnected = true;
+        for (PeerInfo peer : NIODownloadHandler.peerInfoList) {
+            PeerState peerState = peer.getPeerState();
+            if (peerState.killed)
+                continue;
+            everyoneIsConnected = everyoneIsConnected && peerState.isConnected();
+        }
+        if (!everyoneIsConnected) {
+            return false;
+        }
+
+        boolean sent = false;
+        if (NIODownloadHandler.clientState.piecesToRequest.size() < NUMBER_OF_PIECES_PER_REQUEST) {
+            TCPClient.torrentContext.updatePeerState();
+
+            Iterator<Integer> it = NIODownloadHandler.clientState.piecesToRequest.iterator();
+
+            if (it.hasNext()) {
+                Integer index = it.next();
+                sent = NIODownloadHandler.sendBlockRequests(DownloadStrat.peersByPieceIndex(NIODownloadHandler.peerInfoList, index), index);
+            }
+        }
+        return sent;
+    }
+
     private Message receiveMessage(SocketChannel socketChannel, SelectionKey key) {
         byte[] buffLen = new byte[4];
         ByteBuffer buffer = ByteBuffer.wrap(buffLen);
 
         int bRead = 0;
         try {
-            while (bRead < 4)
-            {
+            while (bRead < 4) {
                 bRead += socketChannel.read(buffer);
-                if(bRead == -1){
+                if (bRead == -1) {
                     socketChannel.close();
                     key.cancel();
                     return null;
                 }
-                if (bRead == 0){
+                if (bRead == 0) {
                     return null;
                 }
             }
 
-        } catch (IOException e){
+        } catch (IOException e) {
             System.err.println("remote closed connection");
             key.cancel();
             return null;
-        } catch(BufferUnderflowException e) {
+        } catch (BufferUnderflowException e) {
             DEBUG.printError(e, getClass().getName());
             return null;
         }
@@ -74,9 +101,9 @@ public class TCPHANDLER {
         assert (bRead == 4);
         buffer.flip();
         int len;
-        try{
+        try {
             len = buffer.getInt();
-        }catch (BufferUnderflowException e) {
+        } catch (BufferUnderflowException e) {
             DEBUG.printError(e, getClass().getName());
             return null;
         }
@@ -115,44 +142,55 @@ public class TCPHANDLER {
             DEBUG.printError(e, getClass().getName());
             return false;
         }
-        DEBUG.log("sent message ", message.toString(), "to peer number", String.valueOf(channelIntegerMap.get(socketChannel.socket().getPort())));
+        DEBUG.log("sent message ", message.toString(), "to peer number", String.valueOf(TCPClient.channelIntegerMap.get(socketChannel.socket().getPort())));
 
         return true;
     }
 
     public void handleRead(SelectionKey key) {
         SocketChannel clntChan = (SocketChannel) key.channel();
-        int peerIndex = channelIntegerMap.get(clntChan.socket().getPort());
+        int peerIndex = TCPClient.channelIntegerMap.get(clntChan.socket().getPort());
         PeerState peerState = peerList.get(peerIndex).getPeerState();
 
         if (!peerState.sentHandshake) {
             HandShake hd = HandShake.readHandshake(clntChan);
-            if (hd == null){
-               key.interestOps(SelectionKey.OP_READ);
+            if (hd == null) {
+                key.interestOps(SelectionKey.OP_READ);
                 return;
             }
 
             DEBUG.log("received handshake ", "from peer number", String.valueOf(peerIndex), hd.toString());
             peerState.sentHandshake = true;
 
-            if (!peerState.receivedHandshake)
-            {
+            if (!peerState.receivedHandshake) {
                 key.interestOps(SelectionKey.OP_WRITE);
                 TCPClient.waitingConnections.add(peerList.get(peerIndex));
+            } else {
+                if (!HandShake.validateHandShake(hd, torrentMetaData.getSHA1Info())) {
+                    //TODO : cancel connexion
+                    key.cancel();
+                    peerState.killed = true;
+                    try {
+                        clntChan.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             return;
         }
         Message message = receiveMessage(clntChan, key);
-        if (message == null){
-           // DEBUG.log("no message received");
+        if (message == null) {
+            // DEBUG.log("no message received");
             return;
         }
 
         DEBUG.log("recieved message ", message.toString(), " from peer number", String.valueOf(peerIndex));
 
-        if (message.getID() == PeerMessage.MsgType.PIECE){
+        if (message.getID() == PeerMessage.MsgType.PIECE) {
             peerState.waitingRequests--;
+            peerState.requestReceivedFromPeer++;
         }
 
 
@@ -164,11 +202,11 @@ public class TCPHANDLER {
 
     public void handleWrite(SelectionKey key) {
 
-        SocketChannel clntChan = (SocketChannel) key.channel();
-        int peerIndex = channelIntegerMap.get(clntChan.socket().getPort());
+        SocketChannel clientChannel = (SocketChannel) key.channel();
+        int peerIndex = TCPClient.channelIntegerMap.get(clientChannel.socket().getPort());
         PeerState peerState = peerList.get(peerIndex).getPeerState();
 
-        if (peerState.receivedHandshake && !peerState.sentHandshake){
+        if (peerState.receivedHandshake && !peerState.sentHandshake) {
             key.interestOps(SelectionKey.OP_READ);
             return;
         }
@@ -178,7 +216,7 @@ public class TCPHANDLER {
             HandShake sentHand = new HandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(TrackerHandler.PEER_ID));
             ByteBuffer writeBuf = ByteBuffer.wrap(sentHand.createHandshakeMsg());
             try {
-                clntChan.write(writeBuf);
+                clientChannel.write(writeBuf);
             } catch (IOException e) {
                 System.err.println("error cannot send handshake");
                 DEBUG.printError(e, getClass().getName());
@@ -187,68 +225,62 @@ public class TCPHANDLER {
 
             //our peer received our handshake
             peerState.receivedHandshake = true;
-            if (!peerState.sentHandshake){
+            if (!peerState.sentHandshake) {
                 TCPClient.waitingConnections.add(peerList.get(peerIndex));
                 key.interestOps(SelectionKey.OP_READ);
             }
 
             return;
-        }
-
-        else{
-            if (!peerState.welcomeQ.isEmpty()){
-                while(!peerState.welcomeQ.isEmpty()){
+        } else {
+            if (!peerState.welcomeQ.isEmpty()) {
+                while (!peerState.welcomeQ.isEmpty()) {
                     Message writeMessage = peerState.welcomeQ.poll();
-                    sendMessage(clntChan, writeMessage);
+                    sendMessage(clientChannel, writeMessage);
                 }
                 TCPClient.waitingConnections.remove(peerList.get(peerIndex));
-            }
-
-            else if (!peerState.writeMessageQ.isEmpty()){
+            } else if (!peerState.writeMessageQ.isEmpty()) {
                 if (peerState.weAreChokedByPeer) {
                     key.interestOps(SelectionKey.OP_READ);
                     return;
                 }
-                while (!peerState.writeMessageQ.isEmpty() && peerState.waitingRequests < 10) {
+                while (!peerState.writeMessageQ.isEmpty() && peerState.waitingRequests < NUMBER_OF_REQUEST_PER_PEER) {
                     Message writeMessage = peerState.writeMessageQ.poll();
                     if (writeMessage == null)
                         System.out.println("null message to write");
-                    else{
-                        sendMessage(clntChan, writeMessage);
-                        if (writeMessage.getID() == PeerMessage.MsgType.REQUEST)
-                        {
+                    else {
+                        sendMessage(clientChannel, writeMessage);
+                        if (writeMessage.getID() == PeerMessage.MsgType.REQUEST) {
                             peerState.waitingRequests++;
                             peerState.numberOfRequests++;
                             NIODownloadHandler.torrentState.getStatus().set(writeMessage.getIndex(), PieceStatus.Requested);
-                        } else{
+                        } else {
                             break;
                         }
                     }
                 }
-                if (peerState.waitingRequests > 0)
-                {
+                if (peerState.waitingRequests > 0) {
                     key.interestOps(SelectionKey.OP_READ);
                     return;
                 }
 
             }
         }
-       key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+        key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
 
     }
 
     public void handleConnection(SelectionKey key) {
-        SocketChannel clntChan = (SocketChannel) key.channel();
-        int peerIndex = channelIntegerMap.get(clntChan.socket().getPort());
+        SocketChannel clientChannel = (SocketChannel) key.channel();
+        int peerIndex = TCPClient.channelIntegerMap.get(clientChannel.socket().getPort());
         PeerState peerState = peerList.get(peerIndex).getPeerState();
 
         boolean isConnected;
         try {
-            DEBUG.log("connecting to " + clntChan.getRemoteAddress());
-            isConnected = clntChan.finishConnect();
+            DEBUG.log("connecting to " + clientChannel.getRemoteAddress());
+            isConnected = clientChannel.finishConnect();
 
-            if (!isConnected){
-                DEBUG.loge("cannot connect to " + clntChan.getRemoteAddress());
+            if (!isConnected) {
+                DEBUG.loge("cannot connect to " + clientChannel.getRemoteAddress());
                 return;
             }
 
@@ -261,10 +293,10 @@ public class TCPHANDLER {
             peerState.welcomeQ.add(interested);
 
 
-        } catch (IOException connectException){
+        } catch (IOException connectException) {
             peerState.killed = true;
             try {
-                clntChan.close();
+                clientChannel.close();
             } catch (IOException e) {
                 DEBUG.printError(e, getClass().getName());
             }
@@ -273,47 +305,19 @@ public class TCPHANDLER {
 
 
         try {
-            if (clntChan.finishConnect())
+            if (clientChannel.finishConnect())
                 key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
         } catch (IOException e) {
             DEBUG.printError(e, getClass().getName());
             peerState.killed = true;
             try {
-                clntChan.close();
+                clientChannel.close();
             } catch (IOException ex) {
                 DEBUG.printError(e, getClass().getName());
             }
             key.cancel();
         }
 
-    }
-
-
-    public static boolean fetchRequests(){
-
-        boolean everyoneIsConnected = true;
-        for (PeerInfo peer: NIODownloadHandler.peerInfoList) {
-            PeerState peerState = peer.getPeerState();
-            if (peerState.killed)
-                continue;
-            everyoneIsConnected = everyoneIsConnected && peerState.isConnected();
-        }
-        if (!everyoneIsConnected){
-            return false;
-        }
-
-        boolean sent = false;
-        if (NIODownloadHandler.clientState.piecesToRequest.size() < 4){
-            TCPClient.torrentContext.updatePeerState();
-
-            Iterator<Integer> it = NIODownloadHandler.clientState.piecesToRequest.iterator();
-
-            if(it.hasNext()){
-                Integer index = it.next();
-                sent = NIODownloadHandler.sendBlockRequests(DownloadStrat.peersByPieceIndex(NIODownloadHandler.peerInfoList, index), index);
-            }
-        }
-        return sent;
     }
 
     //todo : method to decide the next WRITE/READ INTEREST OPERATIONS

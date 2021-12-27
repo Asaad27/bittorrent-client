@@ -15,6 +15,7 @@ public class PeerState extends State {
     public Queue<Message> welcomeQ = new LinkedList<>();
 
     public int waitingRequests = 0;
+    public int requestReceivedFromPeer = 0;
 
     public PeerState(int numPieces) {
         super(numPieces);

@@ -19,6 +19,7 @@ public class LocalFileHandler {
 	private int totalPieces;
 	private double fileLength;
 	private String piecesSHA1;
+	private TorrentMetaData torrentMetaData;
 	
 	public LocalFileHandler(String filename, int pieceSize, int pieceNb, double length, String piecesSHA1) {
 		
@@ -51,42 +52,74 @@ public class LocalFileHandler {
 		} catch(IOException e) { e.printStackTrace(); }
 		
 	}
-	
+
 	public boolean verifyPieceSHA1(int pieceNb) {
-		
+
 		int size = pieceSize;
-		
-		if(pieceNb == totalPieces - 1) {	
+
+		if(pieceNb == totalPieces - 1) {
 			size = (int) ((fileLength % pieceSize == 0) ? pieceSize : fileLength % pieceSize);
 		}
-		
+
 		try {
 			byte[] tab = new byte[size];
-			
+
 			// System.out.println("Piece Number " + (i + 1) + " :");
 			fileAccess.seek(pieceNb * pieceSize);
 			fileAccess.read(tab);
-			
+
 			MessageDigest md = MessageDigest.getInstance("SHA-1");
 			md.update(tab);
 			byte[] pieceSHA1 = md.digest();
 			String expectedStr = piecesSHA1.substring(pieceNb * 40, Math.min((pieceNb + 1) * 40, piecesSHA1.length()));
 			byte[] expectedSHA1 = Utils.hexStringToByteArray(expectedStr);
-			
+
 			/*
 			System.out.println("Expected SHA1 : " + Utils.bytesToHex(expectedSHA1) + " / length : " + expectedSHA1.length);
 			System.out.println("Computed SHA1 : " + Utils.bytesToHex(pieceSHA1) + " / length : " + pieceSHA1.length);
 			*/
-			
+
 			return Arrays.equals(pieceSHA1, expectedSHA1);
-			
-		} catch (NoSuchAlgorithmException | IOException e) { 
-			e.printStackTrace(); 
+
+		} catch (NoSuchAlgorithmException | IOException e) {
+			e.printStackTrace();
 			return false;
-		} 
-		
-		
+		}
+
 	}
+
+	/*public boolean verifyDownloadedFile(){
+
+		for (int i = 0; i < numPieces; i++)
+		{
+			byte[] piece;
+			if (i == numPieces-1)
+				piece = new byte[lastPieceSize];
+			else
+				piece = new byte[pieceSize];
+			try {
+				file.seek((long) i * pieceSize);
+				file.read(piece);
+
+				MessageDigest digest=MessageDigest.getInstance("SHA-1");
+				digest.update(piece);
+				byte[] sha = digest.digest();
+				String originalHash = torrentMetaData.getPiecesList().get(i);
+				String downloadedHash = Utils.bytesToHex(sha);
+				if (!downloadedHash.equals(originalHash))
+				{
+					System.err.println("piece id : " + i + "\noriginal hash : " + originalHash + "\ndownloaded hash : " + downloadedHash);
+					return false;
+				}
+
+			} catch (IOException | NoSuchAlgorithmException e) {
+				e.printStackTrace();
+			}
+		}
+
+		System.out.println("FILE CHECK : SUCCESS");
+		return true;
+	}*/
 	
 	public void setPieceStatus(int pieceNb, boolean value) {
 		this.bitfield.set(pieceNb, value);

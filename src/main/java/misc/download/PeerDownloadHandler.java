@@ -108,8 +108,8 @@ public class PeerDownloadHandler {
         System.out.println("bitfield : ");
         System.out.println(Utils.bytesToHex((isSeeder) ? (peerState.bitfield == null ? new byte[0] : peerState.bitfield.value) :clientBitfield ));
 
-        if (!isSeeder)
-            verifyDownloadedFile();
+      /*  if (!isSeeder)
+            verifyDownloadedFile();*/
 
     }
 
@@ -117,7 +117,7 @@ public class PeerDownloadHandler {
      * method to verify that all the pieces of the downloaded file are correct
      * @return boolean value describing the result of the verification
      */
-    public boolean verifyDownloadedFile(){
+    /*public boolean verifyDownloadedFile(){
 
         for (int i = 0; i < numPieces; i++)
         {
@@ -148,7 +148,7 @@ public class PeerDownloadHandler {
 
         System.out.println("FILE CHECK : SUCCESS");
         return true;
-    }
+    }*/
     /**
     * pre-compute sizes of pieces, and blocks per pieces
      */

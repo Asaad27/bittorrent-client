@@ -138,6 +138,10 @@ public class HandShake implements Serializable {
         return Utils.bytesToHex(hand1.SHA1Info).equals(Utils.bytesToHex(hand2.SHA1Info));
     }
 
+    public static boolean validateHandShake(HandShake handShake, String SHA1){
+        return Utils.bytesToHex(handShake.getSHA1Info()).equals(SHA1);
+    }
+
     /**
      * create a handshake message
      *
