@@ -49,7 +49,7 @@ public class TCPClient implements Runnable{
         generatePeerList(12316, 12369);
         clientState = new ClientState(torrentMetaData.getNumberOfPieces());
         torrentState = TorrentState.getInstance(torrentMetaData, clientState);
-        torrentContext = new TorrentContext(peerInfoList, torrentState, subject);
+        torrentContext = new TorrentContext(peerInfoList, torrentState, clientState, subject);
         tcpMessagesHandler = new TCPMessagesHandler(torrentMetaData, peerInfoList, clientState, torrentState, subject);
 
         initializeSelector();

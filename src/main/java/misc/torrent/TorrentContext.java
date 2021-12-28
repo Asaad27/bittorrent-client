@@ -1,6 +1,7 @@
 package misc.torrent;
 import misc.download.NIODownloadHandler;
 import misc.download.strategies.*;
+import misc.peers.ClientState;
 import misc.utils.DEBUG;
 import misc.peers.PeerInfo;
 import java.util.List;
@@ -9,14 +10,15 @@ public class TorrentContext {
 	
 	private List<PeerInfo> peers; 
 	private IDownloadStrat strat;
-	private TorrentState status;
-	private Observer subject;
+	private final TorrentState status;
+	private final Observer subject;
+	private final ClientState clientState;
 
-	public TorrentContext(List<PeerInfo> peers, TorrentState torrentState, Observer subject) {
+	public TorrentContext(List<PeerInfo> peers, TorrentState torrentState, ClientState clientState, Observer subject) {
 		this.peers = peers;
 		this.status = torrentState;
 		this.subject = subject;
-
+		this.clientState = clientState;
 		chooseStrategy(Strategies.RAREST_FIRST);
 	}
 	
@@ -36,7 +38,7 @@ public class TorrentContext {
 		}
 
 		if (piece >= 0 && piece < status.getNumberOfPieces() && status.getStatus().get(piece) == PieceStatus.ToBeDownloaded ){
-			NIODownloadHandler.clientState.piecesToRequest.add(piece);
+			clientState.piecesToRequest.add(piece);
 		}
 	}
 	//ADD ENUM STRATEGY AS A PARAM

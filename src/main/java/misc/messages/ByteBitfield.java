@@ -31,6 +31,16 @@ public class ByteBitfield {
         value[byteIndex] |= 1 << (7 - offset);
     }
 
+    public void unsetPiece(int index){
+        if (value == null) {
+            //in case we did not receive the peer bitfield
+            return;
+        }
+        int byteIndex = index/8;
+        int offset = index % 8;
+        value[byteIndex] &= ~(1 << (7 - offset));
+    }
+
     public void initLeecher(){
         for (int i = 0; i < bfldSize; ++i) {
             value[i] = 0;

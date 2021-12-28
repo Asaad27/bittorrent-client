@@ -1,6 +1,7 @@
 package misc.torrent;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.security.MessageDigest;
@@ -8,119 +9,132 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import misc.messages.Bitfield;
+import misc.messages.ByteBitfield;
+import misc.messages.Message;
+import misc.messages.PeerMessage;
+import misc.peers.ClientState;
+import misc.utils.DEBUG;
 import misc.utils.Utils;
 
 public class LocalFileHandler {
 
-	private File localFile;
+	private final File tempFile;
 	private RandomAccessFile fileAccess;
-	private Bitfield bitfield;
-	private int pieceSize;
-	private int totalPieces;
-	private double fileLength;
-	private String piecesSHA1;
-	private TorrentMetaData torrentMetaData;
+	private final ByteBitfield bitfield;
+
+	private final TorrentMetaData torrentMetaData;
+	private final TorrentState torrentState;
 	
-	public LocalFileHandler(String filename, int pieceSize, int pieceNb, double length, String piecesSHA1) {
-		
-		this.localFile = new File(filename);
-		this.pieceSize = pieceSize;
-		this.totalPieces = pieceNb;
-		this.piecesSHA1 = piecesSHA1;
-		this.fileLength = length;
-		
+	public LocalFileHandler(TorrentMetaData torrentMetaData, ByteBitfield bitfield, TorrentState torrentState) {
+
+		this.torrentState = torrentState;
+		this.torrentMetaData = torrentMetaData;
+		this.bitfield = bitfield;
+
+		tempFile = new File(torrentMetaData.getName());
+		long fileLength = torrentMetaData.getLength();
+
 		try {
-			this.fileAccess = new RandomAccessFile(localFile, "rw");
-			fileAccess.setLength((int) length);
-		} catch (IOException e) { e.printStackTrace(); }
-		
-		this.bitfield = new Bitfield(totalPieces);
-		initBitfield(); 
-		
+			fileAccess = new RandomAccessFile(torrentMetaData.getName(), "rw");
+			fileAccess.setLength((int) fileLength);
+		} catch (IOException e) {
+			DEBUG.printError(e, getClass().getName());
+		}
+		initBitfield();
 	}
 	
 	public void initBitfield() {
-		
-		try {
-			if(!localFile.createNewFile()) {
-				for(int i = 0; i < totalPieces ; i++) {
-					
-					setPieceStatus(i, verifyPieceSHA1(i));
-					
-				}
+		if(tempFile.exists()) {
+			for(int i = 0; i < torrentMetaData.getNumberOfPieces() ; i++) {
+				setPieceStatus(i, verifyPiece(i));
 			}
-		} catch(IOException e) { e.printStackTrace(); }
-		
-	}
-
-	public boolean verifyPieceSHA1(int pieceNb) {
-
-		int size = pieceSize;
-
-		if(pieceNb == totalPieces - 1) {
-			size = (int) ((fileLength % pieceSize == 0) ? pieceSize : fileLength % pieceSize);
 		}
 
+	}
+
+	public  boolean verifyPiece(int index){
+		int numPieces = torrentState.getNumberOfPieces();
+		int lastPieceSize = torrentState.getLastPieceSize();
+		int pieceSize = torrentState.getPieceSize();
+		byte[] piece;
+		if (index == numPieces-1)
+			piece = new byte[lastPieceSize];
+		else
+			piece = new byte[pieceSize];
 		try {
-			byte[] tab = new byte[size];
+			fileAccess.seek((long) index * pieceSize);
+			fileAccess.read(piece);
 
-			// System.out.println("Piece Number " + (i + 1) + " :");
-			fileAccess.seek(pieceNb * pieceSize);
-			fileAccess.read(tab);
+			MessageDigest digest=MessageDigest.getInstance("SHA-1");
+			digest.update(piece);
+			byte[] sha = digest.digest();
+			String originalHash = torrentMetaData.getPiecesList().get(index);
+			String downloadedHash = Utils.bytesToHex(sha);
+			if (!downloadedHash.equals(originalHash))
+			{
+				System.err.println("piece id : " + index + "\noriginal hash : " + originalHash + "\ndownloaded hash : " + downloadedHash);
+				return false;
+			}
 
-			MessageDigest md = MessageDigest.getInstance("SHA-1");
-			md.update(tab);
-			byte[] pieceSHA1 = md.digest();
-			String expectedStr = piecesSHA1.substring(pieceNb * 40, Math.min((pieceNb + 1) * 40, piecesSHA1.length()));
-			byte[] expectedSHA1 = Utils.hexStringToByteArray(expectedStr);
-
-			/*
-			System.out.println("Expected SHA1 : " + Utils.bytesToHex(expectedSHA1) + " / length : " + expectedSHA1.length);
-			System.out.println("Computed SHA1 : " + Utils.bytesToHex(pieceSHA1) + " / length : " + pieceSHA1.length);
-			*/
-
-			return Arrays.equals(pieceSHA1, expectedSHA1);
-
-		} catch (NoSuchAlgorithmException | IOException e) {
+		} catch (IOException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
+		}
+
+		return true;
+	}
+
+	public  boolean verifyDownloadedFile(){
+		int numPieces = torrentState.getNumberOfPieces();
+		for (int i = 0; i < numPieces; i++)
+		{
+			if(!verifyPiece(i)) {
+				//TODO : REDOWNLOAD AND NOTIFY
+				setPieceStatus(i, false);
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public void setPieceStatus(int pieceNb, boolean value) {
+		if (value)
+			bitfield.setPiece(pieceNb);
+		else{
+			if (bitfield.hasPiece(pieceNb))
+				bitfield.unsetPiece(pieceNb);
+		}
+	}
+	
+	public ByteBitfield getBitfield() {
+		return this.bitfield;
+	}
+
+	public boolean writePieceBlock(int index, int begin, byte[] payload){
+		try {
+			fileAccess.seek(((long) index * torrentState.getPieceSize() + begin));
+			fileAccess.write(payload);
+		} catch (IOException e) {
+			DEBUG.printError(e, "write piece block");
 			return false;
 		}
 
+		return true;
 	}
 
+	public byte[] readPieceBlock(int size, int index, int begin) {
 
-	
-	public void setPieceStatus(int pieceNb, boolean value) {
-		this.bitfield.set(pieceNb, value);
-	}
-	
-	public Bitfield getBitfield() {
-		return this.bitfield;
-	}
-	
-	public void writePieceBlock(int pieceNb, int offset, byte[] data) {
-			
+		byte[] ans = new byte[size];
 		try {
-			
-			fileAccess.write(data, pieceNb * pieceSize + offset, data.length);
-			
-		} catch (IOException e) { e.printStackTrace(); }
-			
-	}
-	
-	public byte[] getPieceBlock(int pieceNb, int offset, int len) {
-		if(bitfield.get(pieceNb)) {
-		
-			byte[] data = new byte[len];
-			try {
-				fileAccess.readFully(data, pieceNb * pieceSize + offset, len);
-			} catch (IOException e) { e.printStackTrace(); }
-			
-			return data;
-		} else {
-			return null;
+			fileAccess.seek((long) (index) * torrentState.getPieceSize() +begin);
+			fileAccess.read(ans);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+
+		return ans;
 	}
+
 	
 	public void close() {
 		try {

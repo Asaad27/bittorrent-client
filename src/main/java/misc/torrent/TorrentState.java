@@ -13,11 +13,11 @@ public class TorrentState {
 
     private static TorrentState instance = null;
 
-    private LocalFileHandler localFileHandler;
+    public LocalFileHandler localFileHandler;
     public final ConcurrentMap<Integer, AtomicInteger> pieceDownloadedBlocks = new ConcurrentHashMap<>();
     private final int CHUNK_SIZE = 16384;
     private int numberOfPieces = 0;
-    TorrentMetaData torrentMetaData;
+    private final TorrentMetaData torrentMetaData;
     private final int blockSize = CHUNK_SIZE;
 
     private final int[] pieceCount;
@@ -38,10 +38,12 @@ public class TorrentState {
 
     private TorrentState(TorrentMetaData torrentMetaData, ClientState clientState) {
         this.torrentMetaData = torrentMetaData;
-        this.clientState = clientState;
         initPiecesAndBlocks();
+        this.clientState = clientState;
+        localFileHandler = new LocalFileHandler(torrentMetaData, clientState.bitfield, this);
         this.status = initStatus();
         this.pieceCount = new int[torrentMetaData.getNumberOfPieces()];
+
 
     }
 

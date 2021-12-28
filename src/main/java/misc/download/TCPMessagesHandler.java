@@ -44,10 +44,10 @@ public class TCPMessagesHandler {
         //TODO : tracker should not return our client as a peer
     }
 
-    public static boolean fetchRequests() {
+    public  boolean fetchRequests() {
 
         boolean everyoneIsConnected = true;
-        for (PeerInfo peer : NIODownloadHandler.peerInfoList) {
+        for (PeerInfo peer : peerList) {
             PeerState peerState = peer.getPeerState();
             if (peerState.killed)
                 continue;
@@ -58,14 +58,14 @@ public class TCPMessagesHandler {
         }
 
         boolean sent = false;
-        if (NIODownloadHandler.clientState.piecesToRequest.size() < NUMBER_OF_PIECES_PER_REQUEST) {
+        if (peerDownloadHandler.getClientState().piecesToRequest.size() < NUMBER_OF_PIECES_PER_REQUEST) {
             TCPClient.torrentContext.updatePeerState();
 
-            Iterator<Integer> it = NIODownloadHandler.clientState.piecesToRequest.iterator();
+            Iterator<Integer> it = peerDownloadHandler.getClientState().piecesToRequest.iterator();
 
             if (it.hasNext()) {
                 Integer index = it.next();
-                sent = NIODownloadHandler.sendBlockRequests(DownloadStrat.peersByPieceIndex(NIODownloadHandler.peerInfoList, index), index);
+                sent = peerDownloadHandler.sendBlockRequests(DownloadStrat.peersByPieceIndex(peerList, index), index);
             }
         }
         return sent;
@@ -252,7 +252,7 @@ public class TCPMessagesHandler {
                         if (writeMessage.getID() == PeerMessage.MsgType.REQUEST) {
                             peerState.waitingRequests++;
                             peerState.numberOfRequests++;
-                            NIODownloadHandler.torrentState.getStatus().set(writeMessage.getIndex(), PieceStatus.Requested);
+                            peerDownloadHandler.getTorrentState().getStatus().set(writeMessage.getIndex(), PieceStatus.Requested);
                         } else {
                             break;
                         }
