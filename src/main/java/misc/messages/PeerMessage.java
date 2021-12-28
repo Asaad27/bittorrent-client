@@ -1,8 +1,6 @@
 package misc.messages;
 
 
-import misc.messages.Message;
-
 import java.nio.ByteBuffer;
 
 /**
@@ -39,16 +37,13 @@ public class PeerMessage {
                 break;
 
             case INTERESTED:
-                //System.out.println("we are in interested");
-                 /*buffer = ByteBuffer.allocate(5);
-                 buffer.put((byte) 1).putInt(2);*/
                 buffer = ByteBuffer.allocate(5);
                 buffer.putInt(1);
                 buffer.put((byte) 2);
 
                 break;
 
-            case NOTINTERESTED:
+            case UNINTERESTED:
                 buffer = ByteBuffer.allocate(5);
                 buffer.putInt(1);
                 buffer.put((byte) 3);
@@ -104,8 +99,6 @@ public class PeerMessage {
         return buffer.array();
     }
 
-    // <length prefix><message ID><payload>
-
     /**
      * @param msg message to unpack
      * @return Unpacked message
@@ -159,7 +152,7 @@ public class PeerMessage {
         CHOKE,
         UNCHOKE,
         INTERESTED,
-        NOTINTERESTED,
+        UNINTERESTED,
         HAVE,
         BITFIELD,
         REQUEST,

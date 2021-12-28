@@ -13,8 +13,6 @@ import java.io.*;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -96,7 +94,7 @@ public class PeerDownloadHandler {
 
         System.out.println((isSeeder ) ? "Upload Finished" : "Download FINISHED");
         try {
-            sendMessage(new Message(PeerMessage.MsgType.NOTINTERESTED));
+            sendMessage(new Message(PeerMessage.MsgType.UNINTERESTED));
             Thread.sleep(3000);
             isDownloading.set(false);
             file.close();
@@ -229,7 +227,7 @@ public class PeerDownloadHandler {
             } else if (receivedMessage.ID == PeerMessage.MsgType.INTERESTED) {
                 System.out.println("INTERESTED RECEIVED");
                 peerState.interested = true;
-            } else if (receivedMessage.ID == PeerMessage.MsgType.NOTINTERESTED) {
+            } else if (receivedMessage.ID == PeerMessage.MsgType.UNINTERESTED) {
                 System.out.println("NOTINTERESTED RECEIVED");
                 peerState.interested = false;
             } else if (receivedMessage.ID == PeerMessage.MsgType.HAVE) {

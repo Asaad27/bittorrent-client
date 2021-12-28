@@ -194,7 +194,7 @@ public class TCPMessagesHandler {
         }
 
 
-        peerDownloadHandler.messageHandler(message, peerState);
+        peerDownloadHandler.stateMachine(message, peerState);
 
         key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
 

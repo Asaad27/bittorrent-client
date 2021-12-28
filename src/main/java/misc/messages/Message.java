@@ -83,7 +83,7 @@ public class Message {
             case KEEPALIVE:
             case UNCHOKE:
             case INTERESTED:
-            case NOTINTERESTED:
+            case UNINTERESTED:
                 return ID.name();
             case HAVE:
                 return ID.name() + " " + "piece : " + getIndex();

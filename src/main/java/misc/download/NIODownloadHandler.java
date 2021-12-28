@@ -36,7 +36,7 @@ public class NIODownloadHandler {
     /**
      * fonction qui gere la lecture des messages recus
      */
-    public void messageHandler(Message receivedMessage, PeerState peerState) {
+    public void stateMachine(Message receivedMessage, PeerState peerState) {
         //PeerState peerState = peerList.get(peerIndex).getPeerState();
 
         if (receivedMessage.ID == PeerMessage.MsgType.KEEPALIVE) {
@@ -56,7 +56,7 @@ public class NIODownloadHandler {
         } else if (receivedMessage.ID == PeerMessage.MsgType.INTERESTED) {
             peerState.interested = true;
             peerState.writeMessageQ.addFirst(new Message(PeerMessage.MsgType.UNCHOKE));
-        } else if (receivedMessage.ID == PeerMessage.MsgType.NOTINTERESTED) {
+        } else if (receivedMessage.ID == PeerMessage.MsgType.UNINTERESTED) {
             peerState.interested = false;
         } else if (receivedMessage.ID == PeerMessage.MsgType.HAVE) {
             if (!peerState.hasPiece(receivedMessage.getIndex())) {
