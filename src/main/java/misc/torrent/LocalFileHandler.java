@@ -80,10 +80,14 @@ public class LocalFileHandler {
 			e.printStackTrace();
 		}
 
+
+		System.out.println("piece id : " + index + " valid");
+
 		return true;
 	}
 
 	public  boolean verifyDownloadedFile(){
+		System.out.println("Checking File");
 		int numPieces = torrentState.getNumberOfPieces();
 		for (int i = 0; i < numPieces; i++)
 		{
@@ -94,6 +98,8 @@ public class LocalFileHandler {
 			}
 		}
 
+		System.out.println("FILE CHECK SUCCESS 100%");
+		torrentState.fileCheckedSuccess = true;
 		return true;
 	}
 

@@ -10,6 +10,8 @@ public abstract class State {
     public boolean sentBitfield = false;
     public boolean weAreChokedByPeer = true;
     public boolean killed = false;
+    public boolean isDownloading = true;
+
 
     public ByteBitfield bitfield = null;
     public int numberNonResponseIter = 0;

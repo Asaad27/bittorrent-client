@@ -16,12 +16,15 @@ import misc.utils.DEBUG;
 import misc.utils.Utils;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 public class TCPMessagesHandler {
@@ -316,6 +319,21 @@ public class TCPMessagesHandler {
                 DEBUG.printError(e, getClass().getName());
             }
             key.cancel();
+        }
+
+    }
+
+    public void handleAccept(SelectionKey key, Map<Integer, Integer> channelIntegerMap) {
+        SocketChannel clntChan;
+        try {
+            clntChan = ((ServerSocketChannel) key.channel()).accept();
+            clntChan.configureBlocking(false);
+            clntChan.register(key.selector(), SelectionKey.OP_READ);
+            int port = clntChan.socket().getPort();
+            peerList.add(new PeerInfo(InetAddress.getLocalHost(), port, torrentMetaData.getNumberOfPieces()));
+            channelIntegerMap.put(port, peerList.size()-1);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
     }

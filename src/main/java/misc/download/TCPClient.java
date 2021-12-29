@@ -44,9 +44,9 @@ public class TCPClient implements Runnable{
         Observer subject = new Observer();
         parseTorrent(torrentPath);
         peerInfoList = new ArrayList<>();
-        //generatePeerList(2001, 2002, 2003);
-        //trackerList();
-        generatePeerList(12316, 12369);
+        generatePeerList(2001, 2002, 2003, 2004);
+        trackerList();
+        //generatePeerList(12316, 12369);
         clientState = new ClientState(torrentMetaData.getNumberOfPieces());
         torrentState = TorrentState.getInstance(torrentMetaData, clientState);
         torrentContext = new TorrentContext(peerInfoList, torrentState, clientState, subject);
@@ -79,6 +79,10 @@ public class TCPClient implements Runnable{
 
                 if (key.isConnectable()) {
                     tcpMessagesHandler.handleConnection(key);
+                }
+
+                if(key.isAcceptable()){
+                    tcpMessagesHandler.handleAccept(key, channelIntegerMap);
                 }
 
                 if (key.isValid() && key.isReadable()) {

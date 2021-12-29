@@ -1,7 +1,6 @@
 package misc.torrent;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -35,6 +34,7 @@ public class TorrentState {
 
     public List<PieceStatus> status;
     public ClientState clientState;
+    public boolean fileCheckedSuccess = false;
 
     private TorrentState(TorrentMetaData torrentMetaData, ClientState clientState) {
         this.torrentMetaData = torrentMetaData;
@@ -44,7 +44,15 @@ public class TorrentState {
         this.status = initStatus();
         this.pieceCount = new int[torrentMetaData.getNumberOfPieces()];
 
+        initDownloadedSize();
 
+    }
+
+    private void initDownloadedSize() {
+        for (int i = 0; i < torrentMetaData.getNumberOfPieces() - 1; i++){
+            downloadedSize += clientState.hasPiece(i) ? getPieceSize() : 0;
+        }
+        downloadedSize += clientState.hasPiece(torrentMetaData.getNumberOfPieces()-1) ? getLastPieceSize() : 0;
     }
 
     public static TorrentState getInstance(TorrentMetaData torrentMetaData, ClientState clientState) {
@@ -109,9 +117,8 @@ public class TorrentState {
         return lastPieceSize;
     }
 
-    public TorrentState setDownloadedSize(int downloadedSize) {
+    public void setDownloadedSize(int downloadedSize) {
         this.downloadedSize = downloadedSize;
-        return this;
     }
     
     private List<PieceStatus> initStatus() {

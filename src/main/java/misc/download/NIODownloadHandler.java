@@ -83,7 +83,7 @@ public class NIODownloadHandler {
             }
 
             if (torrentState.getDownloadedSize() == torrentMetaData.getLength())
-                endConnexion();
+                endDownload();
 
         } else if (receivedMessage.ID == PeerMessage.MsgType.PIECE) {
             if (!clientState.hasPiece(receivedMessage.getIndex())) {
@@ -122,13 +122,16 @@ public class NIODownloadHandler {
             } else
                 DEBUG.log("we already have the piece***************");
             if (torrentState.getDownloadedSize() == torrentMetaData.getLength())
-                endConnexion();
+                endDownload();
         }
     }
 
-    public void endConnexion() {
+    public void endDownload() {
         //TODO : endconnexion
-        System.out.println("connexion ended");
+        if (!clientState.isDownloading)
+            return;
+        clientState.isDownloading = false;
+        System.out.println("download ended");
         for (PeerInfo peerInfo : peerInfoList) {
             System.out.println(peerInfo);
             System.out.println("number of requests we sent to them : " + peerInfo.getPeerState().numberOfRequests);
@@ -136,11 +139,13 @@ public class NIODownloadHandler {
         }
         System.out.println("peer  : ");
 
-        if (torrentState.localFileHandler.verifyDownloadedFile()) {
-            System.out.println("FILE CHECK : SUCCESS");
-        } else {
-            System.out.println("FILE CHECK : FAILED");
+        if (!torrentState.fileCheckedSuccess){
+            System.out.println("CHECKING FILE ");
+            if (!torrentState.localFileHandler.verifyDownloadedFile()) {
+                clientState.isDownloading = true;
+            }
         }
+
         //TODO : if peer finished downloading and we have all pieces he has, choke
     }
 
@@ -207,6 +212,9 @@ public class NIODownloadHandler {
 
 
         int numberOfPeers = valuablePeers.size();
+        if (numberOfPeers == 0)
+            return false;
+
         Random random = new Random();
 
         int numberOfBlocks = torrentState.getNumOfBlocks();
