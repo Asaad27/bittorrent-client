@@ -303,7 +303,9 @@ public class TCPMessagesHandler {
             } catch (IOException e) {
                 DEBUG.printError(e, getClass().getName());
             }
+
             key.cancel();
+            return;
         }
 
 
@@ -313,12 +315,14 @@ public class TCPMessagesHandler {
         } catch (IOException e) {
             DEBUG.printError(e, getClass().getName());
             peerState.killed = true;
+
             try {
                 clientChannel.close();
             } catch (IOException ex) {
                 DEBUG.printError(e, getClass().getName());
             }
             key.cancel();
+
         }
 
     }

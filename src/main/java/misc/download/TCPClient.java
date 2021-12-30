@@ -77,11 +77,12 @@ public class TCPClient implements Runnable{
 
                 SelectionKey key = keyIter.next();
 
-                if (key.isConnectable()) {
+                if (key.isValid() && key.isConnectable()) {
+                    //TODO : connection errors, eq when port is wrong
                     tcpMessagesHandler.handleConnection(key);
                 }
 
-                if(key.isAcceptable()){
+                if(key.isValid() && key.isAcceptable()){
                     tcpMessagesHandler.handleAccept(key, channelIntegerMap);
                 }
 
