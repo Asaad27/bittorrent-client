@@ -145,7 +145,7 @@ public class TCPMessagesHandler {
             DEBUG.printError(e, getClass().getName());
             return false;
         }
-        DEBUG.log("sent message ", message.toString(), "to peer number", String.valueOf(TCPClient.channelIntegerMap.get(socketChannel.socket().getPort())));
+        DEBUG.log("--->sent message ", message.toString(), "to peer number", String.valueOf(TCPClient.channelIntegerMap.get(socketChannel.socket().getPort())));
 
         return true;
     }
@@ -162,7 +162,7 @@ public class TCPMessagesHandler {
                 return;
             }
 
-            DEBUG.log("received handshake ", "from peer number", String.valueOf(peerIndex), hd.toString());
+            DEBUG.log("<---received handshake ", "from peer number", String.valueOf(peerIndex), hd.toString());
             peerState.sentHandshake = true;
 
             if (!peerState.receivedHandshake) {
@@ -189,11 +189,14 @@ public class TCPMessagesHandler {
             return;
         }
 
-        DEBUG.log("recieved message ", message.toString(), " from peer number", String.valueOf(peerIndex));
+        DEBUG.log("<---recieved message ", message.toString(), " from peer number", String.valueOf(peerIndex));
 
         if (message.getID() == PeerMessage.MsgType.PIECE) {
             peerState.waitingRequests--;
-            peerState.requestReceivedFromPeer++;
+            peerState.numberOfBlocksSent++;
+        }
+        if (message.getID() == PeerMessage.MsgType.REQUEST){
+            peerState.numberOfRequestsReceived++;
         }
 
 
@@ -215,7 +218,7 @@ public class TCPMessagesHandler {
         }
         //HANDSHAKE HANDLING
         if (!peerState.receivedHandshake) {
-            DEBUG.log("sending handshake", "too peer number", String.valueOf(peerIndex));
+            DEBUG.log("--->sending handshake", "too peer number", String.valueOf(peerIndex));
             HandShake sentHand = new HandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(TrackerHandler.PEER_ID));
             ByteBuffer writeBuf = ByteBuffer.wrap(sentHand.createHandshakeMsg());
             try {

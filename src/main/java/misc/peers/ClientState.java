@@ -6,7 +6,6 @@ import java.util.Queue;
 public class ClientState extends State{
 
     public Queue<Integer> piecesToRequest = new LinkedList<>();
-    public boolean fileCompletedSuccessfully = false;
 
     public ClientState(int numPieces) {
         super(numPieces);

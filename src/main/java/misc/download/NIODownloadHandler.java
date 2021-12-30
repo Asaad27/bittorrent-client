@@ -60,7 +60,7 @@ public class NIODownloadHandler {
             peerState.interested = false;
         } else if (receivedMessage.ID == PeerMessage.MsgType.HAVE) {
             if (!peerState.hasPiece(receivedMessage.getIndex())) {
-                observer.notifyAllObservers(receivedMessage.getIndex());
+                observer.notifyAllObservees(receivedMessage.getIndex());
             }
             peerState.setPiece(receivedMessage.getIndex());
             if (!clientState.hasPiece(receivedMessage.getIndex())) {
@@ -72,7 +72,7 @@ public class NIODownloadHandler {
         } else if (receivedMessage.ID == PeerMessage.MsgType.BITFIELD) {
             peerState.bitfield.value = receivedMessage.getPayload();
             peerState.sentBitfield = true;
-            observer.notifyAllObservers(Events.PEER_CONNECTED, peerState);
+            observer.notifyAllObservees(Events.PEER_CONNECTED, peerState);
         } else if (receivedMessage.ID == PeerMessage.MsgType.REQUEST) {
             //we find the requested piece in the file
             if (clientState.hasPiece(receivedMessage.getIndex())) {
@@ -136,7 +136,8 @@ public class NIODownloadHandler {
         for (PeerInfo peerInfo : peerInfoList) {
             System.out.println(peerInfo);
             System.out.println("number of requests we sent to them : " + peerInfo.getPeerState().numberOfRequests);
-            System.out.println("number of blocks we received from them : " + peerInfo.getPeerState().requestReceivedFromPeer);
+            System.out.println("number of blocks we received from them : " + peerInfo.getPeerState().numberOfBlocksSent);
+            System.out.println("number of blocks we sent to them : " + peerInfo.getPeerState().numberOfBlocksSent);
         }
         System.out.println("peer  : ");
 

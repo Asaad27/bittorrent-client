@@ -17,8 +17,9 @@ public abstract class State {
     public int numberNonResponseIter = 0;
     public int numberOfRequests = 0;
     public int waitingRequests = 0;
-    public int requestReceivedFromPeer = 0;
-    
+    public int numberOfBlocksSent = 0;
+    public int numberOfRequestsReceived = 0;
+
 
     public State(int numPieces) {
         bitfield = new ByteBitfield(numPieces);
