@@ -1,11 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"strconv"
-	"strings"
 )
 
 //file1= {1, 100}
@@ -16,14 +17,28 @@ import (
 
 
 //input : size of piece in KB, number of pieces, begin-end
+//1000 * 256KB = 25600 KB = 256 MB
+var sizeOfPiece = int64(256*1024)
+var numberOfPieces = int64(1000)
+var sizeOfFile = numberOfPieces * sizeOfPiece
 
-var sizeOfPiece = 256 * 1024
-var numberOfPieces = 1000
-var sizeOfFile = int64(numberOfPieces * sizeOfPiece)
+func makeFile(fileName string, numPieces int64, offset int64){
 
-func makeFile(fileName string, numberOfPiecesToWrite int, offset int){
+	//offset+1_to_offset+1+numPieces
 
-	f, err := os.Create(fileName)
+	from :=strconv.FormatInt(offset, 10)
+	end :=strconv.FormatInt(offset+numPieces-1, 10)
+	offset -= 1
+	path := "peer_"+from+"_to_"+end
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		err := os.Mkdir(path, 0755)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	f, err := os.Create(path+"/"+fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,19 +46,29 @@ func makeFile(fileName string, numberOfPiecesToWrite int, offset int){
 		log.Fatal(err)
 	}
 
-	s := strings.Repeat("1", numberOfPiecesToWrite)
-	_, err = f.WriteAt([]byte(s), int64(offset))
+	_, err = f.WriteAt(bytes.Repeat([]byte("a"), int(numPieces*sizeOfPiece)), offset*sizeOfPiece)
+
+	_, err = f.WriteAt(bytes.Repeat([]byte("b"), int(offset*sizeOfPiece)), 0)
+	_, err = f.WriteAt(bytes.Repeat([]byte("b"), int((numberOfPieces-(offset+numPieces))*sizeOfPiece)), (offset+numPieces)*sizeOfPiece)
 	if err != nil{
 		log.Fatalf("failed to write")
 	}
 }
 
+//peer1 : 1-100
+//peer2 : 900-1000
+//peer3 : 101-500
+//peer4:  501 - 900
 func main() {
 	fileName := os.Args[1]
-	numberOfPiecesToWrite, _ := strconv.Atoi(os.Args[2])
-	offset, _ := strconv.Atoi(os.Args[3])
+	from, _ := strconv.Atoi(os.Args[2])
+	to, _ := strconv.Atoi(os.Args[3])
+	to = int(math.Min(float64(numberOfPieces), float64(to)))
+	from = int(math.Max(1, float64(from)))
+	numberOfPiecesToWrite := to - from + 1
+	offset := from
 	fmt.Println("fileName : " + fileName + " nofPieces : " + strconv.FormatInt(int64(numberOfPiecesToWrite), 10) + " offset: " + strconv.FormatInt(int64(offset), 10))
-	makeFile(fileName, numberOfPiecesToWrite, offset-1)
+	makeFile(fileName, int64(numberOfPiecesToWrite), int64(offset))
 }
 
 
