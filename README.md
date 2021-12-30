@@ -2,7 +2,7 @@
 
 the files created contains 1000 pieces, with 256KB the size of each <br />
 command to generate a file <br />
-`./main filename begin end` <br />
+`./main test begin end` <br />
 1<= begin <=end<br />
 begin <= end <= 1000
 
