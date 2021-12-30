@@ -45,7 +45,7 @@ public class TCPClient implements Runnable{
         parseTorrent(torrentPath);
         peerInfoList = new ArrayList<>();
         generatePeerList(2001, 2002, 2003, 2004);
-        trackerList();
+        //trackerList();
         //generatePeerList(12316, 12369);
         clientState = new ClientState(torrentMetaData.getNumberOfPieces());
         torrentState = TorrentState.getInstance(torrentMetaData, clientState);

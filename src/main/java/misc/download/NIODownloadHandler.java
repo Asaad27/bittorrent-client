@@ -111,6 +111,7 @@ public class NIODownloadHandler {
                     System.err.println("PIECE N° : " + receivedMessage.getIndex() + " DOWNLOADED" + "\t" + df.format(torrentState.getDownloadedSize() * 1.0 / torrentMetaData.getLength() * 100) + "% downloaded");
                     clientState.setPiece(receivedMessage.getIndex());
                     torrentState.getStatus().set(receivedMessage.getIndex(), PieceStatus.Downloaded);
+                    //clientState.piecesToRequest.remove(pieceIndex);
                     Message have = new Message(PeerMessage.MsgType.HAVE, receivedMessage.getIndex());
                     //we send have to all peers
                     for (PeerInfo peerInfo : peerInfoList) {
@@ -140,7 +141,6 @@ public class NIODownloadHandler {
         System.out.println("peer  : ");
 
         if (!torrentState.fileCheckedSuccess){
-            System.out.println("CHECKING FILE ");
             if (!torrentState.localFileHandler.verifyDownloadedFile()) {
                 clientState.isDownloading = true;
             }
@@ -246,6 +246,7 @@ public class NIODownloadHandler {
         }
 
         torrentState.getStatus().set(pieceIndex, PieceStatus.QUEUED);
+        //TODO : si on veut faire la FIRST_PIECE_POLICY aka attendre jusqu'a terminer la piece, on doit mettre la remove après le telechargmenet completé et non apres avoir mis la piece en attente
         clientState.piecesToRequest.remove(pieceIndex);
 
         return true;
