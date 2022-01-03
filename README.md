@@ -1,10 +1,12 @@
 ## file generator Linux and Windows
-
+[file generator](/generateFiles) <br />
 the files created contains 1000 pieces, with 256KB the size of each <br />
 command to generate a file <br />
 `./main test begin end` <br />
 1<= begin <=end<br />
-begin <= end <= 1000
+begin <= end <= 1000 <br />
+then generate .torrent using <br />
+`./metainfo test sizeOfPieceInKB`
 
 ## opentracker for Windows
 
