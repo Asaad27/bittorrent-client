@@ -3,10 +3,15 @@
 the files created contains 1000 pieces, with 256KB the size of each <br />
 command to generate a file <br />
 `./main test begin end` <br />
-1<= begin <=end<br />
-begin <= end <= 1000 <br />
+1<= begin <=end : the first piece<br />
+begin <= end <= 1000 : the last piece <br />
+
 then generate .torrent using <br />
-`./metainfo test sizeOfPieceInKB`
+`./metainfo test sizeOfPieceInKB` 
+optional arguments :  announceUrl, createdBy, comment, must be in order <br />
+`./metainfo test sizeOfPieceInKB announceUrl` <br />
+`./metainfo test sizeOfPieceInKB announceUrl createdBy` <br />
+`./metainfo test sizeOfPieceInKB announceUrl createdBy comment` <br />
 
 ## opentracker for Windows
 
