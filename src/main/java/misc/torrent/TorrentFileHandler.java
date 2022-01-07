@@ -91,10 +91,9 @@ public class TorrentFileHandler {
             System.err.println("The creation date field does not exists");
             return null;
         }
-        Long num = this.document.get("creation date").getLong();
-        Date date = new Date(num * 1000);
+        long num = this.document.get("creation date").getLong();
 
-        return date;
+        return new Date(num * 1000);
     }
 
     private String getCreatedBy() throws InvalidBEncodingException {

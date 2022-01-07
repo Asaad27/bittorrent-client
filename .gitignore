@@ -5,4 +5,7 @@
 .project
 *.class
 *.jar
+*bin/*
 
+/generateFiles/file-generator/bin/*
+/generateFiles/metainfo/bin/*
