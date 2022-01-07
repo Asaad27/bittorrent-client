@@ -10,6 +10,8 @@
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/generateFiles/file-generator/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/generateFiles/metainfo/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/scripts/file-generator/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/scripts/metainfo/.idea" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
