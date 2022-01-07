@@ -1,0 +1,5 @@
+The info field does not exists
+Exception in thread "main" java.lang.NullPointerException
+	at misc.torrent.TorrentFileHandler.getFilename(TorrentFileHandler.java:174)
+	at misc.torrent.TorrentFileHandler.ParseTorrent(TorrentFileHandler.java:64)
+	at misc.MainBittorrent.main(MainBittorrent.java:22)
