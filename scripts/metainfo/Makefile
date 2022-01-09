@@ -2,7 +2,7 @@ GO_NAME=metainfoWrite.go
 BINARY_NAME=metainfo
 
 build:
-	go build -o bin/main metainfo.go
+	go build -o bin/${BINARY_NAME} ${GO_NAME}
 
 compile:
 	echo "Compiling for every OS"
