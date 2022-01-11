@@ -1,5 +1,4 @@
 package misc.torrent;
-import misc.download.NIODownloadHandler;
 import misc.download.strategies.*;
 import misc.peers.ClientState;
 import misc.utils.DEBUG;
@@ -9,7 +8,7 @@ import java.util.List;
 public class TorrentContext {
 	
 	private List<PeerInfo> peers; 
-	private IDownloadStrat strat;
+	private IDownloadStrat strategy;
 	private final TorrentState status;
 	private final Observer subject;
 	private final ClientState clientState;
@@ -27,19 +26,25 @@ public class TorrentContext {
 	}
 	
 	public void updatePeerState() {
-		int piece = strat.updatePeerState();
+		int piece = strategy.updatePeerState();
 		//status.getStatus().set(piece, PieceStatus.Requested);
 		if (piece > -1)
-			DEBUG.log("*********************** la piece  est ", String.valueOf(piece), strat.getName());
+			DEBUG.log("*********************** la piece  est ", String.valueOf(piece), strategy.getName());
 
 		if (piece == -3){
-			DEBUG.loge("changing strategie ****************************************************");
+			DEBUG.loge("changing strategie to RANDOM");
 			chooseStrategy(Strategies.RANDOM);
 		}
+
+		/*if (piece == -4){
+			DEBUG.loge("changing strategie to ENDGAME");
+			chooseStrategy(Strategies.END_GAME);
+		}*/
 
 		if (piece >= 0 && piece < status.getNumberOfPieces() && status.getStatus().get(piece) == PieceStatus.ToBeDownloaded ){
 			clientState.piecesToRequest.add(piece);
 		}
+
 	}
 	//ADD ENUM STRATEGY AS A PARAM
 	private void chooseStrategy(Strategies strategy) {
@@ -50,17 +55,19 @@ public class TorrentContext {
 		 */
 		switch (strategy){
 			case RANDOM:
-				this.strat = RandomPiece.instance(peers, status, subject);
+				this.strategy = RandomPiece.instance(peers, status, subject);
 				break;
 			case RAREST_FIRST:
-				this.strat = RarestFirst.instance(peers, status, subject);
+				this.strategy = RarestFirst.instance(peers, status, subject);
 				break;
 			case END_GAME:
-				this.strat = EndGame.instance(peers, status, subject);
+				this.strategy = EndGame.instance(peers, status, subject);
 				break;
 		}
 
-
 	}
 
+	public IDownloadStrat getStrategy() {
+		return strategy;
+	}
 }

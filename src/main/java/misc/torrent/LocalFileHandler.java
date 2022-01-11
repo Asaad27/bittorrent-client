@@ -92,8 +92,13 @@ public class LocalFileHandler {
 		for (int i = 0; i < numPieces; i++)
 		{
 			if(!verifyPiece(i)) {
-				//TODO : REDOWNLOAD AND NOTIFY
 				setPieceStatus(i, false);
+				int downloadedSize = torrentState.getDownloadedSize();
+				int lastPieceSize = torrentState.getLastPieceSize();
+				int pieceSize = torrentState.getPieceSize();
+				torrentState.setDownloadedSize(downloadedSize - ((i == numPieces-1) ? lastPieceSize : pieceSize ));
+				torrentState.getStatus().set(i, PieceStatus.ToBeDownloaded);
+
 				return false;
 			}
 		}

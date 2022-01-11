@@ -27,7 +27,7 @@ public class TCPClient implements Runnable{
     public static Queue<PeerInfo> waitingConnections = new LinkedList<>();
     public static TorrentContext torrentContext;
     public TorrentFileHandler torrentHandler;
-    public TorrentMetaData torrentMetaData;
+    public static TorrentMetaData torrentMetaData;
     public ClientState clientState;
     public TorrentState torrentState;
     //map port -> index of peer in List<PeerInfo>
@@ -44,9 +44,9 @@ public class TCPClient implements Runnable{
         Observer subject = new Observer();
         parseTorrent(torrentPath);
         peerInfoList = new ArrayList<>();
-        generatePeerList(2001, 2002, 2003, 2004);
+        generatePeerList(2001, 2002, 2003, 2004, 2005);
         //trackerList();
-        //generatePeerList(12316, 12369);
+        //generatePeerList(26000);
         clientState = new ClientState(torrentMetaData.getNumberOfPieces());
         torrentState = TorrentState.getInstance(torrentMetaData, clientState);
         torrentContext = new TorrentContext(peerInfoList, torrentState, clientState, subject);

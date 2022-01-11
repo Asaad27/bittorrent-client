@@ -23,14 +23,12 @@ import java.util.*;
 
 public class TorrentFileHandler {
 
-    private final FileInputStream srcTorrentFile;
     private final BDecoder reader;
     private Map<String, BEncodedValue> document;
 
 
     public TorrentFileHandler(FileInputStream torrentFile) {
-        this.srcTorrentFile = torrentFile;
-        this.reader = new BDecoder(this.srcTorrentFile);
+        this.reader = new BDecoder(torrentFile);
 
 
     }

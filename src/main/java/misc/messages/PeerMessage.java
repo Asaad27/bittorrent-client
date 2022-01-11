@@ -137,7 +137,6 @@ public class PeerMessage {
         }
 
         //Cancel
-
         if (id == 8) {
             return new Message(MsgType.CANCEL, buffer.getInt(), buffer.getInt(), buffer.getInt());
         }

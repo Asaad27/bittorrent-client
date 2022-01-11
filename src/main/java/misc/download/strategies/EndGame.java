@@ -3,6 +3,10 @@ package misc.download.strategies;
 import java.util.List;
 import java.util.Set;
 
+import misc.download.NIODownloadHandler;
+import misc.download.TCPClient;
+import misc.messages.Message;
+import misc.messages.PeerMessage;
 import misc.peers.PeerInfo;
 import misc.peers.PeerState;
 import misc.torrent.*;
@@ -19,17 +23,31 @@ public class EndGame extends DownloadStrat implements IObservable {
 		subject.attach(this);
 	}
 
+	/*public static void sendCancels(List<PeerInfo> peerInfoList, int index, PeerState peerState) {
+		for (PeerInfo peer: peerInfoList) {
+			if (!peer.getPeerState().equals(peerState)){
+				Message cancel = new Message(PeerMessage.MsgType.CANCEL, index, );
+
+				peer.getPeerState().writeMessageQ.addFirst();
+			}
+		}
+	}*/
+
 	@Override
 	public int updatePeerState() {
 		Set<Integer> pieces = remainingPieces(status);
-		for(int n : pieces) {
+		for(int i : pieces) {
 			for(PeerInfo peer : peers) {
-				peer.getPeerState().addPieceToRequest(n);
+				PeerState peerState = peer.getPeerState();
+				NIODownloadHandler.sendFullPieceRequest(i, peerState, status, TCPClient.torrentMetaData);
 			}
 		}
 		
 		return -1;
 	}
+
+
+
 
 	@Override
 	public String getName() {

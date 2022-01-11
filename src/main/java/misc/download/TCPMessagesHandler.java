@@ -26,10 +26,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+//TODO : welcome Messages, should depend upon the state of our torrent file, the state of the peers
 
 public class TCPMessagesHandler {
 
-    public static final int NUMBER_OF_PIECES_PER_REQUEST = 1;
+    public static final int NUMBER_OF_PIECES_PER_REQUEST = 2;
     public static final int NUMBER_OF_REQUEST_PER_PEER = 10;
 
     public NIODownloadHandler peerDownloadHandler;
@@ -44,7 +45,7 @@ public class TCPMessagesHandler {
         this.peerDownloadHandler = new NIODownloadHandler(torrentMetaData, clientState, torrentState, peerList, observer);
         this.peerList = peerList;
         this.clientState = clientState;
-        //TODO : tracker should not return our client as a peer
+
     }
 
     public  boolean fetchRequests() {
@@ -60,6 +61,17 @@ public class TCPMessagesHandler {
             return false;
         }
 
+        boolean fetched;
+        if (!TCPClient.torrentContext.getStrategy().getName().equals("ENDGAME")){
+            fetched = generateRequests();
+        }else{
+            fetched = true;
+        }
+
+        return fetched;
+    }
+
+    public boolean generateRequests(){
         boolean sent = false;
         if (peerDownloadHandler.getClientState().piecesToRequest.size() < NUMBER_OF_PIECES_PER_REQUEST) {
             TCPClient.torrentContext.updatePeerState();
@@ -73,6 +85,8 @@ public class TCPMessagesHandler {
         }
         return sent;
     }
+
+
 
     private Message receiveMessage(SocketChannel socketChannel, SelectionKey key) {
         byte[] buffLen = new byte[4];
@@ -170,7 +184,7 @@ public class TCPMessagesHandler {
                 TCPClient.waitingConnections.add(peerList.get(peerIndex));
             } else {
                 if (!HandShake.validateHandShake(hd, torrentMetaData.getSHA1Info())) {
-                    //TODO : cancel connexion
+
                     key.cancel();
                     peerState.killed = true;
                     try {
@@ -259,7 +273,10 @@ public class TCPMessagesHandler {
                             peerState.waitingRequests++;
                             peerState.numberOfRequests++;
                             peerDownloadHandler.getTorrentState().getStatus().set(writeMessage.getIndex(), PieceStatus.Requested);
-                        } else {
+                        } else if (writeMessage.getID() == PeerMessage.MsgType.PIECE){
+                            peerState.numberOfBlocksReceived++;
+                        }
+                        else {
                             break;
                         }
                     }
@@ -339,12 +356,15 @@ public class TCPMessagesHandler {
             int port = clntChan.socket().getPort();
             peerList.add(new PeerInfo(InetAddress.getLocalHost(), port, torrentMetaData.getNumberOfPieces()));
             channelIntegerMap.put(port, peerList.size()-1);
+
+            PeerState peerState = peerList.get(peerList.size()-1).getPeerState();
+            Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, clientState.getBitfield());
+            peerState.welcomeQ.add(bitfield);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-    //todo : method to decide the next WRITE/READ INTEREST OPERATIONS
 
 }

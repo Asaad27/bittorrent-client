@@ -1,4 +1,3 @@
-/*
 package misc;
 
 import misc.download.PeerDownloadHandler;
@@ -33,20 +32,20 @@ public class Main {
         //vuze
         //int PORT = 12314;
         //int PORT = 57675;
-        int PORT = 51413;
+        int PORT = 62875;
         String SERVER = "127.0.0.1";
-        String filePath = "C:\\Users\\asaad_6stn3w\\IdeaProjects\\latestequipe5\\src\\main\\CTos-8.2-2004-VB-64bit.7z";  //path of the file to seed
+        //String filePath = "C:\\Users\\asaad_6stn3w\\IdeaProjects\\latestequipe5\\src\\main\\CTos-8.2-2004-VB-64bit.7z";  //path of the file to seed
         PeerDownloadHandler peerDownloadHandler = null;
         TorrentFileHandler torrentHandler = null;
         TorrentMetaData torrentMetaData = null;
         try {
             torrentHandler = new TorrentFileHandler(new FileInputStream(args[0]));
             torrentMetaData = torrentHandler.ParseTorrent();
-            System.out.println(torrentMetaData);
-            peerDownloadHandler = new PeerDownloadHandler(PORT, SERVER, torrentMetaData);
-            //peerDownloadHandler.downloadTorrent();
 
-            peerDownloadHandler.seedTorrent(filePath);
+            peerDownloadHandler = new PeerDownloadHandler(PORT, SERVER, torrentMetaData);
+            peerDownloadHandler.downloadTorrent();
+
+            //peerDownloadHandler.seedTorrent(filePath);
 
 
         } catch (IOException | NoSuchAlgorithmException e) {
@@ -58,4 +57,3 @@ public class Main {
 
 
 }
-*/

@@ -19,6 +19,7 @@ public abstract class State {
     public int waitingRequests = 0;
     public int numberOfBlocksSent = 0;
     public int numberOfRequestsReceived = 0;
+    public int numberOfBlocksReceived = 0;
 
 
     public State(int numPieces) {

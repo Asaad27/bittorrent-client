@@ -10,7 +10,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
+        <java.version>1.8</java.version>
         <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
         <junit.jupiter.engine.version>5.8.2</junit.jupiter.engine.version>
@@ -19,6 +19,8 @@
     </properties>
 
     <build>
+        <testSourceDirectory> src/main/test/
+        </testSourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
