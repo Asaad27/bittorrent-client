@@ -71,9 +71,11 @@ public class NIODownloadHandler {
             }
 
         } else if (receivedMessage.ID == PeerMessage.MsgType.BITFIELD) {
-            peerState.bitfield.value = receivedMessage.getPayload();
+            onBitfieldReceived(peerState, receivedMessage.getPayload());
+            //TODO : test
+            /*peerState.bitfield.value = receivedMessage.getPayload();
             peerState.sentBitfield = true;
-            observer.notifyAllObservees(Events.PEER_CONNECTED, peerState);
+            observer.notifyAllObservees(Events.PEER_CONNECTED, peerState);*/
         } else if (receivedMessage.ID == PeerMessage.MsgType.REQUEST) {
             //we find the requested piece in the file
             if (clientState.hasPiece(receivedMessage.getIndex())) {
@@ -194,11 +196,39 @@ public class NIODownloadHandler {
 
     }
 
+    public void onBitfieldReceived(PeerState peerState, byte[] payload){
+        peerState.bitfield.value = payload;
+        peerState.sentBitfield = true;
+        observer.notifyAllObservees(Events.PEER_CONNECTED, peerState);
+
+        if (needToDownload(peerState)){
+            Message interested = new Message(PeerMessage.MsgType.INTERESTED);
+            peerState.welcomeQ.add(interested);
+        }
+        if (needToSeed(peerState)){
+            if (peerState.interested){
+                Message unchoke = new Message(PeerMessage.MsgType.UNCHOKE);
+                peerState.welcomeQ.add(unchoke);
+            }
+        }
+
+        //TODO : implement
+        if (!needToSeed(peerState) && !needToDownload(peerState)){
+            peerState.killed = true;
+
+            //TCPClient.peerInfoSet.remove(peerState);
+        }
+
+    }
+
     public boolean needToDownload(PeerState peerState) {
         boolean download = false;
         for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
-            if (peerState.hasPiece(i) && !clientState.hasPiece(i))
+            if (peerState.hasPiece(i) && !clientState.hasPiece(i)){
                 download = true;
+                break;
+            }
+
         }
 
         return download;
@@ -207,8 +237,11 @@ public class NIODownloadHandler {
     public boolean needToSeed(PeerState peerState) {
         boolean seed = false;
         for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
-            if (!peerState.hasPiece(i) && clientState.hasPiece(i))
+            if (!peerState.hasPiece(i) && clientState.hasPiece(i)){
                 seed = true;
+                break;
+            }
+
         }
 
         return seed;

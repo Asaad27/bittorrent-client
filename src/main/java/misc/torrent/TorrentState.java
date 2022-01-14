@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import misc.peers.ClientState;
 
+//TODO   : WHEN A NEW PEER CONNECTS, CHECK WEITHER IT SHOULD HAVE A SEEDER OR LEECHER WELCOMEQ
+//TODO : fix changing strategy when a new peer connects
 public class TorrentState {
 
     private static TorrentState instance = null;
@@ -140,9 +142,5 @@ public class TorrentState {
 		return this.status;
 	}
 
-    // TODO : implement
-    public int getNumberOfBlock(int index) {
 
-        return 0;
-    }
 }

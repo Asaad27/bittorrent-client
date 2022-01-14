@@ -4,7 +4,6 @@ package misc.download;
 import misc.peers.ClientState;
 import misc.peers.PeerInfo;
 import misc.torrent.Observer;
-import misc.torrent.TorrentContext;
 import misc.torrent.TorrentFileHandler;
 import misc.torrent.TorrentMetaData;
 import misc.torrent.TorrentState;
@@ -48,9 +47,11 @@ public class TCPClient implements Runnable{
         Observer subject = new Observer();
         parseTorrent(torrentPath);
         peerInfoList = new ArrayList<>();
-        //generatePeerList(2001, 2002, 2003, 2004, 2005);
-        getPeersFromTracker();
-        //generatePeerList(26000);
+        generatePeerList(2001, 2002, 2003, 2004, 2005);
+        //getPeersFromTracker();
+        //generatePeerList(27027);
+        //generatePeerList(51413);
+        //generatePeerList(2001);
         clientState = new ClientState(torrentMetaData.getNumberOfPieces());
         torrentState = TorrentState.getInstance(torrentMetaData, clientState);
         torrentContext = new TorrentContext(peerInfoList, torrentState, clientState, subject);
@@ -75,11 +76,18 @@ public class TCPClient implements Runnable{
             Iterator<SelectionKey> keyIter = selector.selectedKeys().iterator();
             while (keyIter.hasNext()) {
 
+               /* try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }*/
                 if(tcpMessagesHandler.fetchRequests()){
                     //System.err.println("request fetched");
                 }
 
                 SelectionKey key = keyIter.next();
+                PeerInfo peerInfo = (PeerInfo) key.attachment();
+                //System.out.println(peerInfo.getPeerState().queuedRequestsFromPeer + " li safto " + peerInfo.getPeerState().queuedRequestsFromClient);
 
                 if (key.isValid() && key.isConnectable()) {
                     //TODO : connection errors, eq when port is wrong
@@ -87,15 +95,17 @@ public class TCPClient implements Runnable{
                 }
 
                 if(key.isValid() && key.isAcceptable()){
-                    System.err.println("accepting....");
+                    //System.err.println("accepting....");
                     tcpMessagesHandler.handleAccept(key, channelIntegerMap);
                 }
 
                 if (key.isValid() && key.isReadable()) {
+                    //System.err.println("reading....");
                     tcpMessagesHandler.handleRead(key);
                 }
 
                 if (key.isValid() && key.isWritable()) {
+                    //System.err.println("writing...");
                     tcpMessagesHandler.handleWrite(key);
                 }
 

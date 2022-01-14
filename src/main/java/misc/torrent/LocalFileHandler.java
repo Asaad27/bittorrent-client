@@ -86,6 +86,7 @@ public class LocalFileHandler {
 		return true;
 	}
 
+	//TODO : don't verify file twice aka when download ended func is lunched even tho we didn't download
 	public  boolean verifyDownloadedFile(){
 		System.out.println("Checking File");
 		int numPieces = torrentState.getNumberOfPieces();

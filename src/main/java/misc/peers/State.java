@@ -1,6 +1,8 @@
 package misc.peers;
 import misc.messages.ByteBitfield;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public abstract class State {
     public boolean choked = true;
     public boolean interested;
@@ -11,16 +13,18 @@ public abstract class State {
     public boolean weAreChokedByPeer = true;
     public boolean killed = false;
     public boolean isDownloading = true;
+    public boolean isLeecher = false;
 
 
     public ByteBitfield bitfield = null;
-    public int numberNonResponseIter = 0;
     public int numberOfRequests = 0;
-    public int waitingRequests = 0;
+    public AtomicInteger queuedRequestsFromClient = new AtomicInteger(0);
+    public AtomicInteger queuedRequestsFromPeer = new AtomicInteger(0);
     public int numberOfBlocksSent = 0;
     public int numberOfRequestsReceived = 0;
     public int numberOfBlocksReceived = 0;
-    public boolean isLeecher = false;
+
+
 
 
     public State(int numPieces) {
