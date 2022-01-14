@@ -56,7 +56,7 @@ public class NIODownloadHandler {
         } else if (receivedMessage.ID == PeerMessage.MsgType.INTERESTED) {
             peerState.interested = true;
             if (peerState.choked)
-                peerState.writeMessageQ.addFirst(new Message(PeerMessage.MsgType.UNCHOKE));
+                peerState.welcomeQ.add(new Message(PeerMessage.MsgType.UNCHOKE));
         } else if (receivedMessage.ID == PeerMessage.MsgType.UNINTERESTED) {
             peerState.interested = false;
         } else if (receivedMessage.ID == PeerMessage.MsgType.HAVE) {

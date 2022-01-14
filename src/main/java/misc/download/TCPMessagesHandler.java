@@ -265,10 +265,13 @@ public class TCPMessagesHandler {
                 }
                 TCPClient.waitingConnections.remove(peerList.get(peerIndex));
             } else if (!peerState.writeMessageQ.isEmpty()) {
-                if (peerState.weAreChokedByPeer) {
+                if (peerState.weAreChokedByPeer && peerState.writeMessageQ.peek().ID == PeerMessage.MsgType.REQUEST) {
                     key.interestOps(SelectionKey.OP_READ);
                     return;
                 }
+
+                //TODO : NUMBER OF UNTREATED REQUESTS SHOULD BE BOUNDED, AKA DO THE SAME THING HERE IN THE CASE OF READ REQUESTS
+
                 while (!peerState.writeMessageQ.isEmpty() && peerState.waitingRequests < NUMBER_OF_REQUEST_PER_PEER) {
                     Message writeMessage = peerState.writeMessageQ.poll();
                     if (writeMessage == null)
@@ -361,7 +364,7 @@ public class TCPMessagesHandler {
             InetAddress address = clientChannel.socket().getInetAddress();
             PeerInfo peerInfo = new PeerInfo(address, port, torrentMetaData.getNumberOfPieces());
 
-            clientChannel.register(key.selector(), SelectionKey.OP_READ, peerInfo);
+            clientChannel.register(key.selector(), SelectionKey.OP_READ , peerInfo);
             //peerList.add(new PeerInfo(InetAddress.getLocalHost(), port, torrentMetaData.getNumberOfPieces()));
             addPeer(peerInfo);
             channelIntegerMap.put(port, peerList.size() - 1);
@@ -381,6 +384,7 @@ public class TCPMessagesHandler {
             return;
         TCPClient.peerInfoSet.add(peerInfo);
         peerList.add(peerInfo);
+        peerInfo.getPeerState().isLeecher = true;
     }
 
     public void removePeer(PeerInfo peerInfo){

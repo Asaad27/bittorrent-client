@@ -137,7 +137,8 @@ public class TrackerHandler {
 
 					
 					PeerInfo peer = new PeerInfo(addr,port, totalPieces);
-					lst.add(peer);
+					if (port >= 0)
+						lst.add(peer);
 					
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
@@ -147,6 +148,8 @@ public class TrackerHandler {
 			}
 			
 		}
+
+		System.out.println("peer list : " + lst);
 		
 		return lst;
 		

@@ -16,18 +16,19 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class TCPClient implements Runnable{
 
-    public static int OURPORT = 12327;
+    public static int OURPORT = 12347;
     public static String SERVER = "127.0.0.1";
     public static Queue<PeerInfo> waitingConnections = new LinkedList<>();
     public static TorrentContext torrentContext;
     //TODO : implement
-    public static Set<PeerInfo> peerInfoSet;
+    public static final Set<PeerInfo> peerInfoSet = new HashSet<>();
     public TorrentFileHandler torrentHandler;
     public static TorrentMetaData torrentMetaData;
 
@@ -47,8 +48,8 @@ public class TCPClient implements Runnable{
         Observer subject = new Observer();
         parseTorrent(torrentPath);
         peerInfoList = new ArrayList<>();
-        generatePeerList(2001, 2002, 2003, 2004, 2005);
-        //trackerList();
+        //generatePeerList(2001, 2002, 2003, 2004, 2005);
+        getPeersFromTracker();
         //generatePeerList(26000);
         clientState = new ClientState(torrentMetaData.getNumberOfPieces());
         torrentState = TorrentState.getInstance(torrentMetaData, clientState);
@@ -86,6 +87,7 @@ public class TCPClient implements Runnable{
                 }
 
                 if(key.isValid() && key.isAcceptable()){
+                    System.err.println("accepting....");
                     tcpMessagesHandler.handleAccept(key, channelIntegerMap);
                 }
 
@@ -105,6 +107,11 @@ public class TCPClient implements Runnable{
     private void initializeSelector(){
         try {
             selector = Selector.open();
+
+            ServerSocketChannel passiveChannel = ServerSocketChannel.open();
+            passiveChannel.socket().bind(new InetSocketAddress(OURPORT));
+            passiveChannel.configureBlocking(false);
+            passiveChannel.register(selector, SelectionKey.OP_ACCEPT);
 
             for (int i = 0; i < peerInfoList.size(); i++) {
 
@@ -136,7 +143,7 @@ public class TCPClient implements Runnable{
         System.out.println(torrentMetaData);
     }
 
-    public void trackerList(){
+    public void getPeersFromTracker(){
         try {
             URL announceURL = new URL(torrentMetaData.getAnnounceUrlString());
             tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1InfoByte(), OURPORT, torrentMetaData.getNumberOfPieces());
