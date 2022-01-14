@@ -36,19 +36,19 @@ public class TorrentContext {
 			chooseStrategy(Strategies.RANDOM);
 		}
 
-		/*if (piece == -4){
+		if (piece == -4){
 			DEBUG.loge("changing strategie to ENDGAME");
 			chooseStrategy(Strategies.END_GAME);
-		}*/
+		}
 
 		if (piece >= 0 && piece < status.getNumberOfPieces() && status.getStatus().get(piece) == PieceStatus.ToBeDownloaded ){
 			clientState.piecesToRequest.add(piece);
+
 		}
 
 	}
 	//ADD ENUM STRATEGY AS A PARAM
 	private void chooseStrategy(Strategies strategy) {
-		// TODO : Choisir la stratégie à appliquer en fonction du contexte 
 		/* RAREST FIRST : Début
 		 * RANDOM : Tous les peers ont les pièces manquantes
 		 * ENDGAME : Toutes les pièces sont Requested

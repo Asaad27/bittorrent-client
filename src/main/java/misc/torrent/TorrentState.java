@@ -72,7 +72,7 @@ public class TorrentState {
         lastPieceSize = (torrentMetaData.getLength() % pieceSize == 0) ? pieceSize : (int) (torrentMetaData.getLength() % pieceSize);
         numOfLastPieceBlocks = (lastPieceSize + blockSize -1) / blockSize;
 
-        remainingBlockSize =( lastPieceSize % blockSize != 0) ? lastPieceSize%blockSize : blockSize;
+        remainingBlockSize = (lastPieceSize % blockSize != 0) ? lastPieceSize%blockSize : blockSize;
 
         numberOfPieces = torrentMetaData.getNumberOfPieces();
     }
@@ -123,7 +123,7 @@ public class TorrentState {
     
     private List<PieceStatus> initStatus() {
 
-		List<PieceStatus> status = new ArrayList<PieceStatus>();
+		List<PieceStatus> status = new ArrayList<>();
 
 		for(int i = 0; i < numberOfPieces; i++) {
 			if(clientState.bitfield.hasPiece(i)) {
@@ -140,4 +140,9 @@ public class TorrentState {
 		return this.status;
 	}
 
+    // TODO : implement
+    public int getNumberOfBlock(int index) {
+
+        return 0;
+    }
 }

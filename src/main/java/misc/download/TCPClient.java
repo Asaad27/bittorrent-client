@@ -26,8 +26,11 @@ public class TCPClient implements Runnable{
     public static String SERVER = "127.0.0.1";
     public static Queue<PeerInfo> waitingConnections = new LinkedList<>();
     public static TorrentContext torrentContext;
+    //TODO : implement
+    public static Set<PeerInfo> peerInfoSet;
     public TorrentFileHandler torrentHandler;
     public static TorrentMetaData torrentMetaData;
+
     public ClientState clientState;
     public TorrentState torrentState;
     //map port -> index of peer in List<PeerInfo>
@@ -106,14 +109,15 @@ public class TCPClient implements Runnable{
             for (int i = 0; i < peerInfoList.size(); i++) {
 
                 assert peerInfoList.get(i).getPort() >= 0;
-                SocketChannel clntChan = SocketChannel.open();
-                clntChan.configureBlocking(false);
-                clntChan.register(selector, SelectionKey.OP_CONNECT);
+                SocketChannel clientChannel = SocketChannel.open();
+                clientChannel.configureBlocking(false);
+                clientChannel.register(selector, SelectionKey.OP_CONNECT, peerInfoList.get(i));
 
                 int port = peerInfoList.get(i).getPort();
 
-                boolean flag = clntChan.connect(new InetSocketAddress(SERVER, port));
+                boolean flag = clientChannel.connect(new InetSocketAddress(SERVER, port));
                 DEBUG.log(String.valueOf(flag), String.valueOf(i), "port : ", String.valueOf(peerInfoList.get(i).getPort()));
+                peerInfoList.get(i).index = i;
                 channelIntegerMap.put(port, i);
             }
         } catch (IOException e) {
@@ -142,7 +146,6 @@ public class TCPClient implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         //remove our client from the tracker response
 
         int tod = -1;
@@ -152,6 +155,9 @@ public class TCPClient implements Runnable{
         }
         if (tod != -1)
             peerInfoList.remove(tod);
+
+        //add peers to the set
+        peerInfoSet.addAll(peerInfoList);
     }
 
     public void generatePeerList(int ...ports){

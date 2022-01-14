@@ -6,6 +6,7 @@ public class PeerInfo {
 
     private final InetAddress addr;
     public int port;
+    public int index;
     //private Bitfield bitfield;  //TODO : fix
     private PeerState peerState;
 

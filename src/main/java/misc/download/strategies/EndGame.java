@@ -1,5 +1,6 @@
 package misc.download.strategies;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -16,22 +17,37 @@ public class EndGame extends DownloadStrat implements IObservable {
 	private static EndGame instance;
 	private final List<PeerInfo> peers;
 	private final TorrentState status;
+	public static final HashMap<Integer, List<Boolean>> piecesAndBlocks = new HashMap<>();
 
 	public EndGame(List<PeerInfo> peers, TorrentState status, Observer subject) {
 		this.peers = peers;
 		this.status = status;
 		subject.attach(this);
+		//map that stores the blocks for the remaining pieces
+		initPieceBlockMap();
 	}
 
-	/*public static void sendCancels(List<PeerInfo> peerInfoList, int index, PeerState peerState) {
-		for (PeerInfo peer: peerInfoList) {
-			if (!peer.getPeerState().equals(peerState)){
-				Message cancel = new Message(PeerMessage.MsgType.CANCEL, index, );
+	public static void blockDownloaded(int index, int begin, TorrentState torrentState) {
+		int numberOfBlocks = torrentState.getNumberOfBlock(index);
+		//TODO : test
+		int blockIndex = numberOfBlocks / begin;
+		piecesAndBlocks.get(index).set(blockIndex, true);
+	}
 
-				peer.getPeerState().writeMessageQ.addFirst();
+	public void initPieceBlockMap(){
+
+	}
+
+	public static void sendCancels(List<PeerInfo> peerInfoList, int index, int begin, int length, PeerState peerState) {
+		Message cancel = new Message(PeerMessage.MsgType.CANCEL, index, begin, length);
+		for (PeerInfo peer: peerInfoList) {
+			if (peer.getPeerState().killed)
+				continue;
+			if (!peer.getPeerState().equals(peerState)){
+				peer.getPeerState().writeMessageQ.addFirst(cancel);
 			}
 		}
-	}*/
+	}
 
 	@Override
 	public int updatePeerState() {
@@ -43,7 +59,7 @@ public class EndGame extends DownloadStrat implements IObservable {
 			}
 		}
 		
-		return -1;
+		return -7;
 	}
 
 

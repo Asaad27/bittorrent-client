@@ -11,13 +11,13 @@ import misc.torrent.TorrentState;
 public class RandomPiece extends DownloadStrat implements IObservable {
 
 	private static RandomPiece instance;
-	private List<PeerInfo> peers;
+	private final List<PeerInfo> peers;
 	private Set<Integer> pieceSet;
-	private TorrentState status;
+	private final TorrentState status;
 	private Set<Integer> piecesWithNoPeers;
 
 	private final misc.torrent.Observer subject;
-	private final int Threshold = 5;
+	private final static int Threshold = 5;
 
 	private RandomPiece(List<PeerInfo> peers, TorrentState status, misc.torrent.Observer subject) {
 		this.peers = peers;
@@ -36,9 +36,9 @@ public class RandomPiece extends DownloadStrat implements IObservable {
 	public int updatePeerState() {
 		//System.out.println("random");
 		//TODO : check
-		/*if (pieceSet.size() <= Threshold){
+		if (pieceSet.size() <= Threshold){
 			return -4;
-		}*/
+		}
 		int random = -1;
 		List<PeerInfo> valuablePeers = null;
 		while(!pieceSet.isEmpty()){

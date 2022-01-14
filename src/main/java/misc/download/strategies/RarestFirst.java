@@ -85,6 +85,8 @@ public class RarestFirst extends DownloadStrat implements IObservable {
 
     private void initAlgo() {
         for (PeerInfo peer : peers) {
+            if (peer.getPeerState().killed)
+                continue;
             ByteBitfield bf = peer.getPeerState().bitfield;
             for (int i = 0; i < status.getNumberOfPieces(); i++) {
                 if (bf.hasPiece(i))
