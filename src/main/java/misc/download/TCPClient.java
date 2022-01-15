@@ -27,17 +27,16 @@ public class TCPClient implements Runnable{
     public static Queue<PeerInfo> waitingConnections = new LinkedList<>();
     public static TorrentContext torrentContext;
     //TODO : implement
-    public static final Set<PeerInfo> peerInfoSet = new HashSet<>();
+
     public TorrentFileHandler torrentHandler;
     public static TorrentMetaData torrentMetaData;
 
     public ClientState clientState;
     public TorrentState torrentState;
-    //map port -> index of peer in List<PeerInfo>
-    public static final Map<Integer, Integer> channelIntegerMap = new HashMap<>();
+
 
     private TrackerHandler tracker;
-    private List<PeerInfo> peerInfoList;
+    private Set<PeerInfo> peerInfoList;
     private final TCPMessagesHandler tcpMessagesHandler;
     private Selector selector;
 
@@ -46,9 +45,9 @@ public class TCPClient implements Runnable{
 
         Observer subject = new Observer();
         parseTorrent(torrentPath);
-        peerInfoList = new ArrayList<>();
-        generatePeerList(2001, 2002, 2003, 2004, 2005);
-        //getPeersFromTracker();
+        peerInfoList = new HashSet<>();
+        //generatePeerList(2001, 2007);
+        getPeersFromTracker();
         //generatePeerList(27027);
         //generatePeerList(51413);
         //generatePeerList(2001);
@@ -76,18 +75,14 @@ public class TCPClient implements Runnable{
             Iterator<SelectionKey> keyIter = selector.selectedKeys().iterator();
             while (keyIter.hasNext()) {
 
-               /* try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }*/
+
                 if(tcpMessagesHandler.fetchRequests()){
                     //System.err.println("request fetched");
                 }
 
                 SelectionKey key = keyIter.next();
                 PeerInfo peerInfo = (PeerInfo) key.attachment();
-                //System.out.println(peerInfo.getPeerState().queuedRequestsFromPeer + " li safto " + peerInfo.getPeerState().queuedRequestsFromClient);
+
 
                 if (key.isValid() && key.isConnectable()) {
                     //TODO : connection errors, eq when port is wrong
@@ -96,7 +91,7 @@ public class TCPClient implements Runnable{
 
                 if(key.isValid() && key.isAcceptable()){
                     //System.err.println("accepting....");
-                    tcpMessagesHandler.handleAccept(key, channelIntegerMap);
+                    tcpMessagesHandler.handleAccept(key);
                 }
 
                 if (key.isValid() && key.isReadable()) {
@@ -123,19 +118,17 @@ public class TCPClient implements Runnable{
             passiveChannel.configureBlocking(false);
             passiveChannel.register(selector, SelectionKey.OP_ACCEPT);
 
-            for (int i = 0; i < peerInfoList.size(); i++) {
+            int index = 0;
+            for (PeerInfo peerInfo : peerInfoList) {
 
-                assert peerInfoList.get(i).getPort() >= 0;
+                assert peerInfo.getPort() >= 0;
                 SocketChannel clientChannel = SocketChannel.open();
                 clientChannel.configureBlocking(false);
-                clientChannel.register(selector, SelectionKey.OP_CONNECT, peerInfoList.get(i));
-
-                int port = peerInfoList.get(i).getPort();
-
-                boolean flag = clientChannel.connect(new InetSocketAddress(SERVER, port));
-                DEBUG.log(String.valueOf(flag), String.valueOf(i), "port : ", String.valueOf(peerInfoList.get(i).getPort()));
-                peerInfoList.get(i).index = i;
-                channelIntegerMap.put(port, i);
+                clientChannel.register(selector, SelectionKey.OP_CONNECT, peerInfo);
+                int port = peerInfo.getPort();
+                clientChannel.connect(new InetSocketAddress(SERVER, port));
+                peerInfo.index = index;
+                index++;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -165,16 +158,8 @@ public class TCPClient implements Runnable{
         }
         //remove our client from the tracker response
 
-        int tod = -1;
-        for (int d = 0; d < peerInfoList.size(); d++){
-            if (peerInfoList.get(d).getPort() == OURPORT)
-                tod = d;
-        }
-        if (tod != -1)
-            peerInfoList.remove(tod);
+        peerInfoList.removeIf(peerInfo -> peerInfo.getPort() == OURPORT);
 
-        //add peers to the set
-        peerInfoSet.addAll(peerInfoList);
     }
 
     public void generatePeerList(int ...ports){
@@ -186,6 +171,8 @@ public class TCPClient implements Runnable{
                 e.printStackTrace();
             }
         }
+
+        System.out.println(peerInfoList);
     }
 
 }

@@ -72,7 +72,7 @@ public class LocalFileHandler {
 			String downloadedHash = Utils.bytesToHex(sha);
 			if (!downloadedHash.equals(originalHash))
 			{
-				System.err.println("piece id : " + index + "\noriginal hash : " + originalHash + "\ndownloaded hash : " + downloadedHash);
+				//System.err.println("piece id : " + index + "\noriginal hash : " + originalHash + "\ndownloaded hash : " + downloadedHash);
 				return false;
 			}
 
@@ -81,7 +81,7 @@ public class LocalFileHandler {
 		}
 
 
-		System.out.println("piece id : " + index + " valid");
+		//System.out.println("piece id : " + index + " valid");
 
 		return true;
 	}

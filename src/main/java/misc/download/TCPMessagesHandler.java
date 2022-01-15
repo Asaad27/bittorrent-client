@@ -25,21 +25,22 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //TODO : welcome Messages, should depend upon the state of our torrent file, the state of the peers
 //TODO : timeout handshake
 public class TCPMessagesHandler {
 
     public static final int NUMBER_OF_PIECES_PER_REQUEST = 1;
-    public static final int NUMBER_OF_REQUEST_PER_PEER = 100;
+    public static final int NUMBER_OF_REQUEST_PER_PEER = 1000;
 
     public NIODownloadHandler peerDownloadHandler;
-    public List<PeerInfo> peerList;
+    public Set<PeerInfo> peerList;
     public TorrentMetaData torrentMetaData;
     public ClientState clientState;
 
 
-    public TCPMessagesHandler(TorrentMetaData torrentMetaData, List<PeerInfo> peerList, ClientState clientState, TorrentState torrentState, Observer observer) {
+    public TCPMessagesHandler(TorrentMetaData torrentMetaData, Set<PeerInfo> peerList, ClientState clientState, TorrentState torrentState, Observer observer) {
 
         this.torrentMetaData = torrentMetaData;
         this.peerDownloadHandler = new NIODownloadHandler(torrentMetaData, clientState, torrentState, peerList, observer);
@@ -53,8 +54,6 @@ public class TCPMessagesHandler {
         boolean everyoneIsConnected = true;
         for (PeerInfo peer : peerList) {
             PeerState peerState = peer.getPeerState();
-            if (peerState.killed)
-                continue;
             everyoneIsConnected = everyoneIsConnected && peerState.isConnected();
         }
         if (!everyoneIsConnected) {
@@ -148,7 +147,8 @@ public class TCPMessagesHandler {
         return PeerMessage.deserialize(finalData);
     }
 
-    private void sendMessage(SocketChannel socketChannel, Message message) {
+    private void sendMessage(SocketChannel socketChannel, PeerInfo peerInfo, Message message) {
+
         byte[] msg = PeerMessage.serialize(message);
         ByteBuffer writeBuf = ByteBuffer.wrap(msg);
         try {
@@ -157,7 +157,7 @@ public class TCPMessagesHandler {
             DEBUG.printError(e, getClass().getName());
             return;
         }
-        DEBUG.log("--->sent message ", message.toString(), "to peer number", String.valueOf(TCPClient.channelIntegerMap.get(socketChannel.socket().getPort())));
+        DEBUG.log("--->sent message ", message.toString(), "to peer number", String.valueOf(peerInfo.getPort()));
 
     }
 
@@ -194,7 +194,8 @@ public class TCPMessagesHandler {
                 if (!HandShake.validateHandShake(hd, torrentMetaData.getSHA1Info())) {
 
                     key.cancel();
-                    peerState.killed = true;
+                    peerList.remove(peerInfo);
+
                     try {
                         clientChannel.close();
                     } catch (IOException e) {
@@ -265,7 +266,7 @@ public class TCPMessagesHandler {
             //our peer received our handshake
             peerState.receivedHandshake = true;
             if (!peerState.sentHandshake) {
-                TCPClient.waitingConnections.add(peerList.get(peerIndex));
+                TCPClient.waitingConnections.add(peerInfo);
                 key.interestOps(SelectionKey.OP_READ);
             }
 
@@ -274,9 +275,9 @@ public class TCPMessagesHandler {
             if (!peerState.welcomeQ.isEmpty()) {
                 while (!peerState.welcomeQ.isEmpty()) {
                     Message writeMessage = peerState.welcomeQ.poll();
-                    sendMessage(clientChannel, writeMessage);
+                    sendMessage(clientChannel, peerInfo, writeMessage);
                 }
-                TCPClient.waitingConnections.remove(peerList.get(peerIndex));
+                TCPClient.waitingConnections.remove(peerInfo);
             } else if (!peerState.writeMessageQ.isEmpty()) {
                 if (peerState.weAreChokedByPeer && peerState.writeMessageQ.peek().ID == PeerMessage.MsgType.REQUEST) {
                     key.interestOps(SelectionKey.OP_READ);
@@ -290,7 +291,7 @@ public class TCPMessagesHandler {
                     if (writeMessage == null)
                         System.err.println("null message to write");
                     else {
-                        sendMessage(clientChannel, writeMessage);
+                        sendMessage(clientChannel, peerInfo, writeMessage);
                         if (writeMessage.getID() == PeerMessage.MsgType.REQUEST) {
                             peerState.queuedRequestsFromClient.incrementAndGet();
                             peerState.numberOfRequests++;
@@ -315,8 +316,8 @@ public class TCPMessagesHandler {
 
     public void handleConnection(SelectionKey key) {
         SocketChannel clientChannel = (SocketChannel) key.channel();
-        int peerIndex = TCPClient.channelIntegerMap.get(clientChannel.socket().getPort());
-        PeerState peerState = peerList.get(peerIndex).getPeerState();
+        PeerInfo peerInfo = (PeerInfo) key.attachment();
+        PeerState peerState = peerInfo.getPeerState();
 
         boolean isConnected;
         try {
@@ -339,7 +340,7 @@ public class TCPMessagesHandler {
 
 
         } catch (IOException connectException) {
-            removePeer(peerList.get(peerIndex));
+            removePeer(peerInfo);
             try {
                 clientChannel.close();
             } catch (IOException e) {
@@ -356,7 +357,7 @@ public class TCPMessagesHandler {
                 key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
         } catch (IOException e) {
             DEBUG.printError(e, getClass().getName());
-            removePeer(peerList.get(peerIndex));
+            removePeer(peerInfo);
 
             try {
                 clientChannel.close();
@@ -369,7 +370,7 @@ public class TCPMessagesHandler {
 
     }
 
-    public void handleAccept(SelectionKey key, Map<Integer, Integer> channelIntegerMap) {
+    public void handleAccept(SelectionKey key) {
         SocketChannel clientChannel;
         try {
             clientChannel = ((ServerSocketChannel) key.channel()).accept();
@@ -381,10 +382,9 @@ public class TCPMessagesHandler {
             clientChannel.register(key.selector(), SelectionKey.OP_READ , peerInfo);
             //peerList.add(new PeerInfo(InetAddress.getLocalHost(), port, torrentMetaData.getNumberOfPieces()));
             addPeer(peerInfo);
-            channelIntegerMap.put(port, peerList.size() - 1);
             peerInfo.index = peerList.size() - 1;
 
-            PeerState peerState = peerList.get(peerList.size() - 1).getPeerState();
+            PeerState peerState = peerInfo.getPeerState();
             Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, clientState.getBitfield());
             peerState.welcomeQ.add(bitfield);
 
@@ -394,16 +394,11 @@ public class TCPMessagesHandler {
     }
 
     public  void addPeer(PeerInfo peerInfo){
-        if (TCPClient.peerInfoSet.contains(peerInfo))
-            return;
-        TCPClient.peerInfoSet.add(peerInfo);
         peerList.add(peerInfo);
-        peerInfo.getPeerState().isLeecher = true;
     }
 
     public  void removePeer(PeerInfo peerInfo){
-        TCPClient.peerInfoSet.remove(peerInfo);
-        peerInfo.getPeerState().killed = true;
+        peerList.remove(peerInfo);
     }
 
 }

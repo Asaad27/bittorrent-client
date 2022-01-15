@@ -12,6 +12,7 @@ import misc.utils.DEBUG;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NIODownloadHandler {
@@ -19,11 +20,11 @@ public class NIODownloadHandler {
     private final ClientState clientState;
     private final TorrentMetaData torrentMetaData;
     private final TorrentState torrentState;
-    private final List<PeerInfo> peerInfoList;
+    private final Set<PeerInfo> peerInfoList;
     private final Observer observer;
 
 
-    public NIODownloadHandler(TorrentMetaData torrentMetaData, ClientState clientState, TorrentState torrentState, List<PeerInfo> peerInfoList, Observer observer) {
+    public NIODownloadHandler(TorrentMetaData torrentMetaData, ClientState clientState, TorrentState torrentState, Set<PeerInfo> peerInfoList, Observer observer) {
         this.torrentMetaData = torrentMetaData;
         this.clientState = clientState;
         this.torrentState = torrentState;
@@ -214,9 +215,8 @@ public class NIODownloadHandler {
 
         //TODO : implement
         if (!needToSeed(peerState) && !needToDownload(peerState)){
-            peerState.killed = true;
+            peerInfoList.removeIf(peerInfo -> peerInfo.getPeerState() == peerState);
 
-            //TCPClient.peerInfoSet.remove(peerState);
         }
 
     }

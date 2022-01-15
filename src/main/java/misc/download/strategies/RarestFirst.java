@@ -4,31 +4,29 @@ import misc.messages.ByteBitfield;
 import misc.peers.PeerInfo;
 import misc.peers.PeerState;
 import misc.torrent.*;
+import misc.torrent.Observer;
 import misc.utils.Pair;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class RarestFirst extends DownloadStrat implements IObservable {
 
     private static RarestFirst instance;
 
     private final HashSet<Pair> rareSet = new HashSet<>();
-    private final List<PeerInfo> peers;
+    private final Set<PeerInfo> peers;
     private final TorrentState status;
     private final PriorityQueue<Pair> minHeap = new PriorityQueue<>();
 
 
-    private RarestFirst(List<PeerInfo> peers, TorrentState status, Observer subject) {
+    private RarestFirst(Set<PeerInfo> peers, TorrentState status, Observer subject) {
         this.peers = peers;
         this.status = status;
         subject.attach(this);
         initAlgo();
     }
 
-    public static IDownloadStrat instance(List<PeerInfo> peers, TorrentState status, Observer subject) {
+    public static IDownloadStrat instance(Set<PeerInfo> peers, TorrentState status, Observer subject) {
         if (instance == null) {
             instance = new RarestFirst(peers, status, subject);
         }
@@ -86,8 +84,6 @@ public class RarestFirst extends DownloadStrat implements IObservable {
 
     private void initAlgo() {
         for (PeerInfo peer : peers) {
-            if (peer.getPeerState().killed)
-                continue;
             ByteBitfield bf = peer.getPeerState().bitfield;
             for (int i = 0; i < status.getNumberOfPieces(); i++) {
                 if (bf.hasPiece(i))

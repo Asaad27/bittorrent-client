@@ -15,11 +15,11 @@ import misc.torrent.*;
 public class EndGame extends DownloadStrat implements IObservable {
 	
 	private static EndGame instance;
-	private final List<PeerInfo> peers;
+	private final Set<PeerInfo> peers;
 	private final TorrentState status;
 	public static final HashMap<Integer, List<Boolean>> piecesAndBlocks = new HashMap<>();
 
-	public EndGame(List<PeerInfo> peers, TorrentState status, Observer subject) {
+	public EndGame(Set<PeerInfo> peers, TorrentState status, Observer subject) {
 		this.peers = peers;
 		this.status = status;
 		subject.attach(this);
@@ -39,11 +39,9 @@ public class EndGame extends DownloadStrat implements IObservable {
 
 	}
 
-	public static void sendCancels(List<PeerInfo> peerInfoList, int index, int begin, int length, PeerState peerState) {
+	public static void sendCancels(Set<PeerInfo> peerInfoList, int index, int begin, int length, PeerState peerState) {
 		Message cancel = new Message(PeerMessage.MsgType.CANCEL, index, begin, length);
 		for (PeerInfo peer: peerInfoList) {
-			if (peer.getPeerState().killed)
-				continue;
 			if (!peer.getPeerState().equals(peerState)){
 				peer.getPeerState().writeMessageQ.addFirst(cancel);
 			}
@@ -71,7 +69,7 @@ public class EndGame extends DownloadStrat implements IObservable {
 		return "ENDGAME";
 	}
 
-	public static IDownloadStrat instance(List<PeerInfo> peers, TorrentState status, Observer subject) {
+	public static IDownloadStrat instance(Set<PeerInfo> peers, TorrentState status, Observer subject) {
 		if (instance == null) {
 			instance = new EndGame(peers, status, subject);
 		}

@@ -9,13 +9,11 @@ import misc.torrent.TorrentState;
 public abstract class DownloadStrat implements IDownloadStrat {
 
 
-	public static List<PeerInfo> peersByPieceIndex(List<PeerInfo> peers, int pieceNb) {
+	public static List<PeerInfo> peersByPieceIndex(Set<PeerInfo> peers, int pieceNb) {
 		
 		List<PeerInfo> valuablePeers = new ArrayList<PeerInfo>();
 		
 		for(PeerInfo peer : peers) {
-			if (peer.getPeerState().killed)
-				continue;
 			if (peer.getPeerState().hasPiece(pieceNb)){
 				valuablePeers.add(peer);
 			}

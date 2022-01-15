@@ -11,7 +11,6 @@ public abstract class State {
     public boolean receivedBitfield = false;
     public boolean sentBitfield = false;
     public boolean weAreChokedByPeer = true;
-    public boolean killed = false;
     public boolean isDownloading = true;
     public boolean isLeecher = false;
 

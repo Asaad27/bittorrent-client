@@ -6,11 +6,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+
 import be.adaxisoft.bencode.BDecoder;
 import be.adaxisoft.bencode.BEncodedValue;
 import java.io.IOException;
@@ -76,7 +73,7 @@ public class TrackerHandler {
 		return queryURI;
 	}
 	
-	public List<PeerInfo> getPeerLst() throws IOException {
+	public Set<PeerInfo> getPeerLst() throws IOException {
 		
 		URL uri = new URL(buildQueryURI());
 		// System.out.println(uri.toString());
@@ -111,9 +108,9 @@ public class TrackerHandler {
 	}
 	
 	
-	private List<PeerInfo> processHttpResponse(byte[] response) {
+	private Set<PeerInfo> processHttpResponse(byte[] response) {
 		
-		List<PeerInfo> lst = new LinkedList<PeerInfo>();
+		Set<PeerInfo> lst = new HashSet<>();
 		
 		if(response.length % 6 == 0) {
 			
@@ -136,7 +133,7 @@ public class TrackerHandler {
 					System.out.println("Port : " + port);*/
 
 					
-					PeerInfo peer = new PeerInfo(addr,port, totalPieces);
+					PeerInfo peer = new PeerInfo(addr, port, totalPieces);
 					if (port >= 0)
 						lst.add(peer);
 					
@@ -149,7 +146,7 @@ public class TrackerHandler {
 			
 		}
 
-		System.out.println("peer list : " + lst);
+		//System.out.println("peer list : " + lst);
 		
 		return lst;
 		

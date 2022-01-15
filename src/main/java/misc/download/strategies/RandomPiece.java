@@ -11,7 +11,7 @@ import misc.torrent.TorrentState;
 public class RandomPiece extends DownloadStrat implements IObservable {
 
 	private static RandomPiece instance;
-	private final List<PeerInfo> peers;
+	private final Set<PeerInfo> peers;
 	private Set<Integer> pieceSet;
 	private final TorrentState status;
 	private Set<Integer> piecesWithNoPeers;
@@ -19,7 +19,7 @@ public class RandomPiece extends DownloadStrat implements IObservable {
 	private final misc.torrent.Observer subject;
 	private final static int Threshold = 5;
 
-	private RandomPiece(List<PeerInfo> peers, TorrentState status, misc.torrent.Observer subject) {
+	private RandomPiece(Set<PeerInfo> peers, TorrentState status, misc.torrent.Observer subject) {
 		this.peers = peers;
 		this.status = status;
 		this.subject = subject;
@@ -65,7 +65,7 @@ public class RandomPiece extends DownloadStrat implements IObservable {
 		return "RANDOM";
 	}
 
-	public static IDownloadStrat instance(List<PeerInfo> peers, TorrentState status, Observer subject) {
+	public static IDownloadStrat instance(Set<PeerInfo> peers, TorrentState status, Observer subject) {
 		if (instance == null) {
 			instance = new RandomPiece(peers, status, subject);
 		}

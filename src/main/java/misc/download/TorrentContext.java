@@ -7,16 +7,17 @@ import misc.torrent.TorrentState;
 import misc.utils.DEBUG;
 import misc.peers.PeerInfo;
 import java.util.List;
+import java.util.Set;
 
 public class TorrentContext {
 	
-	private List<PeerInfo> peers; 
+	private Set<PeerInfo> peers;
 	private IDownloadStrat strategy;
 	private final TorrentState status;
 	private final Observer subject;
 	private final ClientState clientState;
 
-	public TorrentContext(List<PeerInfo> peers, TorrentState torrentState, ClientState clientState, Observer subject) {
+	public TorrentContext(Set<PeerInfo> peers, TorrentState torrentState, ClientState clientState, Observer subject) {
 		this.peers = peers;
 		this.status = torrentState;
 		this.subject = subject;
@@ -24,7 +25,7 @@ public class TorrentContext {
 		chooseStrategy(Strategies.RAREST_FIRST);
 	}
 	
-	public void setPeers(List<PeerInfo> peers) {
+	public void setPeers(Set<PeerInfo> peers) {
 		this.peers = peers;
 	}
 	

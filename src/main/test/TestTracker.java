@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Set;
 
 import misc.utils.Utils;
 import org.junit.Test;
@@ -22,7 +23,7 @@ public class TestTracker {
 		TorrentMetaData metaData = torrent.ParseTorrent();
 		TrackerHandler tracker = new TrackerHandler(new URL(metaData.getAnnounceUrlString()), Utils.hexStringToByteArray(metaData.getSHA1Info()), 6969, metaData.getNumberOfPieces());
 
-		List<PeerInfo> lst = tracker.getPeerLst();
+		Set<PeerInfo> lst = tracker.getPeerLst();
 		for(PeerInfo p : lst) {
 			System.out.println(p);
 		}
