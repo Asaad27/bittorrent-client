@@ -5,14 +5,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class State {
     public boolean choked = true;
-    public boolean interested;
+    public boolean interested = false;
+    public boolean weAreInterested = false;
     public boolean receivedHandshake = false;
     public boolean sentHandshake = false;
-    public boolean receivedBitfield = false;
     public boolean sentBitfield = false;
+    public boolean receivedBitfield = false;
     public boolean weAreChokedByPeer = true;
     public boolean isDownloading = true;
-    public boolean isLeecher = false;
+
 
 
     public ByteBitfield bitfield = null;

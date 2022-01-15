@@ -17,7 +17,7 @@ public class RandomPiece extends DownloadStrat implements IObservable {
 	private Set<Integer> piecesWithNoPeers;
 
 	private final misc.torrent.Observer subject;
-	private final static int Threshold = 5;
+	private final static int Threshold = -1;
 
 	private RandomPiece(Set<PeerInfo> peers, TorrentState status, misc.torrent.Observer subject) {
 		this.peers = peers;

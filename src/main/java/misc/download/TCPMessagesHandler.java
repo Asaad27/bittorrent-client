@@ -31,8 +31,8 @@ import java.util.Set;
 //TODO : timeout handshake
 public class TCPMessagesHandler {
 
-    public static final int NUMBER_OF_PIECES_PER_REQUEST = 1;
-    public static final int NUMBER_OF_REQUEST_PER_PEER = 1000;
+    public static final int NUMBER_OF_PIECES_PER_REQUEST = 2;
+    public static final int NUMBER_OF_REQUEST_PER_PEER = 30;
 
     public NIODownloadHandler peerDownloadHandler;
     public Set<PeerInfo> peerList;
@@ -159,6 +159,8 @@ public class TCPMessagesHandler {
         }
         DEBUG.log("--->sent message ", message.toString(), "to peer number", String.valueOf(peerInfo.getPort()));
 
+
+
     }
 
     public void handleRead(SelectionKey key) {
@@ -216,18 +218,7 @@ public class TCPMessagesHandler {
             return;
         }
 
-        DEBUG.log("<---recieved message ", message.toString(), " from peer number", String.valueOf(peerIndex));
-
-        if (message.getID() == PeerMessage.MsgType.PIECE) {
-            peerState.queuedRequestsFromClient.decrementAndGet();
-            peerState.numberOfBlocksSent++;
-        }
-        if (message.getID() == PeerMessage.MsgType.REQUEST) {
-            peerState.numberOfRequestsReceived++;
-            peerState.queuedRequestsFromPeer.incrementAndGet();
-        }
-
-
+        DEBUG.log("<---recieved message ", message.toString(), " from peer number", String.valueOf(peerInfo.getPort()));
 
         peerDownloadHandler.stateMachine(message, peerState);
 
@@ -276,6 +267,7 @@ public class TCPMessagesHandler {
                 while (!peerState.welcomeQ.isEmpty()) {
                     Message writeMessage = peerState.welcomeQ.poll();
                     sendMessage(clientChannel, peerInfo, writeMessage);
+                    peerDownloadHandler.sentStateMachine(writeMessage, peerState);
                 }
                 TCPClient.waitingConnections.remove(peerInfo);
             } else if (!peerState.writeMessageQ.isEmpty()) {
@@ -292,16 +284,7 @@ public class TCPMessagesHandler {
                         System.err.println("null message to write");
                     else {
                         sendMessage(clientChannel, peerInfo, writeMessage);
-                        if (writeMessage.getID() == PeerMessage.MsgType.REQUEST) {
-                            peerState.queuedRequestsFromClient.incrementAndGet();
-                            peerState.numberOfRequests++;
-                            peerDownloadHandler.getTorrentState().getStatus().set(writeMessage.getIndex(), PieceStatus.Requested);
-                        } else if (writeMessage.getID() == PeerMessage.MsgType.PIECE) {
-                            peerState.numberOfBlocksReceived++;
-                            peerState.queuedRequestsFromPeer.decrementAndGet();
-                        } else {
-                            break;
-                        }
+                        peerDownloadHandler.sentStateMachine(writeMessage, peerState);
                     }
                 }
                 if (peerState.queuedRequestsFromClient.get() > 0) {

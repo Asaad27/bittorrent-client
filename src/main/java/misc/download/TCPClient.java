@@ -46,8 +46,8 @@ public class TCPClient implements Runnable{
         Observer subject = new Observer();
         parseTorrent(torrentPath);
         peerInfoList = new HashSet<>();
-        //generatePeerList(2001, 2007);
-        getPeersFromTracker();
+        generatePeerList(2001, 2007, 2013, 2002, 2003, 2004, 2005);
+        //getPeersFromTracker();
         //generatePeerList(27027);
         //generatePeerList(51413);
         //generatePeerList(2001);
