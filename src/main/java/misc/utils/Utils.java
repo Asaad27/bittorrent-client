@@ -67,14 +67,13 @@ public class Utils {
     //function for URL encoding info_hash and peer_id
     //like https://wiki.theory.org/BitTorrentSpecification#Tracker_HTTP.2FHTTPS_Protocol
     //info_hash and peer_id must be given as bytearray
-    public static String byteArrayToURLString(byte in[]) {
+    public static String byteArrayToURLString(byte[] in) {
     	
     	String resultat= "";
     	String BYTE_ENCODING="ISO-8859-1";
     	try {
 			resultat = URLEncoder.encode(new String(in, BYTE_ENCODING), BYTE_ENCODING).replaceAll("\\+", "%20");
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	return resultat;

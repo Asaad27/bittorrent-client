@@ -206,14 +206,13 @@ public class TCPMessagesHandler {
                 }
             }
 
-            //TODO : last edit
             key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
             return;
         }
         Message message = receiveMessage(clientChannel, key);
         if (message == null) {
-            //TODO : last edit
-            //key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+
+            key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
             // DEBUG.log("no message received");
             return;
         }
@@ -241,7 +240,7 @@ public class TCPMessagesHandler {
             return;
         }
         //HANDSHAKE HANDLING
-        //TODO : compare handshakes
+
         if (!peerState.receivedHandshake) {
             DEBUG.log("--->sending handshake", "too peer number", String.valueOf(peerIndex));
             HandShake sentHand = new HandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(TrackerHandler.PEER_ID));
@@ -275,8 +274,6 @@ public class TCPMessagesHandler {
                     key.interestOps(SelectionKey.OP_READ);
                     return;
                 }
-
-                //TODO : NUMBER OF UNTREATED REQUESTS SHOULD BE BOUNDED, AKA DO THE SAME THING HERE IN THE CASE OF READ REQUESTS
 
                 while (!peerState.writeMessageQ.isEmpty() && peerState.queuedRequestsFromClient.get() < NUMBER_OF_REQUEST_PER_PEER) {
                     Message writeMessage = peerState.writeMessageQ.poll();
@@ -315,7 +312,7 @@ public class TCPMessagesHandler {
 
             Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, clientState.getBitfield());
             peerState.welcomeQ.add(bitfield);
-            //TODO : test
+
             /*Message unchoke = new Message(PeerMessage.MsgType.UNCHOKE);
             peerState.welcomeQ.add(unchoke);
             Message interested = new Message(PeerMessage.MsgType.INTERESTED);

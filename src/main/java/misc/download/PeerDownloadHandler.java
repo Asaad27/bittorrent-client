@@ -34,7 +34,7 @@ public class PeerDownloadHandler {
     public static AtomicInteger requestedMsgs = new AtomicInteger(0);
     private final AtomicBoolean isDownloading = new AtomicBoolean(true);
     //request msg <len=0013><id=6><Piece_index><Chunk_offset><Chunk_length>
-    private TorrentMetaData torrentMetaData;
+    private final TorrentMetaData torrentMetaData;
     public int numPieces = 0;
     private Socket socket;
     private final int peerClientPort;
@@ -49,7 +49,7 @@ public class PeerDownloadHandler {
 
     /* divide the current piece into blocks */
     // if it's the last piece compute it's size
-    private int blockSize = CHUNK_SIZE;
+    private final int blockSize = CHUNK_SIZE;
     private int lastBlockSize;
     private int numOfBlocks;
     private int pieceSize;
@@ -111,42 +111,7 @@ public class PeerDownloadHandler {
 
     }
 
-    /**
-     * method to verify that all the pieces of the downloaded file are correct
-     * @return boolean value describing the result of the verification
-     */
-    /*public boolean verifyDownloadedFile(){
 
-        for (int i = 0; i < numPieces; i++)
-        {
-            byte[] piece;
-            if (i == numPieces-1)
-                piece = new byte[lastPieceSize];
-            else
-                piece = new byte[pieceSize];
-            try {
-                file.seek((long) i * pieceSize);
-                file.read(piece);
-
-                MessageDigest digest=MessageDigest.getInstance("SHA-1");
-                digest.update(piece);
-                byte[] sha = digest.digest();
-                String originalHash = torrentMetaData.getPiecesList().get(i);
-                String downloadedHash = Utils.bytesToHex(sha);
-                if (!downloadedHash.equals(originalHash))
-                {
-                    System.err.println("piece id : " + i + "\noriginal hash : " + originalHash + "\ndownloaded hash : " + downloadedHash);
-                    return false;
-                }
-
-            } catch (IOException | NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
-        }
-
-        System.out.println("FILE CHECK : SUCCESS");
-        return true;
-    }*/
     /**
     * pre-compute sizes of pieces, and blocks per pieces
      */
@@ -466,7 +431,7 @@ public class PeerDownloadHandler {
             {
                 System.out.println("we are choked");
             }
-            //TODO : traiter le cas ou la taille de la piece n'est pas divisible par la taille du block
+
             for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
                 if (hasPiece(i))
                     continue;

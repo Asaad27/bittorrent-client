@@ -26,7 +26,7 @@ public class TCPClient implements Runnable{
     public static String SERVER = "127.0.0.1";
     public static Queue<PeerInfo> waitingConnections = new LinkedList<>();
     public static TorrentContext torrentContext;
-    //TODO : implement
+
 
     public TorrentFileHandler torrentHandler;
     public static TorrentMetaData torrentMetaData;
@@ -46,8 +46,8 @@ public class TCPClient implements Runnable{
         Observer subject = new Observer();
         parseTorrent(torrentPath);
         peerInfoList = new HashSet<>();
-        generatePeerList(2001, 2007, 2013, 2002, 2003, 2004, 2005);
-        //getPeersFromTracker();
+        //generatePeerList(2001, 2002, 2003);
+        getPeersFromTracker();
         //generatePeerList(27027);
         //generatePeerList(51413);
         //generatePeerList(2001);

@@ -35,12 +35,12 @@ public class RandomPiece extends DownloadStrat implements IObservable {
 	@Override
 	public int updatePeerState() {
 		//System.out.println("random");
-		//TODO : check
+		//TODO : MODIFY WHEN IMPLEMENTATION OF ENDGAME FINISHED
 		if (pieceSet.size() <= Threshold){
 			return -4;
 		}
 		int random = -1;
-		List<PeerInfo> valuablePeers = null;
+		List<PeerInfo> valuablePeers;
 		while(!pieceSet.isEmpty()){
 			int n = new Random().nextInt(pieceSet.size());
 			Iterator<Integer> iter = pieceSet.iterator();

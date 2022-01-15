@@ -132,7 +132,6 @@ public class NIODownloadHandler {
             if (torrentState.getDownloadedSize() == torrentMetaData.getLength())
                 onDownloadCompleted();
 
-            //TODO : TEST IT
             if (!needToDownload(peerState)) {
                 Message notInterested = new Message(UNINTERESTED);
                 peerState.writeMessageQ.add(notInterested);
@@ -141,7 +140,7 @@ public class NIODownloadHandler {
         }
     }
 
-    //TODO :TEST it
+
     public void onBlockReceived(Message receivedMessage, PeerState peerState) {
         if (!clientState.hasPiece(receivedMessage.getIndex())) {
             int index = receivedMessage.getIndex();
@@ -201,7 +200,7 @@ public class NIODownloadHandler {
     }
 
     public void onDownloadCompleted() {
-        //TODO : endconnexion
+
         if (!clientState.isDownloading)
             return;
         clientState.isDownloading = false;
@@ -250,7 +249,7 @@ public class NIODownloadHandler {
             }
         }
 
-        //TODO : implement
+
         if (!needToSeed(peerState) && !needToDownload(peerState)){
             peerInfoList.removeIf(peerInfo -> peerInfo.getPeerState() == peerState);
 
@@ -285,7 +284,7 @@ public class NIODownloadHandler {
     }
 
 
-    public static boolean sendFullPieceRequest(int pieceIndex, PeerState peerState, TorrentState torrentState, TorrentMetaData torrentMetaData) {
+    public static void sendFullPieceRequest(int pieceIndex, PeerState peerState, TorrentState torrentState, TorrentMetaData torrentMetaData) {
 
         int blockSize = torrentState.getBlockSize();
         int remainingBlockSize = torrentState.getRemainingBlockSize();
@@ -295,7 +294,7 @@ public class NIODownloadHandler {
 
         if (torrentState.getStatus().get(pieceIndex) == PieceStatus.Downloaded) {
             DEBUG.log("on a deja cette piece");
-            return false;
+            return;
         }
 /*        if (torrentState.getStatus().get(pieceIndex) == PieceStatus.Requested) {
             //DEBUG.log("on a deja request cette piece");
@@ -327,8 +326,6 @@ public class NIODownloadHandler {
         }
 
         //torrentState.getStatus().set(pieceIndex, PieceStatus.Requested);
-
-        return true;
 
     }
 
@@ -386,8 +383,7 @@ public class NIODownloadHandler {
         }
 
         torrentState.getStatus().set(pieceIndex, PieceStatus.QUEUED);
-        //TODO : si on veut faire la STRICT_PIECE_POLICY aka attendre jusqu'a terminer la piece, on doit mettre la remove après le telechargmenet completé et non apres avoir mis la piece en attente
-        //clientState.piecesToRequest.remove(pieceIndex);
+
 
         return true;
     }

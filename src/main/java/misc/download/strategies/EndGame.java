@@ -27,10 +27,10 @@ public class EndGame extends DownloadStrat implements IObservable {
 		initPieceBlockMap();
 	}
 
-	//TODO : test
+	//TODO : IMPLEMENT
 	public static void blockDownloaded(int index, int begin, TorrentState torrentState) {
 		/*//int numberOfBlocks = torrentState.getNumberOfBlock(index);
-		//TODO : test
+
 		int blockIndex = numberOfBlocks / begin;
 		piecesAndBlocks.get(index).set(blockIndex, true);*/
 	}
