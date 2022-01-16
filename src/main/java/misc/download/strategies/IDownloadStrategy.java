@@ -1,8 +1,9 @@
 package misc.download.strategies;
 
-public interface IDownloadStrat {
+public interface IDownloadStrategy {
 
 	int updatePeerState();
+	void clear();
 	String getName();
 
 }

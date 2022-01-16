@@ -20,16 +20,9 @@ public class PeerState extends State {
         super(numPieces);
         piecesToRequest = new LinkedHashSet<>();
     }
-    
-    public void addPieceToRequest(int n) {
-    	piecesToRequest.add(n);
-    }
 
     public boolean isConnected(){
         return !weAreChokedByPeer && welcomeQ.isEmpty();
     }
 
-    public void removePieceToRequest(int n) {
-        piecesToRequest.remove(n);
-    }
 }

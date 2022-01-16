@@ -8,7 +8,9 @@ import misc.torrent.IObservable;
 import misc.torrent.Observer;
 import misc.torrent.TorrentState;
 
-public class RandomPiece extends DownloadStrat implements IObservable {
+import static misc.download.TCPClient.torrentMetaData;
+
+public class RandomPiece extends DownloadStrategy implements IObservable {
 
 	private static RandomPiece instance;
 	private final Set<PeerInfo> peers;
@@ -19,7 +21,7 @@ public class RandomPiece extends DownloadStrat implements IObservable {
 	private final misc.torrent.Observer subject;
 	private final static int Threshold = -1;
 
-	private RandomPiece(Set<PeerInfo> peers, TorrentState status, misc.torrent.Observer subject) {
+	private RandomPiece(Set<PeerInfo> peers, TorrentState status, Observer subject) {
 		this.peers = peers;
 		this.status = status;
 		this.subject = subject;
@@ -61,41 +63,49 @@ public class RandomPiece extends DownloadStrat implements IObservable {
 	}
 
 	@Override
+	public void clear() {
+		subject.detach(instance);
+		RandomPiece.instance = null;
+	}
+
+	@Override
 	public String getName() {
 		return "RANDOM";
 	}
 
-	public static IDownloadStrat instance(Set<PeerInfo> peers, TorrentState status, Observer subject) {
+	public static IDownloadStrategy instance(Set<PeerInfo> peers, TorrentState status, Observer subject) {
 		if (instance == null) {
 			instance = new RandomPiece(peers, status, subject);
 		}
 		return instance;
 	}
 
+
+
 	@Override
 	public void peerHasPiece(int index) {
-		status.getPieceCount()[index]++;
+		status.pieces.get(index).incrementNumOfPeerOwners();
 		if (piecesWithNoPeers.contains(index)){
 			pieceSet.add(index);
 			piecesWithNoPeers.remove(index);
 		}
-
 	}
 
 	@Override
 	public void peerConnection(PeerState peerState) {
-		for (int i = 0; i < status.getNumberOfPieces(); i++) {
+		for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
 			if (peerState.hasPiece(i)) {
 				peerHasPiece(i);
 			}
 		}
+
 	}
 
 	@Override
 	public void peerDisconnection(PeerState peerState) {
-		for (int i = 0; i < status.getNumberOfPieces(); i++) {
+		for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
 			if (peerState.hasPiece(i)) {
-				status.getPieceCount()[i]--;
+				status.pieces.get(i).decrementNumOfPeerOwners();
 			}
 		}
 	}

@@ -29,7 +29,7 @@ public class BitfieldTest {
 
 	@Test
 	public void localBitfield() throws IOException, NoSuchAlgorithmException {
-		TorrentFileHandler torrent = new TorrentFileHandler(new FileInputStream("C:\\Users\\asaad_6stn3w\\Desktop\\torrents\\img.torrent"));
+		TorrentFileController torrent = new TorrentFileController(new FileInputStream("C:\\Users\\asaad_6stn3w\\Desktop\\torrents\\img.torrent"));
 		TorrentMetaData metaData = torrent.ParseTorrent();
 		System.out.println(metaData);
 

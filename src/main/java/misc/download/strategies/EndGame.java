@@ -12,7 +12,7 @@ import misc.peers.PeerInfo;
 import misc.peers.PeerState;
 import misc.torrent.*;
 
-public class EndGame extends DownloadStrat implements IObservable {
+public class EndGame extends DownloadStrategy implements IObservable {
 	
 	private static EndGame instance;
 	private final Set<PeerInfo> peers;
@@ -61,7 +61,10 @@ public class EndGame extends DownloadStrat implements IObservable {
 		return -7;
 	}
 
+	@Override
+	public void clear() {
 
+	}
 
 
 	@Override
@@ -69,7 +72,7 @@ public class EndGame extends DownloadStrat implements IObservable {
 		return "ENDGAME";
 	}
 
-	public static IDownloadStrat instance(Set<PeerInfo> peers, TorrentState status, Observer subject) {
+	public static IDownloadStrategy instance(Set<PeerInfo> peers, TorrentState status, Observer subject) {
 		if (instance == null) {
 			instance = new EndGame(peers, status, subject);
 		}

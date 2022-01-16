@@ -2,11 +2,11 @@ package misc.messages;
 
 public class ByteBitfield {
     public byte[] value;
-    public int bfldSize;
+    public int bitfieldSize;
 
     public ByteBitfield(int numPieces) {
-        bfldSize = (numPieces + 7) / 8 ;
-        value = new byte[bfldSize];
+        bitfieldSize = (numPieces + 7) / 8 ;
+        value = new byte[bitfieldSize];
     }
 
 
@@ -42,7 +42,7 @@ public class ByteBitfield {
     }
 
     public void initLeecher(){
-        for (int i = 0; i < bfldSize; ++i) {
+        for (int i = 0; i < bitfieldSize; ++i) {
             value[i] = 0;
         }
     }

@@ -9,7 +9,9 @@ import misc.utils.Pair;
 
 import java.util.*;
 
-public class RarestFirst extends DownloadStrat implements IObservable {
+import static misc.download.TCPClient.torrentMetaData;
+
+public class RarestFirst extends DownloadStrategy implements IObservable {
 
     private static RarestFirst instance;
 
@@ -17,20 +19,28 @@ public class RarestFirst extends DownloadStrat implements IObservable {
     private final Set<PeerInfo> peers;
     private final TorrentState status;
     private final PriorityQueue<Pair> minHeap = new PriorityQueue<>();
+    private final Observer subject;
 
 
     private RarestFirst(Set<PeerInfo> peers, TorrentState status, Observer subject) {
         this.peers = peers;
         this.status = status;
+        this.subject = subject;
         subject.attach(this);
         initAlgo();
     }
 
-    public static IDownloadStrat instance(Set<PeerInfo> peers, TorrentState status, Observer subject) {
+    public static IDownloadStrategy instance(Set<PeerInfo> peers, TorrentState status, Observer subject) {
         if (instance == null) {
             instance = new RarestFirst(peers, status, subject);
         }
         return instance;
+    }
+
+    @Override
+    public void clear() {
+        subject.detach(instance);
+        RarestFirst.instance = null;
     }
 
     public boolean receivedAllBitfields() {
@@ -68,9 +78,11 @@ public class RarestFirst extends DownloadStrat implements IObservable {
     private void initRarity() {
         minHeap.clear();
         rareSet.clear();
-        for (int i = 0; i < status.getNumberOfPieces(); i++) {
-            if (status.getStatus().get(i) == PieceStatus.ToBeDownloaded && status.getPieceCount()[i] != 0)
-                minHeap.add(new Pair(status.getPieceCount()[i], i));
+        int numberOfPieces = torrentMetaData.getNumberOfPieces();
+        for (int i = 0; i < numberOfPieces; i++) {
+            Piece piece = status.pieces.get(i);
+            if (piece.getStatus() == PieceStatus.ToBeDownloaded && piece.getNumberOfPeerOwners() != 0)
+                minHeap.add(new Pair(piece.getNumberOfPeerOwners(), i));
         }
 
         int minOccurrences = !minHeap.isEmpty() ? minHeap.peek().getValue() : 0;
@@ -83,11 +95,13 @@ public class RarestFirst extends DownloadStrat implements IObservable {
     }
 
     private void initAlgo() {
+        int numberOfPieces = torrentMetaData.getNumberOfPieces();
         for (PeerInfo peer : peers) {
             ByteBitfield bf = peer.getPeerState().bitfield;
-            for (int i = 0; i < status.getNumberOfPieces(); i++) {
+            for (int i = 0; i < numberOfPieces; i++) {
+                Piece piece = status.pieces.get(i);
                 if (bf.hasPiece(i))
-                    status.getPieceCount()[i] += 1;
+                    piece.incrementNumOfPeerOwners();
             }
         }
         initRarity();
@@ -95,14 +109,15 @@ public class RarestFirst extends DownloadStrat implements IObservable {
 
     @Override
     public void peerHasPiece(int index) {
-        Pair piece = new Pair(status.getPieceCount()[index], index);
-        rareSet.remove(piece);
-        status.getPieceCount()[index]++;
+        Piece piece = status.pieces.get(index);
+        Pair piecePair = new Pair(piece.getNumberOfPeerOwners(), index);
+        rareSet.remove(piecePair);
+        piece.incrementNumOfPeerOwners();
     }
 
     @Override
     public void peerConnection(PeerState peerState) {
-        for (int i = 0; i < status.getNumberOfPieces(); i++) {
+        for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
             if (peerState.hasPiece(i)) {
                 peerHasPiece(i);
             }
@@ -113,9 +128,10 @@ public class RarestFirst extends DownloadStrat implements IObservable {
     //we recalculate everything, because the rarest set is gonna change
     @Override
     public void peerDisconnection(PeerState peerState) {
-        for (int i = 0; i < status.getNumberOfPieces(); i++) {
+        for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
             if (peerState.hasPiece(i)) {
-                status.getPieceCount()[i]--;
+                Piece piece = status.pieces.get(i);
+                piece.decrementNumOfPeerOwners();
             }
         }
         initRarity();

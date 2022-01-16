@@ -1,17 +1,15 @@
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.Set;
 
 import misc.utils.Utils;
 import org.junit.Test;
 
 import misc.peers.PeerInfo;
-import misc.torrent.TorrentFileHandler;
+import misc.torrent.TorrentFileController;
 import misc.torrent.TorrentMetaData;
 import misc.tracker.TrackerHandler;
 
@@ -19,7 +17,7 @@ public class TestTracker {
 	
 	@Test
 	public void testTracker() throws NoSuchAlgorithmException, IOException {
-		TorrentFileHandler torrent = new TorrentFileHandler(new FileInputStream("src/main/resources/torrents/by.txt.torrent"));
+		TorrentFileController torrent = new TorrentFileController(new FileInputStream("src/main/resources/torrents/by.txt.torrent"));
 		TorrentMetaData metaData = torrent.ParseTorrent();
 		TrackerHandler tracker = new TrackerHandler(new URL(metaData.getAnnounceUrlString()), Utils.hexStringToByteArray(metaData.getSHA1Info()), 6969, metaData.getNumberOfPieces());
 

@@ -4,7 +4,7 @@ package misc.download;
 import misc.peers.ClientState;
 import misc.peers.PeerInfo;
 import misc.torrent.Observer;
-import misc.torrent.TorrentFileHandler;
+import misc.torrent.TorrentFileController;
 import misc.torrent.TorrentMetaData;
 import misc.torrent.TorrentState;
 import misc.tracker.TrackerHandler;
@@ -13,10 +13,7 @@ import misc.utils.DEBUG;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.*;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
@@ -28,7 +25,7 @@ public class TCPClient implements Runnable{
     public static TorrentContext torrentContext;
 
 
-    public TorrentFileHandler torrentHandler;
+    public TorrentFileController torrentHandler;
     public static TorrentMetaData torrentMetaData;
 
     public ClientState clientState;
@@ -46,13 +43,13 @@ public class TCPClient implements Runnable{
         Observer subject = new Observer();
         parseTorrent(torrentPath);
         peerInfoList = new HashSet<>();
-        //generatePeerList(2001, 2002, 2003);
+        //generatePeerList(2001, 2002, 2003, 2004, 2005);
         getPeersFromTracker();
         //generatePeerList(27027);
         //generatePeerList(51413);
         //generatePeerList(2001);
         clientState = new ClientState(torrentMetaData.getNumberOfPieces());
-        torrentState = TorrentState.getInstance(torrentMetaData, clientState);
+        torrentState = TorrentState.getInstance(clientState);
         torrentContext = new TorrentContext(peerInfoList, torrentState, clientState, subject);
         tcpMessagesHandler = new TCPMessagesHandler(torrentMetaData, peerInfoList, clientState, torrentState, subject);
 
@@ -76,8 +73,8 @@ public class TCPClient implements Runnable{
             while (keyIter.hasNext()) {
 
 
-                if(tcpMessagesHandler.fetchRequests()){
-                    //System.err.println("request fetched");
+                if(clientState.isDownloading){
+                    tcpMessagesHandler.fetchRequests();
                 }
 
                 SelectionKey key = keyIter.next();
@@ -96,7 +93,12 @@ public class TCPClient implements Runnable{
 
                 if (key.isValid() && key.isReadable()) {
                     //System.err.println("reading....");
-                    tcpMessagesHandler.handleRead(key);
+                    try{
+                        tcpMessagesHandler.handleRead(key);
+                    }catch (CancelledKeyException e){
+                        DEBUG.printError(e, getClass().getName());
+                    }
+
                 }
 
                 if (key.isValid() && key.isWritable()) {
@@ -138,7 +140,7 @@ public class TCPClient implements Runnable{
 
     public void parseTorrent(String torrentPath){
         try {
-            torrentHandler = new TorrentFileHandler(new FileInputStream(torrentPath));
+            torrentHandler = new TorrentFileController(new FileInputStream(torrentPath));
             torrentMetaData = torrentHandler.ParseTorrent();
         } catch (IOException | NoSuchAlgorithmException e) {
             DEBUG.printError(e, getClass().getName());

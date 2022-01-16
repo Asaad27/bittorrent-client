@@ -1,35 +1,33 @@
 package misc.torrent;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
-import misc.messages.Bitfield;
 import misc.messages.ByteBitfield;
-import misc.messages.Message;
-import misc.messages.PeerMessage;
 import misc.peers.ClientState;
 import misc.utils.DEBUG;
 import misc.utils.Utils;
+
+import static misc.download.TCPClient.torrentMetaData;
 
 public class LocalFileHandler {
 
 	private final File tempFile;
 	private RandomAccessFile fileAccess;
 	private final ByteBitfield bitfield;
+	private final ClientState clientState;
 
-	private final TorrentMetaData torrentMetaData;
+
 	private final TorrentState torrentState;
 	
-	public LocalFileHandler(TorrentMetaData torrentMetaData, ByteBitfield bitfield, TorrentState torrentState) {
+	public LocalFileHandler(TorrentState torrentState, ClientState clientState) {
 
 		this.torrentState = torrentState;
-		this.torrentMetaData = torrentMetaData;
-		this.bitfield = bitfield;
+		this.clientState = clientState;
+		this.bitfield = clientState.bitfield;
 
 		tempFile = new File(torrentMetaData.getName());
 		long fileLength = torrentMetaData.getLength();
@@ -44,23 +42,31 @@ public class LocalFileHandler {
 	}
 	
 	public void initBitfield() {
+		boolean isSeeder = true;
 		if(tempFile.exists()) {
 			for(int i = 0; i < torrentMetaData.getNumberOfPieces() ; i++) {
-				setPieceStatus(i, verifyPiece(i));
+				isSeeder = isSeeder && setBitfield(i, verifyPiece(i));
 			}
+		}
+		System.out.println("BITFIELD generated : " + Utils.bytesToHex(bitfield.value));
+		if (isSeeder){
+			clientState.isSeeder = true;
+			clientState.isDownloading = false;
 		}
 
 	}
 
 	public  boolean verifyPiece(int index){
-		int numPieces = torrentState.getNumberOfPieces();
-		int lastPieceSize = torrentState.getLastPieceSize();
-		int pieceSize = torrentState.getPieceSize();
-		byte[] piece;
-		if (index == numPieces-1)
+		int numPieces = torrentMetaData.getNumberOfPieces();
+		//int lastPieceSize = torrentState.getLastPieceSize();
+		//int pieceSize = torrentState.getPieceSize();
+		Piece pieceToVerify = torrentState.pieces.get(index);
+		int pieceSize = pieceToVerify.getPieceSize();
+		byte[] piece = new byte[pieceSize];
+		/*if (index == numPieces-1)
 			piece = new byte[lastPieceSize];
 		else
-			piece = new byte[pieceSize];
+			piece = new byte[pieceSize];*/
 		try {
 			fileAccess.seek((long) index * pieceSize);
 			fileAccess.read(piece);
@@ -72,7 +78,7 @@ public class LocalFileHandler {
 			String downloadedHash = Utils.bytesToHex(sha);
 			if (!downloadedHash.equals(originalHash))
 			{
-				//System.err.println("piece id : " + index + "\noriginal hash : " + originalHash + "\ndownloaded hash : " + downloadedHash);
+				System.err.println("piece id : " + index + "\noriginal hash : " + originalHash + "\ndownloaded hash : " + downloadedHash);
 				return false;
 			}
 
@@ -81,7 +87,7 @@ public class LocalFileHandler {
 		}
 
 
-		//System.out.println("piece id : " + index + " valid");
+		System.out.println("piece id : " + index + " valid, downloaded");
 
 		return true;
 	}
@@ -89,16 +95,20 @@ public class LocalFileHandler {
 	//TODO : don't verify file twice aka when download ended func is lunched even tho we didn't download
 	public  boolean verifyDownloadedFile(){
 		System.out.println("Checking File");
-		int numPieces = torrentState.getNumberOfPieces();
+		int numPieces = torrentMetaData.getNumberOfPieces();
 		for (int i = 0; i < numPieces; i++)
 		{
+			Piece piece = torrentState.pieces.get(i);
 			if(!verifyPiece(i)) {
-				setPieceStatus(i, false);
+				setBitfield(i, false);
 				int downloadedSize = torrentState.getDownloadedSize();
-				int lastPieceSize = torrentState.getLastPieceSize();
-				int pieceSize = torrentState.getPieceSize();
-				torrentState.setDownloadedSize(downloadedSize - ((i == numPieces-1) ? lastPieceSize : pieceSize ));
-				torrentState.getStatus().set(i, PieceStatus.ToBeDownloaded);
+
+				//int lastPieceSize = torrentState.getLastPieceSize();
+				//int pieceSize = torrentState.getPieceSize();
+
+				torrentState.setDownloadedSize(downloadedSize - (piece.getPieceSize()));
+				piece.setPieceStatus(PieceStatus.ToBeDownloaded);
+
 
 				return false;
 			}
@@ -109,13 +119,15 @@ public class LocalFileHandler {
 		return true;
 	}
 
-	public void setPieceStatus(int pieceNb, boolean value) {
+	public boolean setBitfield(int pieceNb, boolean value) {
 		if (value)
 			bitfield.setPiece(pieceNb);
 		else{
 			if (bitfield.hasPiece(pieceNb))
 				bitfield.unsetPiece(pieceNb);
 		}
+
+		return value;
 	}
 	
 	public ByteBitfield getBitfield() {
@@ -124,7 +136,7 @@ public class LocalFileHandler {
 
 	public boolean writePieceBlock(int index, int begin, byte[] payload){
 		try {
-			fileAccess.seek(((long) index * torrentState.getPieceSize() + begin));
+			fileAccess.seek(((long) index * torrentMetaData.getPieceLength() + begin));
 			fileAccess.write(payload);
 		} catch (IOException e) {
 			DEBUG.printError(e, "write piece block");
@@ -138,7 +150,7 @@ public class LocalFileHandler {
 
 		byte[] ans = new byte[size];
 		try {
-			fileAccess.seek((long) (index) * torrentState.getPieceSize() +begin);
+			fileAccess.seek((long) (index) * torrentMetaData.getPieceLength() +begin);
 			fileAccess.read(ans);
 		} catch (IOException e) {
 			e.printStackTrace();

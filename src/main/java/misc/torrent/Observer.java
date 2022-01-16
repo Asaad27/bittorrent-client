@@ -1,5 +1,6 @@
 package misc.torrent;
 
+import misc.download.strategies.RandomPiece;
 import misc.peers.PeerState;
 
 import java.util.LinkedList;
@@ -13,7 +14,11 @@ public class Observer {
         observables.add(instance);
     }
 
-    public void notifyAllObservees(Events event, PeerState peerState){
+    public void detach(IObservable instance) {
+        observables.remove(instance);
+    }
+
+    public void notifyAllObserves(Events event, PeerState peerState){
         switch (event){
             case PEER_CONNECTED:
                 for (IObservable observable: observables) {
@@ -28,10 +33,11 @@ public class Observer {
         }
     }
 
-    public void notifyAllObservees(int index){
+    public void notifyAllObserves(int index){
         for (IObservable observable: observables) {
             observable.peerHasPiece(index);
         }
     }
+
 
 }

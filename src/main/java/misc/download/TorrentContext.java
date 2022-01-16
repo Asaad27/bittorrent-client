@@ -6,13 +6,15 @@ import misc.torrent.PieceStatus;
 import misc.torrent.TorrentState;
 import misc.utils.DEBUG;
 import misc.peers.PeerInfo;
-import java.util.List;
+
 import java.util.Set;
+
+import static misc.download.TCPClient.torrentMetaData;
 
 public class TorrentContext {
 	
 	private Set<PeerInfo> peers;
-	private IDownloadStrat strategy;
+	private IDownloadStrategy strategy;
 	private final TorrentState status;
 	private final Observer subject;
 	private final ClientState clientState;
@@ -31,32 +33,38 @@ public class TorrentContext {
 	
 	public void updatePeerState() {
 		int piece = strategy.updatePeerState();
-		//status.getStatus().set(piece, PieceStatus.Requested);
-		if (piece > -1)
+
+		if (piece < 0){
+			changeStrategy(piece);
+		}
+
+		if (piece >= 0)
 			DEBUG.log("*********************** la piece  est ", String.valueOf(piece), strategy.getName());
 
-		if (piece == -3){
-			DEBUG.loge("changing strategie to RANDOM");
-			chooseStrategy(Strategies.RANDOM);
-		}
-
-		if (piece == -4){
-			DEBUG.loge("changing strategie to ENDGAME");
-			chooseStrategy(Strategies.END_GAME);
-		}
-
-		if (piece >= 0 && piece < status.getNumberOfPieces() && status.getStatus().get(piece) == PieceStatus.ToBeDownloaded ){
+		if (piece >= 0 && piece < torrentMetaData.getNumberOfPieces()  && status.pieces.get(piece).getStatus() == PieceStatus.ToBeDownloaded ){
 			clientState.piecesToRequest.add(piece);
-
 		}
-
 	}
-	//ADD ENUM STRATEGY AS A PARAM
+
+	private void changeStrategy(int ID){
+
+		switch (ID){
+			case -3:
+				this.strategy.clear();
+				DEBUG.loge("changing strategy to RANDOM");
+				chooseStrategy(Strategies.RANDOM);
+				break;
+			case -4:
+				this.strategy.clear();
+				DEBUG.loge("changing strategy to ENDGAME");
+				chooseStrategy(Strategies.END_GAME);
+				break;
+			default:
+				break;
+		}
+	}
+
 	private void chooseStrategy(Strategies strategy) {
-		/* RAREST FIRST : Début
-		 * RANDOM : Tous les peers ont les pièces manquantes
-		 * ENDGAME : Toutes les pièces sont Requested
-		 */
 		switch (strategy){
 			case RANDOM:
 				this.strategy = RandomPiece.instance(peers, status, subject);
@@ -71,7 +79,7 @@ public class TorrentContext {
 
 	}
 
-	public IDownloadStrat getStrategy() {
+	public IDownloadStrategy getStrategy() {
 		return strategy;
 	}
 }

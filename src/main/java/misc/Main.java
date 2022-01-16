@@ -1,7 +1,7 @@
 package misc;
 
 import misc.download.PeerDownloadHandler;
-import misc.torrent.TorrentFileHandler;
+import misc.torrent.TorrentFileController;
 import misc.torrent.TorrentMetaData;
 
 import java.io.FileInputStream;
@@ -36,10 +36,10 @@ public class Main {
         String SERVER = "127.0.0.1";
         //String filePath = "C:\\Users\\asaad_6stn3w\\IdeaProjects\\latestequipe5\\src\\main\\CTos-8.2-2004-VB-64bit.7z";  //path of the file to seed
         PeerDownloadHandler peerDownloadHandler = null;
-        TorrentFileHandler torrentHandler = null;
+        TorrentFileController torrentHandler = null;
         TorrentMetaData torrentMetaData = null;
         try {
-            torrentHandler = new TorrentFileHandler(new FileInputStream(args[0]));
+            torrentHandler = new TorrentFileController(new FileInputStream(args[0]));
             torrentMetaData = torrentHandler.ParseTorrent();
 
             peerDownloadHandler = new PeerDownloadHandler(PORT, SERVER, torrentMetaData);

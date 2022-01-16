@@ -1,6 +1,6 @@
 package misc.download;
 
-import misc.download.strategies.DownloadStrat;
+import misc.download.strategies.DownloadStrategy;
 import misc.messages.HandShake;
 import misc.messages.Message;
 import misc.messages.PeerMessage;
@@ -8,7 +8,6 @@ import misc.peers.ClientState;
 import misc.peers.PeerInfo;
 import misc.peers.PeerState;
 import misc.torrent.Observer;
-import misc.torrent.PieceStatus;
 import misc.torrent.TorrentMetaData;
 import misc.torrent.TorrentState;
 import misc.tracker.TrackerHandler;
@@ -23,8 +22,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 //TODO : welcome Messages, should depend upon the state of our torrent file, the state of the peers
@@ -32,7 +29,7 @@ import java.util.Set;
 public class TCPMessagesHandler {
 
     public static final int NUMBER_OF_PIECES_PER_REQUEST = 2;
-    public static final int NUMBER_OF_REQUEST_PER_PEER = 30;
+    public static final int NUMBER_OF_REQUEST_PER_PEER = 12;
 
     public NIODownloadHandler peerDownloadHandler;
     public Set<PeerInfo> peerList;
@@ -43,7 +40,7 @@ public class TCPMessagesHandler {
     public TCPMessagesHandler(TorrentMetaData torrentMetaData, Set<PeerInfo> peerList, ClientState clientState, TorrentState torrentState, Observer observer) {
 
         this.torrentMetaData = torrentMetaData;
-        this.peerDownloadHandler = new NIODownloadHandler(torrentMetaData, clientState, torrentState, peerList, observer);
+        this.peerDownloadHandler = new NIODownloadHandler(clientState, torrentState, peerList, observer);
         this.peerList = peerList;
         this.clientState = clientState;
 
@@ -79,13 +76,14 @@ public class TCPMessagesHandler {
 
             if (it.hasNext()) {
                 Integer index = it.next();
-                sent = peerDownloadHandler.sendBlockRequests(DownloadStrat.peersByPieceIndex(peerList, index), index);
+                sent = peerDownloadHandler.sendBlockRequests(DownloadStrategy.peersByPieceIndex(peerList, index), index);
             }
         }
         return sent;
     }
 
     private Message receiveMessage(SocketChannel socketChannel, SelectionKey key) {
+
         byte[] buffLen = new byte[4];
         ByteBuffer buffer = ByteBuffer.wrap(buffLen);
 
@@ -95,7 +93,7 @@ public class TCPMessagesHandler {
                 bRead += socketChannel.read(buffer);
                 if (bRead == -1) {
                     socketChannel.close();
-                    key.cancel();
+                    cancelKey(key);
                     return null;
                 }
                 if (bRead == 0) {
@@ -105,7 +103,7 @@ public class TCPMessagesHandler {
 
         } catch (IOException e) {
             System.err.println("remote closed connection");
-            key.cancel();
+            cancelKey(key);
             return null;
         } catch (BufferUnderflowException e) {
             DEBUG.printError(e, getClass().getName());
@@ -155,6 +153,7 @@ public class TCPMessagesHandler {
             socketChannel.write(writeBuf);
         } catch (IOException e) {
             DEBUG.printError(e, getClass().getName());
+            DEBUG.loge("--->sending message ", message.toString(), "to peer number", String.valueOf(peerInfo.getPort()));
             return;
         }
         DEBUG.log("--->sent message ", message.toString(), "to peer number", String.valueOf(peerInfo.getPort()));
@@ -164,6 +163,7 @@ public class TCPMessagesHandler {
     }
 
     public void handleRead(SelectionKey key) {
+
         SocketChannel clientChannel = (SocketChannel) key.channel();
         /*int peerIndex = TCPClient.channelIntegerMap.get(clientChannel.socket().getPort());
         PeerState peerState = peerList.get(peerIndex).getPeerState();*/
@@ -175,14 +175,18 @@ public class TCPMessagesHandler {
 
         if (peerState.queuedRequestsFromPeer.get()>= NUMBER_OF_REQUEST_PER_PEER && peerState.queuedRequestsFromClient.get() < NUMBER_OF_REQUEST_PER_PEER)
         {
-            key.interestOps(SelectionKey.OP_WRITE);
+            if (key.isValid()){
+                key.interestOps(SelectionKey.OP_WRITE );
+            }
             return;
         }
 
         if (!peerState.sentHandshake) {
             HandShake hd = HandShake.readHandshake(clientChannel);
             if (hd == null) {
-                key.interestOps(SelectionKey.OP_READ);
+                if (key.isValid()){
+                    key.interestOps(SelectionKey.OP_READ);
+                }
                 return;
             }
 
@@ -190,12 +194,15 @@ public class TCPMessagesHandler {
             peerState.sentHandshake = true;
 
             if (!peerState.receivedHandshake) {
-                key.interestOps(SelectionKey.OP_WRITE);
+                if (key.isValid()){
+                    key.interestOps(SelectionKey.OP_WRITE);
+                }
+
                 TCPClient.waitingConnections.add(peerInfo);
             } else {
                 if (!HandShake.validateHandShake(hd, torrentMetaData.getSHA1Info())) {
 
-                    key.cancel();
+                    cancelKey(key);
                     peerList.remove(peerInfo);
 
                     try {
@@ -203,25 +210,35 @@ public class TCPMessagesHandler {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+
+                    return;
                 }
             }
 
-            key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+
+            if (key.isValid()){
+                key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+            }
             return;
         }
         Message message = receiveMessage(clientChannel, key);
         if (message == null) {
+            if (key.isValid()){
+                key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+            }
 
-            key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
             // DEBUG.log("no message received");
             return;
         }
 
         DEBUG.log("<---recieved message ", message.toString(), " from peer number", String.valueOf(peerInfo.getPort()));
 
+
         peerDownloadHandler.stateMachine(message, peerState);
 
-        key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+        if (key.isValid()){
+            key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+        }
 
     }
 
@@ -236,7 +253,9 @@ public class TCPMessagesHandler {
         int peerIndex = peerInfo.index;
 
         if (peerState.receivedHandshake && !peerState.sentHandshake) {
-            key.interestOps(SelectionKey.OP_READ);
+            if (key.isValid()){
+                key.interestOps(SelectionKey.OP_READ);
+            }
             return;
         }
         //HANDSHAKE HANDLING
@@ -257,7 +276,9 @@ public class TCPMessagesHandler {
             peerState.receivedHandshake = true;
             if (!peerState.sentHandshake) {
                 TCPClient.waitingConnections.add(peerInfo);
-                key.interestOps(SelectionKey.OP_READ);
+                if (key.isValid()){
+                    key.interestOps(SelectionKey.OP_READ);
+                }
             }
 
             return;
@@ -271,7 +292,9 @@ public class TCPMessagesHandler {
                 TCPClient.waitingConnections.remove(peerInfo);
             } else if (!peerState.writeMessageQ.isEmpty()) {
                 if (peerState.weAreChokedByPeer && peerState.writeMessageQ.peek().ID == PeerMessage.MsgType.REQUEST) {
-                    key.interestOps(SelectionKey.OP_READ);
+                    if (key.isValid()){
+                        key.interestOps(SelectionKey.OP_READ);
+                    }
                     return;
                 }
 
@@ -285,16 +308,21 @@ public class TCPMessagesHandler {
                     }
                 }
                 if (peerState.queuedRequestsFromClient.get() > 0) {
-                    key.interestOps(SelectionKey.OP_READ);
+                    if (key.isValid()){
+                        key.interestOps(SelectionKey.OP_READ);
+                    }
                     return;
                 }
             }
         }
-        key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+        if (key.isValid()){
+            key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+        }
 
     }
 
     public void handleConnection(SelectionKey key) {
+
         SocketChannel clientChannel = (SocketChannel) key.channel();
         PeerInfo peerInfo = (PeerInfo) key.attachment();
         PeerState peerState = peerInfo.getPeerState();
@@ -327,14 +355,18 @@ public class TCPMessagesHandler {
                 DEBUG.printError(e, getClass().getName());
             }
 
-            key.cancel();
+            cancelKey(key);
             return;
         }
 
 
         try {
-            if (clientChannel.finishConnect())
-                key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+            if (clientChannel.finishConnect()){
+                if (key.isValid()){
+                    key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+                }
+            }
+
         } catch (IOException e) {
             DEBUG.printError(e, getClass().getName());
             removePeer(peerInfo);
@@ -344,12 +376,19 @@ public class TCPMessagesHandler {
             } catch (IOException ex) {
                 DEBUG.printError(e, getClass().getName());
             }
-            key.cancel();
+            cancelKey(key);
 
         }
 
     }
 
+    public void cancelKey(SelectionKey key){
+        System.out.println("canceling key");
+        key.cancel();
+        PeerInfo peerInfo = (PeerInfo) key.attachment();
+        removePeer(peerInfo);
+
+    }
     public void handleAccept(SelectionKey key) {
         SocketChannel clientChannel;
         try {

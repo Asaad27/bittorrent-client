@@ -24,10 +24,6 @@ public class PeerInfo {
         return peerState;
     }
 
-    public InetAddress getAddr() {
-        return addr;
-    }
-
     public int getPort() {
         return port;
     }

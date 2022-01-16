@@ -21,13 +21,13 @@ import java.util.*;
  * @author Asaad
  */
 
-public class TorrentFileHandler {
+public class TorrentFileController {
 
     private final BDecoder reader;
     private Map<String, BEncodedValue> document;
 
 
-    public TorrentFileHandler(FileInputStream torrentFile) {
+    public TorrentFileController(FileInputStream torrentFile) {
         this.reader = new BDecoder(torrentFile);
 
 
@@ -168,7 +168,7 @@ public class TorrentFileHandler {
 
     private String getFilename() throws InvalidBEncodingException {
 
-        if (!getFileInfo().containsKey("name")) {
+        if (!Objects.requireNonNull(getFileInfo()).containsKey("name")) {
             System.err.println("The name field does not exists");
             return null;
         }
