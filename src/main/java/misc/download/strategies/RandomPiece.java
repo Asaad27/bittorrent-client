@@ -19,7 +19,7 @@ public class RandomPiece extends DownloadStrategy implements IObservable {
 	private Set<Integer> piecesWithNoPeers;
 
 	private final misc.torrent.Observer subject;
-	private final static int Threshold = -1;
+	private final static int Threshold = 1;
 
 	private RandomPiece(Set<PeerInfo> peers, TorrentState status, Observer subject) {
 		this.peers = peers;
@@ -36,8 +36,6 @@ public class RandomPiece extends DownloadStrategy implements IObservable {
 
 	@Override
 	public int updatePeerState() {
-		//System.out.println("random");
-		//TODO : MODIFY WHEN IMPLEMENTATION OF ENDGAME FINISHED
 		if (pieceSet.size() <= Threshold){
 			return -4;
 		}

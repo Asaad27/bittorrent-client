@@ -39,7 +39,7 @@ public class TorrentContext {
 		}
 
 		if (piece >= 0)
-			DEBUG.log("*********************** la piece  est ", String.valueOf(piece), strategy.getName());
+			//DEBUG.log("*********************** la piece  est ", String.valueOf(piece), strategy.getName());
 
 		if (piece >= 0 && piece < torrentMetaData.getNumberOfPieces()  && status.pieces.get(piece).getStatus() == PieceStatus.ToBeDownloaded ){
 			clientState.piecesToRequest.add(piece);

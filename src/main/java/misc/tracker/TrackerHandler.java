@@ -1,5 +1,6 @@
 package misc.tracker;
 import misc.peers.PeerInfo;
+import misc.utils.DEBUG;
 import misc.utils.Utils;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -13,6 +14,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+
+import static misc.download.TCPClient.OURPORT;
 
 public class TrackerHandler {
 	
@@ -71,15 +74,20 @@ public class TrackerHandler {
 		
 		return queryURI;
 	}
-	
+
+	int debug = 0;
 	public Set<PeerInfo> getPeerList() throws IOException {
-		
+		if (debug >= 3)
+			System.out.println("debug");
+		debug++;
+		DEBUG.log("generating peers from tracker ..." + debug);
 		URL uri = new URL(buildQueryURI());
 		// System.out.println(uri.toString());
 		
 		HttpURLConnection conn =  (HttpURLConnection) uri.openConnection();
 		conn.setRequestMethod("GET");
-		
+
+
 		int status = conn.getResponseCode(); // On exécute la requête
 		
 		if (status > 299) {
@@ -146,6 +154,8 @@ public class TrackerHandler {
 		}
 
 		//System.out.println("peer list : " + lst);
+
+		lst.removeIf(peerInfo -> peerInfo.getPort() == OURPORT);
 		
 		return lst;
 		
@@ -154,7 +164,7 @@ public class TrackerHandler {
 	public static String genPeerId() {
 
 		// System.out.println("Getting local Peer ID");
-		String peerId = new String();
+		String peerId = "";
 		peerId = peerId.concat(PEER_ID_HEAD);
 		Random r = new Random();
 		String randomStr;

@@ -90,7 +90,7 @@ public class LocalFileHandler {
 		return true;
 	}
 
-	//TODO : don't verify file twice aka when download ended func is lunched even tho we didn't download
+
 	public  boolean verifyDownloadedFile(){
 		System.out.println("Checking File");
 		int numPieces = torrentMetaData.getNumberOfPieces();
@@ -154,7 +154,6 @@ public class LocalFileHandler {
 		return ans;
 	}
 
-	
 	public void close() {
 		try {
 			fileAccess.close();

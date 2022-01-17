@@ -1,12 +1,13 @@
 package misc.peers;
 
 import java.net.InetAddress;
+import java.util.Arrays;
+import java.util.Objects;
 
 public class PeerInfo {
 
     private final InetAddress addr;
     public int port;
-    public int index;
     private PeerState peerState;
 
     public PeerInfo(InetAddress addr, int port, int totalPieces) {
@@ -28,8 +29,24 @@ public class PeerInfo {
         return port;
     }
 
+
     @Override
     public String toString() {
-        return "peer\nport : " + port + " addr : " + addr;
+        return "(port : " + port + " addr : " + addr + ")";
     }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        final PeerInfo peerInfo = (PeerInfo) obj;
+
+        return this.port == peerInfo.getPort();
+
+    }
+
+
 }

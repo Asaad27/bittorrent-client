@@ -286,11 +286,12 @@ public class NIODownloadHandler {
                 peerNotNeeded.add(peerInfo);
         }
 
-        for (PeerInfo useless: peerNotNeeded) {
+        //TODO : let ?
+      /*  for (PeerInfo useless: peerNotNeeded) {
 
             System.out.println("removing peer : " + peerNotNeeded);
             peerInfoList.remove(useless);
-        }
+        }*/
 
     }
 
@@ -325,7 +326,6 @@ public class NIODownloadHandler {
         for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
             if (peerState.hasPiece(i) && !clientState.hasPiece(i)) {
                 download = true;
-                System.out.println("***************"+i);
                 break;
             }
 
@@ -354,7 +354,7 @@ public class NIODownloadHandler {
      * @return true if we could distribute the blocks
      **/
 
-    //TODO : try downloading whole piece from one peer
+
     public boolean sendBlockRequests(List<PeerInfo> valuablePeers, int pieceIndex) {
 
         Piece piece = torrentState.pieces.get(pieceIndex);
@@ -378,11 +378,15 @@ public class NIODownloadHandler {
 
         int numberOfBlocks = piece.getNumberOfBlocks();
 
+        int n = random.nextInt(numberOfPeers);
         int offset = 0;
         for (int j = 0; j < piece.getNumberOfBlocks() - 1; j++) {
             Message request = new Message(PeerMessage.MsgType.REQUEST, pieceIndex, offset, piece.getBlockSize());
             piece.setBlocks(offset / torrentState.BLOCK_SIZE, BlockStatus.QUEUED);
-            int n = random.nextInt(numberOfPeers);
+            if (j%10 == 0){
+                //n = random.nextInt(numberOfPeers);
+                n = (n+1) % numberOfPeers;
+            }
             valuablePeers.get(n).getPeerState().writeMessageQ.add(request);
             offset += torrentState.BLOCK_SIZE;
         }
@@ -390,7 +394,7 @@ public class NIODownloadHandler {
         if (piece.getLastBlockSize() != 0) {
             Message request = new Message(PeerMessage.MsgType.REQUEST, pieceIndex, offset, piece.getLastBlockSize());
             piece.setBlocks(offset / torrentState.BLOCK_SIZE, BlockStatus.QUEUED);
-            int n = random.nextInt(numberOfPeers);
+            n = random.nextInt(numberOfPeers);
             valuablePeers.get(n).getPeerState().writeMessageQ.add(request);
         }
 

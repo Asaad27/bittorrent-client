@@ -12,6 +12,7 @@ import misc.tracker.TrackerHandler;
 import misc.utils.DEBUG;
 import misc.utils.Utils;
 
+import java.awt.image.WritableRenderedImage;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.BufferUnderflowException;
@@ -29,12 +30,13 @@ import static java.lang.System.in;
 import static misc.messages.PeerMessage.MsgType.INTERESTED;
 import static misc.messages.PeerMessage.MsgType.UNINTERESTED;
 
-//TODO : welcome Messages, should depend upon the state of our torrent file, the state of the peers
+
 //TODO : timeout handshake
 public class TCPMessagesHandler {
 
-    public static final int NUMBER_OF_PIECES_PER_REQUEST = 2;
-    public static final int NUMBER_OF_REQUEST_PER_PEER = 100;
+    public static final int NUMBER_OF_PIECES_PER_REQUEST = 3;
+    public static final int NUMBER_OF_REQUEST_PER_PEER = 20;
+    public static final int NUMBER_OF_READ_MSG_PER_PEER = 7;
 
     public NIODownloadHandler peerDownloadHandler;
     public Set<PeerInfo> peerList;
@@ -56,7 +58,6 @@ public class TCPMessagesHandler {
 
     public boolean fetchRequests() {
 
-        //TODO : test
         boolean everyoneIsConnected = true;
         for (PeerInfo peer : peerList) {
             PeerState peerState = peer.getPeerState();
@@ -80,7 +81,7 @@ public class TCPMessagesHandler {
 
         boolean sent = false;
         boolean generated;
-        //TODO : changed from if to while
+
         if (peerDownloadHandler.getClientState().piecesToRequest.size() < NUMBER_OF_PIECES_PER_REQUEST) {
             generated = TCPClient.torrentContext.updatePeerState();
 
@@ -105,21 +106,23 @@ public class TCPMessagesHandler {
             while (bRead < 4) {
                 bRead += socketChannel.read(buffer);
                 if (bRead == -1) {
-                    System.out.println("end of stream");
-                    SocketChannel clientChannel = (SocketChannel) key.channel();
+                    //System.out.println("...");
+                    //System.out.println("end of stream");
                     PeerInfo peerInfo = (PeerInfo) key.attachment();
                     PeerState peerState = peerInfo.getPeerState();
                     boolean cancelKey = true;
-                    if (peerState.writeMessageQ.isEmpty() ) {
-                        for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
-                            if ( (!clientState.hasPiece(i) && peerState.hasPiece(i) || (clientState.hasPiece(i) && !peerState.hasPiece(i)))){
-                                cancelKey = false;
-                            }
+
+                    for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
+                        if ((!clientState.hasPiece(i) && peerState.hasPiece(i) || (clientState.hasPiece(i) && !peerState.hasPiece(i)))) {
+                            cancelKey = false;
                         }
                     }
-                    if (cancelKey)
-                        cancelKey(key);
 
+                    if (cancelKey && peerState.writeMessageQ.isEmpty())
+                        cancelKey(key);
+                    else{
+                        key.interestOps(SelectionKey.OP_WRITE);
+                    }
                     return null;
                 }
                 if (bRead == 0) {
@@ -152,8 +155,7 @@ public class TCPMessagesHandler {
             return null;
         //buffer.flip();
         byte[] finalData = new byte[4 + len];
-        for (int i = 0; i < 4; i++)
-            finalData[i] = buffer.array()[i];
+        System.arraycopy(buffer.array(), 0, finalData, 0, 4);
 
         buffer = ByteBuffer.allocate(len);
         int byteRead = 0;
@@ -166,15 +168,13 @@ public class TCPMessagesHandler {
             }
         }
         //buffer.flip();
-        for (int i = 0; i < len; i++)
-            finalData[i + 4] = buffer.array()[i];
+        System.arraycopy(buffer.array(), 0, finalData, 4, len);
 
         if (byteRead != len)
             return null;
 
         return PeerMessage.deserialize(finalData);
     }
-
 
     private void sendMessage(SocketChannel socketChannel, PeerInfo peerInfo, Message message) {
 
@@ -199,9 +199,7 @@ public class TCPMessagesHandler {
         SocketChannel clientChannel = (SocketChannel) key.channel();
         PeerInfo peerInfo = (PeerInfo) key.attachment();
         PeerState peerState = peerInfo.getPeerState();
-        int peerIndex = peerInfo.index;
 
-        //TODO : uncomment ?
 
         if (peerState.queuedRequestsFromPeer.get() >= NUMBER_OF_REQUEST_PER_PEER && peerState.queuedRequestsFromClient.get() < NUMBER_OF_REQUEST_PER_PEER) {
             System.out.print(".");
@@ -266,7 +264,7 @@ public class TCPMessagesHandler {
                 return;
             }
 
-            if (clientState.isDownloading){
+            if (clientState.isDownloading) {
                 DEBUG.log("<---recieved message ", message.toString(), " from peer number", String.valueOf(peerInfo.getPort()));
             }
 
@@ -275,19 +273,16 @@ public class TCPMessagesHandler {
             if (key.isValid()) {
                 key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
             }
-        } while (receivedMessages <= 20);
+        } while (receivedMessages <= NUMBER_OF_READ_MSG_PER_PEER);
 
     }
 
     public void handleWrite(SelectionKey key) {
 
         SocketChannel clientChannel = (SocketChannel) key.channel();
-       /* int peerIndex = TCPClient.channelIntegerMap.get(clientChannel.socket().getPort());
-        PeerState peerState = peerList.get(peerIndex).getPeerState();*/
 
         PeerInfo peerInfo = (PeerInfo) key.attachment();
         PeerState peerState = peerInfo.getPeerState();
-        int peerIndex = peerInfo.index;
 
         if (peerState.receivedHandshake && !peerState.sentHandshake) {
             if (key.isValid()) {
@@ -298,7 +293,7 @@ public class TCPMessagesHandler {
         //HANDSHAKE HANDLING
 
         if (!peerState.receivedHandshake) {
-            DEBUG.log("--->sending handshake", "too peer number", String.valueOf(peerInfo.getPort()));
+            DEBUG.log("--->sending handshake", "to peer number", String.valueOf(peerInfo.getPort()));
             HandShake sentHand = new HandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(TrackerHandler.PEER_ID));
             ByteBuffer writeBuf = ByteBuffer.wrap(sentHand.createHandshakeMsg());
             try {
@@ -345,7 +340,7 @@ public class TCPMessagesHandler {
                         int pid = writeMessage.getIndex();
                         int bid = writeMessage.getBegin() / torrentState.BLOCK_SIZE;
                         Piece piece = torrentState.pieces.get(pid);
-                        if (! (piece.getBlocks().get(bid) == BlockStatus.Downloaded)) {
+                        if (!(piece.getBlocks().get(bid) == BlockStatus.Downloaded) && !clientState.hasPiece(pid)) {
                             sendMessage(clientChannel, peerInfo, writeMessage);
                             peerDownloadHandler.sentStateMachine(writeMessage, peerState);
                         }
@@ -390,12 +385,6 @@ public class TCPMessagesHandler {
             Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, clientState.getBitfield());
             peerState.welcomeQ.add(bitfield);
 
-            /*Message unchoke = new Message(PeerMessage.MsgType.UNCHOKE);
-            peerState.welcomeQ.add(unchoke);
-            Message interested = new Message(PeerMessage.MsgType.INTERESTED);
-            peerState.welcomeQ.add(interested);*/
-
-
         } catch (IOException connectException) {
             removePeer(peerInfo);
             try {
@@ -432,7 +421,7 @@ public class TCPMessagesHandler {
 
     }
 
-    //TODO : implement peer removed, his messages must go to others, strategies must be notified
+
     public void cancelKey(SelectionKey key) {
         System.out.println("canceling key");
         key.cancel();
@@ -454,7 +443,7 @@ public class TCPMessagesHandler {
             clientChannel.register(key.selector(), SelectionKey.OP_READ, peerInfo);
             //peerList.add(new PeerInfo(InetAddress.getLocalHost(), port, torrentMetaData.getNumberOfPieces()));
             addPeer(peerInfo);
-            peerInfo.index = peerList.size() - 1;
+
 
             PeerState peerState = peerInfo.getPeerState();
             Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, clientState.getBitfield());

@@ -57,7 +57,7 @@ public class RarestFirst extends DownloadStrategy implements IObservable {
         if (rareSet.isEmpty() && !receivedAllBitfields())    //on a request/donwload tous les pieces
             return -1;
 
-        //TODO : fix, when a leecher connects it switches here
+
         else if (rareSet.isEmpty())   //switch strategy
             return -3;
 

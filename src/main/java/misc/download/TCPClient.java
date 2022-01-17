@@ -8,22 +8,21 @@ import misc.torrent.TorrentFileController;
 import misc.torrent.TorrentMetaData;
 import misc.torrent.TorrentState;
 import misc.tracker.TrackerHandler;
+import misc.tracker.TrackerPeriodic;
 import misc.utils.DEBUG;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.nio.channels.*;
 import java.security.NoSuchAlgorithmException;
-import java.security.Timestamp;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TCPClient implements Runnable {
 
-    public static int OURPORT = 12347;
+    public static final int OURPORT = 12347;
+
     public static String SERVER = "127.0.0.1";
     public static Queue<PeerInfo> waitingConnections = new LinkedList<>();
     public static TorrentContext torrentContext;
@@ -32,41 +31,48 @@ public class TCPClient implements Runnable {
     public TorrentFileController torrentHandler;
     public ClientState clientState;
     public TorrentState torrentState;
-    private TrackerHandler tracker;
-    private Set<PeerInfo> peerInfoList;
+    private final TrackerHandler tracker;
+    private final Set<PeerInfo> peerInfoList;
     private Selector selector;
-
+    private final AtomicBoolean connectToTracker = new AtomicBoolean(false);
 
     public TCPClient(String torrentPath) {
 
         Observer subject = new Observer();
         parseTorrent(torrentPath);
         peerInfoList = new HashSet<>();
-        generatePeerList(2001, 2002, 2003, 2004, 2005);
-        //getPeersFromTracker();
-        //generatePeerList(27027);
-        //generatePeerList(51413);
-        //generatePeerList(2001);
+
+
         clientState = new ClientState(torrentMetaData.getNumberOfPieces());
         torrentState = TorrentState.getInstance(clientState);
         torrentContext = new TorrentContext(peerInfoList, torrentState, clientState, subject);
         tcpMessagesHandler = new TCPMessagesHandler(torrentMetaData, peerInfoList, clientState, torrentState, subject);
+        tracker = new TrackerHandler(createAnnounceURL(), torrentMetaData.getSHA1InfoByte(), OURPORT, torrentMetaData.getNumberOfPieces());
 
-        initializeSelector();
+        //Set<PeerInfo> peers = generatePeerList(2001, 2002, 2003, 2004, 2005);
+        Set<PeerInfo> peers = getPeersFromTracker();
+        initializeSelector(peers);
 
-   /*     Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                System.out.println("hi");
-            }
-        }, 1000 * 10);*/
+        TrackerPeriodic trackerPeriodic = new TrackerPeriodic(connectToTracker);
+        trackerPeriodic.run();
+
+
     }
 
     @Override
     public void run() {
 
         while (true) {
+            if (connectToTracker.getAndSet(false)){
+                Set<PeerInfo> newPeers = null;
+                try {
+                    newPeers = tracker.getPeerList();
+                    addToSelector(newPeers);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
             try {
                 if (selector.select(3000) == 0) {
                     System.out.print(".");
@@ -79,12 +85,13 @@ public class TCPClient implements Runnable {
             Iterator<SelectionKey> keyIter = selector.selectedKeys().iterator();
             while (keyIter.hasNext()) {
 
+
                 SelectionKey key = keyIter.next();
                 PeerInfo peerInfo = (PeerInfo) key.attachment();
 
-                if (clientState.isDownloading) {
+
+                if (clientState.isDownloading)
                     tcpMessagesHandler.fetchRequests();
-                }
 
                 if (key.isValid() && key.isConnectable()) {
                     tcpMessagesHandler.handleConnection(key);
@@ -112,7 +119,7 @@ public class TCPClient implements Runnable {
         }
     }
 
-    private void initializeSelector() {
+    private void initializeSelector(Set<PeerInfo> peers) {
         try {
             selector = Selector.open();
 
@@ -121,20 +128,38 @@ public class TCPClient implements Runnable {
             passiveChannel.configureBlocking(false);
             passiveChannel.register(selector, SelectionKey.OP_ACCEPT);
 
-            int index = 0;
-            for (PeerInfo peerInfo : peerInfoList) {
+            addToSelector(peers);
 
-                assert peerInfo.getPort() >= 0;
-                SocketChannel clientChannel = SocketChannel.open();
-                clientChannel.configureBlocking(false);
-                clientChannel.register(selector, SelectionKey.OP_CONNECT, peerInfo);
-                int port = peerInfo.getPort();
-                clientChannel.connect(new InetSocketAddress(SERVER, port));
-                peerInfo.index = index;
-                index++;
-            }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+    }
+
+
+    public void addToSelector(Set<PeerInfo> newPeers) throws IOException {
+        System.out.println("querying for peers");
+
+        if (newPeers == null)
+            return;
+        System.out.println(newPeers);
+        for (PeerInfo newPeer : newPeers){
+            boolean contains = false;
+            for (PeerInfo oldPeer : peerInfoList)
+                if (oldPeer.equals(newPeer)) {
+                    contains = true;
+                    break;
+                }
+            if (contains)
+                continue;
+            System.out.println("new peer " + newPeer);
+                peerInfoList.add(newPeer);
+                assert newPeer.getPort() >= 0;
+                SocketChannel clientChannel = SocketChannel.open();
+                clientChannel.configureBlocking(false);
+                clientChannel.register(selector, SelectionKey.OP_CONNECT, newPeer);
+                int port = newPeer.getPort();
+                clientChannel.connect(new InetSocketAddress(SERVER, port));
         }
 
     }
@@ -149,38 +174,51 @@ public class TCPClient implements Runnable {
         System.out.println(torrentMetaData);
     }
 
-    //TODO : infinite loop
-    public void getPeersFromTracker() {
-        DEBUG.log("generating peers from tracker ...");
 
+    //TODO : infinite loop
+    public Set<PeerInfo> getPeersFromTracker() {
+
+        Set<PeerInfo> newPeers = null;
         try {
-            URL announceURL = new URL(torrentMetaData.getAnnounceUrlString());
-            tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1InfoByte(), OURPORT, torrentMetaData.getNumberOfPieces());
-            peerInfoList = tracker.getPeerList();
-            System.out.println(peerInfoList);
+            newPeers = tracker.getPeerList();
+            System.out.println(newPeers);
 
         } catch (IOException e) {
             e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         //remove our client from the tracker response
 
-        peerInfoList.removeIf(peerInfo -> peerInfo.getPort() == OURPORT);
 
         DEBUG.log("generated peers from tracker");
 
+        return newPeers;
     }
 
-    public void generatePeerList(int... ports) {
+    public URL createAnnounceURL(){
+        URL announceURL = null;
+        try {
+            announceURL = new URL(torrentMetaData.getAnnounceUrlString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return announceURL;
+    }
+
+    public Set<PeerInfo> generatePeerList(int... ports) {
+        Set<PeerInfo> list = new HashSet<>();
         for (int port : ports) {
             try {
                 PeerInfo peer = new PeerInfo(InetAddress.getLocalHost(), port, torrentMetaData.getNumberOfPieces());
-                peerInfoList.add(peer);
+                list.add(peer);
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
         }
 
-        System.out.println(peerInfoList);
+        return list;
     }
+
+
 
 }
