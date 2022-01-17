@@ -72,13 +72,14 @@ public class TCPClient implements Runnable{
             Iterator<SelectionKey> keyIter = selector.selectedKeys().iterator();
             while (keyIter.hasNext()) {
 
+                SelectionKey key = keyIter.next();
+                PeerInfo peerInfo = (PeerInfo) key.attachment();
 
                 if(clientState.isDownloading){
                     tcpMessagesHandler.fetchRequests();
                 }
 
-                SelectionKey key = keyIter.next();
-                PeerInfo peerInfo = (PeerInfo) key.attachment();
+
 
 
                 if (key.isValid() && key.isConnectable()) {
@@ -148,7 +149,10 @@ public class TCPClient implements Runnable{
         System.out.println(torrentMetaData);
     }
 
+    //TODO : infinite loop
     public void getPeersFromTracker(){
+        DEBUG.log("generating peers from tracker ...");
+
         try {
             URL announceURL = new URL(torrentMetaData.getAnnounceUrlString());
             tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1InfoByte(), OURPORT, torrentMetaData.getNumberOfPieces());
@@ -161,6 +165,8 @@ public class TCPClient implements Runnable{
         //remove our client from the tracker response
 
         peerInfoList.removeIf(peerInfo -> peerInfo.getPort() == OURPORT);
+
+        DEBUG.log("generated peers from tracker");
 
     }
 

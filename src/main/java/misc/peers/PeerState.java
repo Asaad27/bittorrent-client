@@ -22,7 +22,7 @@ public class PeerState extends State {
     }
 
     public boolean isConnected(){
-        return !weAreChokedByPeer && welcomeQ.isEmpty();
+        return ((sentBitfield || interested) && welcomeQ.isEmpty());
     }
 
 }

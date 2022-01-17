@@ -1,5 +1,6 @@
 package misc.torrent;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +41,9 @@ public class TorrentState {
         for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
             downloadedSize += clientState.hasPiece(i) ? pieces.get(i).getPieceSize() : 0;
         }
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(2);
+        System.err.println("DOWNLOADED : " + df.format(getDownloadedSize() * 1.0 / torrentMetaData.getLength() * 100) + "%");
     }
 
     public static TorrentState getInstance(ClientState clientState) {

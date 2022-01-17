@@ -31,7 +31,7 @@ public class TorrentContext {
 		this.peers = peers;
 	}
 	
-	public void updatePeerState() {
+	public boolean updatePeerState() {
 		int piece = strategy.updatePeerState();
 
 		if (piece < 0){
@@ -43,7 +43,9 @@ public class TorrentContext {
 
 		if (piece >= 0 && piece < torrentMetaData.getNumberOfPieces()  && status.pieces.get(piece).getStatus() == PieceStatus.ToBeDownloaded ){
 			clientState.piecesToRequest.add(piece);
+			return true;
 		}
+		return false;
 	}
 
 	private void changeStrategy(int ID){

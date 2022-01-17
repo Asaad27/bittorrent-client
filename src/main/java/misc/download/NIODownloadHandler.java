@@ -13,9 +13,11 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static misc.download.TCPClient.torrentMetaData;
+import static misc.messages.PeerMessage.MsgType.CHOKE;
 import static misc.messages.PeerMessage.MsgType.UNINTERESTED;
 
 
@@ -127,6 +129,7 @@ public class NIODownloadHandler {
             //peerState.welcomeQ.add(new Message(PeerMessage.MsgType.UNCHOKE));
         } else if (receivedMessage.ID == UNINTERESTED) {
             peerState.interested = false;
+            peerState.writeMessageQ.add(new Message(CHOKE));
 
         } else if (receivedMessage.ID == PeerMessage.MsgType.HAVE) {
             if (!peerState.hasPiece(receivedMessage.getIndex())) {
@@ -163,7 +166,7 @@ public class NIODownloadHandler {
             if (torrentState.getDownloadedSize() == torrentMetaData.getLength())
                 onDownloadCompleted();
 
-            if (!needToDownload(peerState)) {
+            if (peerState.writeMessageQ.isEmpty() && !needToDownload(peerState)) {
                 Message notInterested = new Message(UNINTERESTED);
                 peerState.writeMessageQ.add(notInterested);
             }
@@ -240,8 +243,16 @@ public class NIODownloadHandler {
             }
         }
 
-        System.out.println("download ended");
+        if (!clientState.isDownloading)
+           System.out.println("download ended");
+
+        Stack<PeerInfo> peerNotNeeded = new Stack<>();
         for (PeerInfo peerInfo : peerInfoList) {
+            System.out.println(peerInfo);
+            System.out.println("number of requests we sent to them : " + peerInfo.getPeerState().numberOfRequests);
+            System.out.println("number of blocks we received from them : " + peerInfo.getPeerState().numberOfBlocksSent);
+            System.out.println("number of blocks we sent to them : " + peerInfo.getPeerState().numberOfRequestsReceived);
+
             if (!needToSeed(peerInfo.getPeerState()) && peerInfo.getPeerState().choked) {
                 Message chokeMessage = new Message(PeerMessage.MsgType.CHOKE);
                 peerInfo.getPeerState().writeMessageQ.add(chokeMessage);
@@ -250,12 +261,16 @@ public class NIODownloadHandler {
             if (!needToDownload(peerInfo.getPeerState())) {
                 Message notInterestedMessage = new Message(UNINTERESTED);
                 peerInfo.getPeerState().writeMessageQ.add(notInterestedMessage);
+
             }
 
-            System.out.println(peerInfo);
-            System.out.println("number of requests we sent to them : " + peerInfo.getPeerState().numberOfRequests);
-            System.out.println("number of blocks we received from them : " + peerInfo.getPeerState().numberOfBlocksSent);
-            System.out.println("number of blocks we sent to them : " + peerInfo.getPeerState().numberOfRequestsReceived);
+            if (!needToDownload(peerInfo.getPeerState()) && !needToSeed(peerInfo.getPeerState()))
+                peerNotNeeded.add(peerInfo);
+        }
+
+        for (PeerInfo useless: peerNotNeeded) {
+            System.out.println("removing peer : " + peerNotNeeded);
+            peerInfoList.remove(useless);
         }
 
     }
@@ -279,7 +294,7 @@ public class NIODownloadHandler {
 
         if (!needToSeed(peerState) && !needToDownload(peerState)) {
             peerInfoList.removeIf(peerInfo -> peerInfo.getPeerState() == peerState);
-
+            System.out.println("removing useless peer");
         }
 
     }
