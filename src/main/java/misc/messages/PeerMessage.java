@@ -82,12 +82,12 @@ public class PeerMessage {
                 break;
 
             case CANCEL:
-                buffer = ByteBuffer.allocate(13);
+                buffer = ByteBuffer.allocate(17);
                 buffer.putInt(13);
                 buffer.put((byte) 8);
                 buffer.putInt(msg.getIndex());
                 buffer.putInt(msg.getBegin());
-                buffer.putInt(msg.getBlockSize());
+                buffer.putInt(msg.getLength());
                 break;
 
             default:

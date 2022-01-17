@@ -1,6 +1,5 @@
 package misc.tracker;
 import misc.peers.PeerInfo;
-import misc.torrent.LocalFileHandler;
 import misc.utils.Utils;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -73,7 +72,7 @@ public class TrackerHandler {
 		return queryURI;
 	}
 	
-	public Set<PeerInfo> getPeerLst() throws IOException {
+	public Set<PeerInfo> getPeerList() throws IOException {
 		
 		URL uri = new URL(buildQueryURI());
 		// System.out.println(uri.toString());

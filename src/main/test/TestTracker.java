@@ -21,7 +21,7 @@ public class TestTracker {
 		TorrentMetaData metaData = torrent.ParseTorrent();
 		TrackerHandler tracker = new TrackerHandler(new URL(metaData.getAnnounceUrlString()), Utils.hexStringToByteArray(metaData.getSHA1Info()), 6969, metaData.getNumberOfPieces());
 
-		Set<PeerInfo> lst = tracker.getPeerLst();
+		Set<PeerInfo> lst = tracker.getPeerList();
 		for(PeerInfo p : lst) {
 			System.out.println(p);
 		}

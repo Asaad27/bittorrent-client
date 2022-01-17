@@ -12,29 +12,28 @@ import misc.utils.DEBUG;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.channels.*;
 import java.security.NoSuchAlgorithmException;
+import java.security.Timestamp;
 import java.util.*;
 
-public class TCPClient implements Runnable{
+public class TCPClient implements Runnable {
 
     public static int OURPORT = 12347;
     public static String SERVER = "127.0.0.1";
     public static Queue<PeerInfo> waitingConnections = new LinkedList<>();
     public static TorrentContext torrentContext;
-
-
-    public TorrentFileController torrentHandler;
     public static TorrentMetaData torrentMetaData;
-
+    private final TCPMessagesHandler tcpMessagesHandler;
+    public TorrentFileController torrentHandler;
     public ClientState clientState;
     public TorrentState torrentState;
-
-
     private TrackerHandler tracker;
     private Set<PeerInfo> peerInfoList;
-    private final TCPMessagesHandler tcpMessagesHandler;
     private Selector selector;
 
 
@@ -43,8 +42,8 @@ public class TCPClient implements Runnable{
         Observer subject = new Observer();
         parseTorrent(torrentPath);
         peerInfoList = new HashSet<>();
-        //generatePeerList(2001, 2002, 2003, 2004, 2005);
-        getPeersFromTracker();
+        generatePeerList(2001, 2002, 2003, 2004, 2005);
+        //getPeersFromTracker();
         //generatePeerList(27027);
         //generatePeerList(51413);
         //generatePeerList(2001);
@@ -54,10 +53,18 @@ public class TCPClient implements Runnable{
         tcpMessagesHandler = new TCPMessagesHandler(torrentMetaData, peerInfoList, clientState, torrentState, subject);
 
         initializeSelector();
+
+   /*     Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("hi");
+            }
+        }, 1000 * 10);*/
     }
 
     @Override
-    public void run(){
+    public void run() {
 
         while (true) {
             try {
@@ -75,35 +82,28 @@ public class TCPClient implements Runnable{
                 SelectionKey key = keyIter.next();
                 PeerInfo peerInfo = (PeerInfo) key.attachment();
 
-                if(clientState.isDownloading){
+                if (clientState.isDownloading) {
                     tcpMessagesHandler.fetchRequests();
                 }
 
-
-
-
                 if (key.isValid() && key.isConnectable()) {
-                    //TODO : connection errors, eq when port is wrong
                     tcpMessagesHandler.handleConnection(key);
                 }
 
-                if(key.isValid() && key.isAcceptable()){
-                    //System.err.println("accepting....");
+                if (key.isValid() && key.isAcceptable()) {
                     tcpMessagesHandler.handleAccept(key);
                 }
 
                 if (key.isValid() && key.isReadable()) {
-                    //System.err.println("reading....");
-                    try{
+                    try {
                         tcpMessagesHandler.handleRead(key);
-                    }catch (CancelledKeyException e){
+                    } catch (CancelledKeyException e) {
                         DEBUG.printError(e, getClass().getName());
                     }
 
                 }
 
                 if (key.isValid() && key.isWritable()) {
-                    //System.err.println("writing...");
                     tcpMessagesHandler.handleWrite(key);
                 }
 
@@ -112,7 +112,7 @@ public class TCPClient implements Runnable{
         }
     }
 
-    private void initializeSelector(){
+    private void initializeSelector() {
         try {
             selector = Selector.open();
 
@@ -139,7 +139,7 @@ public class TCPClient implements Runnable{
 
     }
 
-    public void parseTorrent(String torrentPath){
+    public void parseTorrent(String torrentPath) {
         try {
             torrentHandler = new TorrentFileController(new FileInputStream(torrentPath));
             torrentMetaData = torrentHandler.ParseTorrent();
@@ -150,13 +150,13 @@ public class TCPClient implements Runnable{
     }
 
     //TODO : infinite loop
-    public void getPeersFromTracker(){
+    public void getPeersFromTracker() {
         DEBUG.log("generating peers from tracker ...");
 
         try {
             URL announceURL = new URL(torrentMetaData.getAnnounceUrlString());
             tracker = new TrackerHandler(announceURL, torrentMetaData.getSHA1InfoByte(), OURPORT, torrentMetaData.getNumberOfPieces());
-            peerInfoList = tracker.getPeerLst();
+            peerInfoList = tracker.getPeerList();
             System.out.println(peerInfoList);
 
         } catch (IOException e) {
@@ -170,8 +170,8 @@ public class TCPClient implements Runnable{
 
     }
 
-    public void generatePeerList(int ...ports){
-        for (int port: ports) {
+    public void generatePeerList(int... ports) {
+        for (int port : ports) {
             try {
                 PeerInfo peer = new PeerInfo(InetAddress.getLocalHost(), port, torrentMetaData.getNumberOfPieces());
                 peerInfoList.add(peer);

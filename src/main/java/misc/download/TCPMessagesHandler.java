@@ -7,9 +7,7 @@ import misc.messages.PeerMessage;
 import misc.peers.ClientState;
 import misc.peers.PeerInfo;
 import misc.peers.PeerState;
-import misc.torrent.Observer;
-import misc.torrent.TorrentMetaData;
-import misc.torrent.TorrentState;
+import misc.torrent.*;
 import misc.tracker.TrackerHandler;
 import misc.utils.DEBUG;
 import misc.utils.Utils;
@@ -22,20 +20,28 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.Stack;
+
+import static java.lang.System.exit;
+import static java.lang.System.in;
+import static misc.messages.PeerMessage.MsgType.INTERESTED;
+import static misc.messages.PeerMessage.MsgType.UNINTERESTED;
 
 //TODO : welcome Messages, should depend upon the state of our torrent file, the state of the peers
 //TODO : timeout handshake
 public class TCPMessagesHandler {
 
-    public static final int NUMBER_OF_PIECES_PER_REQUEST = 10;
+    public static final int NUMBER_OF_PIECES_PER_REQUEST = 2;
     public static final int NUMBER_OF_REQUEST_PER_PEER = 100;
 
     public NIODownloadHandler peerDownloadHandler;
     public Set<PeerInfo> peerList;
     public TorrentMetaData torrentMetaData;
     public ClientState clientState;
-
+    public Observer observer;
+    public TorrentState torrentState;
 
     public TCPMessagesHandler(TorrentMetaData torrentMetaData, Set<PeerInfo> peerList, ClientState clientState, TorrentState torrentState, Observer observer) {
 
@@ -43,6 +49,8 @@ public class TCPMessagesHandler {
         this.peerDownloadHandler = new NIODownloadHandler(clientState, torrentState, peerList, observer);
         this.peerList = peerList;
         this.clientState = clientState;
+        this.observer = observer;
+        this.torrentState = torrentState;
 
     }
 
@@ -58,11 +66,11 @@ public class TCPMessagesHandler {
             return false;
         }
 
-        boolean fetched;
+        boolean fetched = false;
         if (!TCPClient.torrentContext.getStrategy().getName().equals("ENDGAME")) {
             fetched = generateRequests();
         } else {
-            fetched = true;
+            TCPClient.torrentContext.updatePeerState();
         }
 
         return fetched;
@@ -73,7 +81,7 @@ public class TCPMessagesHandler {
         boolean sent = false;
         boolean generated;
         //TODO : changed from if to while
-        do {
+        if (peerDownloadHandler.getClientState().piecesToRequest.size() < NUMBER_OF_PIECES_PER_REQUEST) {
             generated = TCPClient.torrentContext.updatePeerState();
 
             Iterator<Integer> it = peerDownloadHandler.getClientState().piecesToRequest.iterator();
@@ -82,7 +90,7 @@ public class TCPMessagesHandler {
                 Integer index = it.next();
                 sent = peerDownloadHandler.sendBlockRequests(DownloadStrategy.peersByPieceIndex(peerList, index), index);
             }
-        } while (peerDownloadHandler.getClientState().piecesToRequest.size() < NUMBER_OF_PIECES_PER_REQUEST && generated);
+        }
 
         return sent;
     }
@@ -97,8 +105,21 @@ public class TCPMessagesHandler {
             while (bRead < 4) {
                 bRead += socketChannel.read(buffer);
                 if (bRead == -1) {
-                    //socketChannel.close();
-                    //cancelKey(key);
+                    System.out.println("end of stream");
+                    SocketChannel clientChannel = (SocketChannel) key.channel();
+                    PeerInfo peerInfo = (PeerInfo) key.attachment();
+                    PeerState peerState = peerInfo.getPeerState();
+                    boolean cancelKey = true;
+                    if (peerState.writeMessageQ.isEmpty() ) {
+                        for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
+                            if ( (!clientState.hasPiece(i) && peerState.hasPiece(i) || (clientState.hasPiece(i) && !peerState.hasPiece(i)))){
+                                cancelKey = false;
+                            }
+                        }
+                    }
+                    if (cancelKey)
+                        cancelKey(key);
+
                     return null;
                 }
                 if (bRead == 0) {
@@ -107,7 +128,7 @@ public class TCPMessagesHandler {
             }
 
         } catch (IOException e) {
-            System.err.println("remote closed connection");
+            System.out.println("remote closed connection");
             cancelKey(key);
             return null;
         } catch (BufferUnderflowException e) {
@@ -154,6 +175,7 @@ public class TCPMessagesHandler {
         return PeerMessage.deserialize(finalData);
     }
 
+
     private void sendMessage(SocketChannel socketChannel, PeerInfo peerInfo, Message message) {
 
         byte[] msg = PeerMessage.serialize(message);
@@ -165,7 +187,9 @@ public class TCPMessagesHandler {
             DEBUG.loge("--->sending message ", message.toString(), "to peer number", String.valueOf(peerInfo.getPort()));
             return;
         }
-        //DEBUG.log("--->sent message ", message.toString(), "to peer number", String.valueOf(peerInfo.getPort()));
+
+
+        DEBUG.log("--->sent message ", message.toString(), "to peer number", String.valueOf(peerInfo.getPort()));
 
 
     }
@@ -173,9 +197,6 @@ public class TCPMessagesHandler {
     public void handleRead(SelectionKey key) {
 
         SocketChannel clientChannel = (SocketChannel) key.channel();
-        /*int peerIndex = TCPClient.channelIntegerMap.get(clientChannel.socket().getPort());
-        PeerState peerState = peerList.get(peerIndex).getPeerState();*/
-
         PeerInfo peerInfo = (PeerInfo) key.attachment();
         PeerState peerState = peerInfo.getPeerState();
         int peerIndex = peerInfo.index;
@@ -183,6 +204,7 @@ public class TCPMessagesHandler {
         //TODO : uncomment ?
 
         if (peerState.queuedRequestsFromPeer.get() >= NUMBER_OF_REQUEST_PER_PEER && peerState.queuedRequestsFromClient.get() < NUMBER_OF_REQUEST_PER_PEER) {
+            System.out.print(".");
             if (key.isValid()) {
                 key.interestOps(SelectionKey.OP_WRITE);
             }
@@ -244,8 +266,9 @@ public class TCPMessagesHandler {
                 return;
             }
 
-            //DEBUG.log("<---recieved message ", message.toString(), " from peer number", String.valueOf(peerInfo.getPort()));
-
+            if (clientState.isDownloading){
+                DEBUG.log("<---recieved message ", message.toString(), " from peer number", String.valueOf(peerInfo.getPort()));
+            }
 
             peerDownloadHandler.stateMachine(message, peerState);
 
@@ -314,12 +337,24 @@ public class TCPMessagesHandler {
 
                 while (!peerState.writeMessageQ.isEmpty() && peerState.queuedRequestsFromClient.get() < NUMBER_OF_REQUEST_PER_PEER) {
                     Message writeMessage = peerState.writeMessageQ.poll();
+
                     if (writeMessage == null)
                         System.err.println("null message to write");
-                    else {
+                    else if (writeMessage.getID() == PeerMessage.MsgType.REQUEST) {
+
+                        int pid = writeMessage.getIndex();
+                        int bid = writeMessage.getBegin() / torrentState.BLOCK_SIZE;
+                        Piece piece = torrentState.pieces.get(pid);
+                        if (! (piece.getBlocks().get(bid) == BlockStatus.Downloaded)) {
+                            sendMessage(clientChannel, peerInfo, writeMessage);
+                            peerDownloadHandler.sentStateMachine(writeMessage, peerState);
+                        }
+
+                    } else {
                         sendMessage(clientChannel, peerInfo, writeMessage);
                         peerDownloadHandler.sentStateMachine(writeMessage, peerState);
                     }
+
                 }
                 if (peerState.queuedRequestsFromClient.get() > 0) {
                     if (key.isValid()) {
@@ -374,7 +409,6 @@ public class TCPMessagesHandler {
             return;
         }
 
-
         try {
             if (clientChannel.finishConnect()) {
                 if (key.isValid()) {
@@ -398,11 +432,13 @@ public class TCPMessagesHandler {
 
     }
 
+    //TODO : implement peer removed, his messages must go to others, strategies must be notified
     public void cancelKey(SelectionKey key) {
         System.out.println("canceling key");
         key.cancel();
         PeerInfo peerInfo = (PeerInfo) key.attachment();
         removePeer(peerInfo);
+        //exit(0);
 
     }
 
@@ -434,7 +470,38 @@ public class TCPMessagesHandler {
     }
 
     public void removePeer(PeerInfo peerInfo) {
+
+        observer.notifyAllObserves(Events.PEER_DISCONNECTED, peerInfo.getPeerState());
+        //give his request messages to others
         peerList.remove(peerInfo);
+
+        Stack<Integer> pieceToRemove = new Stack<>();
+        for (Integer pid : clientState.piecesToRequest) {
+            Piece piece = torrentState.pieces.get(pid);
+            if (!clientState.hasPiece(pid)) {
+                piece.setPieceStatus(PieceStatus.ToBeDownloaded);
+                pieceToRemove.add(pid);
+            }
+        }
+
+        for (Integer pid : pieceToRemove) {
+            clientState.piecesToRequest.remove(pid);
+        }
+
+        for (Message message : peerInfo.getPeerState().writeMessageQ) {
+            if (message.getID() == PeerMessage.MsgType.REQUEST) {
+                int id = message.getIndex();
+                Piece piece = torrentState.pieces.get(id);
+                int blockId = message.getBegin() / torrentState.BLOCK_SIZE;
+                piece.getBlocks().set(blockId, BlockStatus.ToBeDownloaded);
+                if (!clientState.hasPiece(id))
+                    piece.setPieceStatus(PieceStatus.ToBeDownloaded);
+                List<PeerInfo> valuablePeers = DownloadStrategy.peersByPieceIndex(peerList, id);
+                if (valuablePeers.size() != 0)
+                    valuablePeers.get(0).getPeerState().writeMessageQ.addFirst(message);
+            }
+        }
+
     }
 
 }

@@ -76,7 +76,7 @@ public class LocalFileHandler {
 			String downloadedHash = Utils.bytesToHex(sha);
 			if (!downloadedHash.equals(originalHash))
 			{
-				System.err.println("piece id : " + index + " not downloaded");
+				System.out.println("piece id : " + index + " not downloaded");
 				return false;
 			}
 
