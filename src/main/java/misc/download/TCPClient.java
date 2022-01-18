@@ -19,6 +19,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * CLient main class
+ */
 public class TCPClient implements Runnable {
 
     public static final int OURPORT = 12274;
@@ -59,6 +62,9 @@ public class TCPClient implements Runnable {
 
     }
 
+    /**
+     * Main thread that runs selector
+     */
     @Override
     public void run() {
 
@@ -119,6 +125,10 @@ public class TCPClient implements Runnable {
         }
     }
 
+    /**
+     * initialize selector
+     * @param peers initial peer list
+     */
     private void initializeSelector(Set<PeerInfo> peers) {
         try {
             selector = Selector.open();
@@ -137,6 +147,11 @@ public class TCPClient implements Runnable {
     }
 
 
+    /**
+     * check, and add newPeers to the selector
+     * @param newPeers new peers to add
+     * @throws IOException
+     */
     public void addToSelector(Set<PeerInfo> newPeers) throws IOException {
         System.out.println("querying for peers");
 
@@ -164,6 +179,10 @@ public class TCPClient implements Runnable {
 
     }
 
+    /**
+     * Parse torrent metainfo file
+     * @param torrentPath path of the torrent file
+     */
     public void parseTorrent(String torrentPath) {
         try {
             torrentHandler = new TorrentFileController(new FileInputStream(torrentPath));
@@ -175,7 +194,10 @@ public class TCPClient implements Runnable {
     }
 
 
-    //TODO : infinite loop
+    /**
+     * Contact tracker and getPeers from it
+     * @return peers received from tracker
+     */
     public Set<PeerInfo> getPeersFromTracker() {
 
         Set<PeerInfo> newPeers = null;
@@ -195,6 +217,10 @@ public class TCPClient implements Runnable {
         return newPeers;
     }
 
+    /**
+     * generate announceUrl from meta info file
+     * @return URL of the announce
+     */
     public URL createAnnounceURL() {
         URL announceURL = null;
         try {
@@ -205,6 +231,11 @@ public class TCPClient implements Runnable {
         return announceURL;
     }
 
+    /**
+     * manually generate peers without contacting tracker
+     * @param ports ports of each peer to add
+     * @return peers
+     */
     public Set<PeerInfo> generatePeerList(int... ports) {
         Set<PeerInfo> list = new HashSet<>();
         for (int port : ports) {

@@ -12,6 +12,9 @@ import java.util.Set;
 
 import static misc.download.TCPClient.torrentMetaData;
 
+/**
+ * Handles strategies
+ */
 public class TorrentContext {
 
     private final TorrentState status;

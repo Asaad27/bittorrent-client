@@ -6,6 +6,9 @@ import java.text.DecimalFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * computes download rate in Mb/s
+ */
 public class DownloadRate implements Runnable {
 
     public static final int SCHEDULER = 1;

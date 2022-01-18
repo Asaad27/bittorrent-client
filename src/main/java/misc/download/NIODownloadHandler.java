@@ -1,6 +1,5 @@
 package misc.download;
 
-import misc.download.strategies.EndGame;
 import misc.messages.Message;
 import misc.messages.PeerMessage;
 import misc.peers.ClientState;
@@ -9,8 +8,6 @@ import misc.peers.PeerState;
 import misc.torrent.*;
 import misc.utils.DEBUG;
 
-import java.security.Timestamp;
-import java.sql.Time;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Random;
@@ -21,7 +18,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static misc.download.TCPClient.torrentMetaData;
 import static misc.messages.PeerMessage.MsgType.*;
 
-
+/**
+ * Class qui gére la machine à états et les decisions à prendre concernant le télechargement
+ */
 public class NIODownloadHandler {
 
     private final ClientState clientState;
@@ -39,6 +38,12 @@ public class NIODownloadHandler {
 
     }
 
+    /**
+     * send all blocks of piece to a peer, used in Endgame
+     * @param pieceIndex index of piece
+     * @param peerState peer to send pieces to
+     * @param torrentState state of the torrent
+     */
     public static void sendFullPieceRequest(int pieceIndex, PeerState peerState, TorrentState torrentState) {
 
         Piece piece = torrentState.pieces.get(pieceIndex);
@@ -108,7 +113,9 @@ public class NIODownloadHandler {
     }
 
     /**
-     * fonction qui gere la lecture des messages recus
+     * state machine for received messages
+     * @param receivedMessage received message from peer
+     * @param peerState peer
      */
     public void stateMachine(Message receivedMessage, PeerState peerState) {
 
@@ -130,7 +137,7 @@ public class NIODownloadHandler {
             if (peerState.choked) {
                 peerState.writeMessageQ.addFirst(new Message(PeerMessage.MsgType.UNCHOKE));
             }
-            //peerState.welcomeQ.add(new Message(PeerMessage.MsgType.UNCHOKE));
+
         } else if (receivedMessage.ID == UNINTERESTED) {
             peerState.interested = false;
             peerState.writeMessageQ.add(new Message(CHOKE));
@@ -150,7 +157,6 @@ public class NIODownloadHandler {
             onBitfieldReceived(peerState, receivedMessage.getPayload());
 
         } else if (receivedMessage.ID == PeerMessage.MsgType.REQUEST) {
-            //we find the requested piece in the file
             peerState.numberOfRequestsReceived++;
             peerState.queuedRequestsFromPeer.incrementAndGet();
             if (clientState.hasPiece(receivedMessage.getIndex())) {
@@ -173,6 +179,11 @@ public class NIODownloadHandler {
         }
     }
 
+    /**
+     * Deal with the event of receiving a block from a peer
+     * @param receivedMessage received message from peer
+     * @param peerState state of the peer
+     */
     public void onBlockReceived(Message receivedMessage, PeerState peerState) {
         int index = receivedMessage.getIndex();
         int begin = receivedMessage.getBegin();
@@ -192,11 +203,19 @@ public class NIODownloadHandler {
             boolean pieceCompleted = onBlockDownloaded(receivedMessage);
 
 
-        }  //DEBUG.log("we already have the piece***************");
+        }
 
 
     }
 
+    /**
+     * send cancels to all peers
+     * @param peerInfoList peers
+     * @param index  index of received block piece
+     * @param begin  offset of received block
+     * @param length  length of received block
+     * @param peerState the peer we received the block from
+     */
     private void sendCancels(Set<PeerInfo> peerInfoList, int index, int begin, int length, PeerState peerState) {
         for (PeerInfo peer : peerInfoList) {
             if (peer.getPeerState() == peerState)
@@ -206,6 +225,11 @@ public class NIODownloadHandler {
         }
     }
 
+    /**
+     * handle blocks download, and checks for piece integrity
+     * @param receivedMessage piece message
+     * @return true if the whole piece was downloaded
+     */
     public boolean onBlockDownloaded(Message receivedMessage) {
         DecimalFormat df = new DecimalFormat();
         df.setMaximumFractionDigits(2);
@@ -218,7 +242,6 @@ public class NIODownloadHandler {
 
         Piece piece = torrentState.pieces.get(pieceIndex);
         piece.setBlocks(receivedMessage.getBegin() / torrentState.BLOCK_SIZE, BlockStatus.Downloaded);
-
 
 
         //check if we complete piece download
@@ -242,6 +265,9 @@ public class NIODownloadHandler {
         return downloaded;
     }
 
+    /**
+     * Handles cases when download of a file is completed
+     */
     public void onDownloadCompleted() {
 
         if (!clientState.isDownloading)
@@ -300,6 +326,11 @@ public class NIODownloadHandler {
 
     }
 
+    /**
+     * Handles event of receiving bitfield and notifies observes
+     * @param peerState peers who sent the bitfield
+     * @param payload   bitfield payload
+     */
     public void onBitfieldReceived(PeerState peerState, byte[] payload) {
         peerState.bitfield.value = payload;
         peerState.sentBitfield = true;
@@ -326,6 +357,11 @@ public class NIODownloadHandler {
 
     }
 
+    /**
+     *
+     * @param peerState peer
+     * @return true if we want to download from the peer
+     */
     public boolean needToDownload(PeerState peerState) {
         boolean download = false;
         for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
@@ -339,6 +375,11 @@ public class NIODownloadHandler {
         return download;
     }
 
+    /**
+     *
+     * @param peerState peer
+     * @return true we are interested in seeding to the peer
+     */
     public boolean needToSeed(PeerState peerState) {
         boolean seed = false;
         for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
@@ -358,7 +399,6 @@ public class NIODownloadHandler {
      * @param pieceIndex    the piece we need
      * @return true if we could distribute the blocks
      **/
-
 
     public boolean sendBlockRequests(List<PeerInfo> valuablePeers, int pieceIndex) {
 

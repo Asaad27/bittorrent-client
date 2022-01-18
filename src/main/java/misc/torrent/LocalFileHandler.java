@@ -13,6 +13,9 @@ import misc.utils.Utils;
 
 import static misc.download.TCPClient.torrentMetaData;
 
+/**
+ * Handles interactions with the downloaded file
+ */
 public class LocalFileHandler {
 
 	private final File tempFile;
@@ -91,6 +94,10 @@ public class LocalFileHandler {
 	}
 
 
+	/**
+	 *
+	 * @return True if file is completely downloaded
+	 */
 	public  boolean verifyDownloadedFile(){
 		System.out.println("Checking File");
 		int numPieces = torrentMetaData.getNumberOfPieces();
@@ -104,8 +111,6 @@ public class LocalFileHandler {
 				torrentState.setDownloadedSize(downloadedSize - (piece.getPieceSize()));
 				piece.setPieceStatus(PieceStatus.ToBeDownloaded);
 
-
-				return false;
 			}
 		}
 
@@ -113,6 +118,7 @@ public class LocalFileHandler {
 		torrentState.fileCheckedSuccess = true;
 		return true;
 	}
+
 
 	public void setBitfield(int pieceNb, boolean value) {
 		if (value)

@@ -4,6 +4,9 @@ import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * Peer model class
+ */
 public class PeerInfo {
 
     public final InetAddress addr;
@@ -40,6 +43,9 @@ public class PeerInfo {
         if (obj == null) {
             return false;
         }
+
+        if (!(obj instanceof PeerInfo))
+            return false;
 
         final PeerInfo peerInfo = (PeerInfo) obj;
 

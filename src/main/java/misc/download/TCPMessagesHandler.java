@@ -31,7 +31,9 @@ import static misc.messages.PeerMessage.MsgType.INTERESTED;
 import static misc.messages.PeerMessage.MsgType.UNINTERESTED;
 
 
-//TODO : timeout handshake
+/**
+ * handles read and write operations to channels
+ */
 public class TCPMessagesHandler {
 
     public static final int NUMBER_OF_PIECES_PER_REQUEST = 3;
@@ -56,6 +58,10 @@ public class TCPMessagesHandler {
 
     }
 
+    /**
+     * search for requests to give to peers
+     * @return True if request could be fetched
+     */
     public boolean fetchRequests() {
 
         boolean everyoneIsConnected = true;
@@ -76,6 +82,7 @@ public class TCPMessagesHandler {
 
         return fetched;
     }
+
 
     public boolean generateRequests() {
 
