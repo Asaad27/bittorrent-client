@@ -93,14 +93,11 @@ public class TrackerHandler {
             e.printStackTrace();
         }
 
-        String queryURI = announceURL.toString().concat(queryParams.toString());
-
-        return queryURI;
+        return announceURL.toString().concat(queryParams.toString());
     }
 
     public Set<PeerInfo> getPeerList() throws IOException {
-        if (debug >= 3) System.out.println("debug");
-        debug++;
+
         DEBUG.log("generating peers from tracker ..." + debug);
         URL uri = new URL(buildQueryURI());
         // System.out.println(uri.toString());
@@ -115,7 +112,7 @@ public class TrackerHandler {
 
             // Erreur HTTP
 
-            System.out.println("Erreur " + status);
+            System.err.println("Erreur " + status);
             conn.disconnect();
             return null;
 

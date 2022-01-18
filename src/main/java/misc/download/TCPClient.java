@@ -21,9 +21,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TCPClient implements Runnable {
 
-    public static final int OURPORT = 12347;
+    public static final int OURPORT = 12274;
 
-    public static String SERVER = "127.0.0.1";
     public static Queue<PeerInfo> waitingConnections = new LinkedList<>();
     public static TorrentContext torrentContext;
     public static TorrentMetaData torrentMetaData;
@@ -55,7 +54,8 @@ public class TCPClient implements Runnable {
 
         TrackerPeriodic trackerPeriodic = new TrackerPeriodic(connectToTracker);
         trackerPeriodic.run();
-
+        DownloadRate downloadRate = new DownloadRate(torrentState);
+        downloadRate.run();
 
     }
 
@@ -152,14 +152,14 @@ public class TCPClient implements Runnable {
                 }
             if (contains)
                 continue;
-            System.out.println("new peer " + newPeer);
+            System.out.println("new peer to be added" + newPeer);
             peerInfoList.add(newPeer);
             assert newPeer.getPort() >= 0;
             SocketChannel clientChannel = SocketChannel.open();
             clientChannel.configureBlocking(false);
             clientChannel.register(selector, SelectionKey.OP_CONNECT, newPeer);
             int port = newPeer.getPort();
-            clientChannel.connect(new InetSocketAddress(SERVER, port));
+            clientChannel.connect(new InetSocketAddress(newPeer.addr, port));
         }
 
     }
@@ -190,7 +190,7 @@ public class TCPClient implements Runnable {
         //remove our client from the tracker response
 
 
-        DEBUG.log("generated peers from tracker");
+        DEBUG.logf("generated peers from tracker");
 
         return newPeers;
     }

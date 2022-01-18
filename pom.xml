@@ -6,7 +6,8 @@
 
     <groupId>grp</groupId>
     <artifactId>equipe5</artifactId>
-    <version>1.0</version>
+    <version>Final</version>
+
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -15,12 +16,45 @@
         <maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
         <junit.jupiter.engine.version>5.8.2</junit.jupiter.engine.version>
         <junit.platform.launcher.version>1.8.2</junit.platform.launcher.version>
-        <assertj.core.version>3.21.0</assertj.core.version>
+        <assertj.core.version>3.22.0</assertj.core.version>
     </properties>
 
     <build>
-        <testSourceDirectory> src/main/test/
-        </testSourceDirectory>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.1.1</version>
+
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addClasspath>true</addClasspath>
+                                <mainClass>misc.MainBittorrent</mainClass>
+                            </manifest>
+                        </archive>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                    </configuration>
+
+                    <executions>
+                        <execution>
+                            <id>make-assembly</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -30,6 +64,7 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
+
             </plugin>
 
             <plugin>

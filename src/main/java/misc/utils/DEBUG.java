@@ -1,30 +1,62 @@
 package misc.utils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
+import java.io.*;
+
 
 public class DEBUG {
 
     public static boolean flag = true;
+    public static String fileName = "log.txt";
+    public static BufferedWriter writer;
+    public static FileWriter fileWriter;
+
+    public static void init(){
+        try {
+            new FileWriter(fileName, false).close();
+            fileWriter = new FileWriter(fileName, true);
+            writer = new BufferedWriter(new FileWriter(fileName, true));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void log(String ...strings) {
         if (!flag)
             return ;
 
-            for (int i = 0; i < strings.length ; i++) {
-                System.out.print(strings[i] + " | ");
-            }
+        for (String string : strings) {
+            System.out.print(string + " | ");
+        }
             System.out.println();
     }
 
     public static void loge(String ...strings) {
         if (!flag)
             return ;
-        for (int i = 0; i < strings.length ; i++) {
-            System.err.print(strings[i] + " | ");
+        for (String string : strings) {
+            System.err.print(string + " | ");
         }
         System.err.println();
+    }
+
+    public static void logf(String ...strings) {
+        writer = new BufferedWriter(fileWriter);
+        if (!flag)
+            return ;
+        for (String string : strings) {
+            try {
+                writer.append(string).append(" | ");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            writer.append("\n");
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static void switchIOToFile(){

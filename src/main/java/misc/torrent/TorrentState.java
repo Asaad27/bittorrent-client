@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import misc.download.TCPClient;
 import misc.peers.ClientState;
 
 import static misc.download.TCPClient.torrentMetaData;
@@ -21,7 +20,8 @@ public class TorrentState {
     public LocalFileHandler localFileHandler;
     public final ConcurrentMap<Integer, AtomicInteger> pieceDownloadedBlocks = new ConcurrentHashMap<>();
 
-    private int downloadedSize = 0;
+    private long downloadedSize = 0;
+    private long t = 0;
 
     public List<Piece> pieces;
     public ClientState clientState;
@@ -43,7 +43,7 @@ public class TorrentState {
         }
         DecimalFormat df = new DecimalFormat();
         df.setMaximumFractionDigits(2);
-        System.err.println("DOWNLOADED : " + df.format(getDownloadedSize() * 1.0 / torrentMetaData.getLength() * 100) + "%");
+        System.out.println("% of file already DOWNLOADED : " + df.format(getDownloadedSize() * 1.0 / torrentMetaData.getLength() * 100) + "%");
     }
 
     public static TorrentState getInstance(ClientState clientState) {
@@ -63,11 +63,11 @@ public class TorrentState {
         }
     }
 
-    public int getDownloadedSize() {
+    public long getDownloadedSize() {
         return downloadedSize;
     }
 
-    public void setDownloadedSize(int downloadedSize) {
+    public void setDownloadedSize(long downloadedSize) {
         this.downloadedSize = downloadedSize;
     }
 
@@ -81,4 +81,11 @@ public class TorrentState {
         }
     }
 
+    public void setTime(long time) {
+        t = time;
+    }
+
+    public long getTime() {
+        return this.t;
+    }
 }

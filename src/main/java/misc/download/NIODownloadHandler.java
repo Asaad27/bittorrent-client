@@ -9,6 +9,8 @@ import misc.peers.PeerState;
 import misc.torrent.*;
 import misc.utils.DEBUG;
 
+import java.security.Timestamp;
+import java.sql.Time;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Random;
@@ -45,7 +47,7 @@ public class NIODownloadHandler {
         int lastBlockSize = piece.getLastBlockSize();
 
         if (piece.getStatus() == PieceStatus.Downloaded) {
-            DEBUG.log("on a deja cette piece");
+            DEBUG.logf("on a deja cette piece");
             return;
         }
 
@@ -111,7 +113,7 @@ public class NIODownloadHandler {
     public void stateMachine(Message receivedMessage, PeerState peerState) {
 
         if (receivedMessage.ID == PeerMessage.MsgType.KEEPALIVE) {
-            //System.out.println("KEEP ALIVE RECEIVED");
+            DEBUG.logf("KEEP ALIVE RECEIVED");
             try {
                 Thread.sleep(4000);
             } catch (InterruptedException e) {
@@ -190,9 +192,8 @@ public class NIODownloadHandler {
             boolean pieceCompleted = onBlockDownloaded(receivedMessage);
 
 
-        } else {
-            //DEBUG.log("we already have the piece***************");
-        }
+        }  //DEBUG.log("we already have the piece***************");
+
 
     }
 
@@ -206,21 +207,26 @@ public class NIODownloadHandler {
     }
 
     public boolean onBlockDownloaded(Message receivedMessage) {
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(2);
+
+
         torrentState.setDownloadedSize(torrentState.getDownloadedSize() + receivedMessage.getPayload().length);
         torrentState.pieceDownloadedBlocks.putIfAbsent(receivedMessage.getIndex(), new AtomicInteger(0));
         int downloadedBlocks = torrentState.pieceDownloadedBlocks.get(receivedMessage.getIndex()).incrementAndGet();
         int pieceIndex = receivedMessage.getIndex();
-        DecimalFormat df = new DecimalFormat();
-        df.setMaximumFractionDigits(2);
-        Piece piece = torrentState.pieces.get(pieceIndex);
 
+        Piece piece = torrentState.pieces.get(pieceIndex);
         piece.setBlocks(receivedMessage.getBegin() / torrentState.BLOCK_SIZE, BlockStatus.Downloaded);
+
+
 
         //check if we complete piece download
         boolean downloaded = downloadedBlocks == piece.getNumberOfBlocks();
 
         if (downloaded) {
-            System.err.println("PIECE N° : " + pieceIndex + " DOWNLOADED" + "\t" + df.format(torrentState.getDownloadedSize() * 1.0 / torrentMetaData.getLength() * 100) + "% downloaded");
+            System.out.println("PIECE N° : " + pieceIndex + " DOWNLOADED" + "\t" + df.format(torrentState.getDownloadedSize() * 1.0 / torrentMetaData.getLength() * 100) + "% downloaded");
+
             clientState.setPiece(pieceIndex);
             clientState.piecesToRequest.remove(pieceIndex);
             torrentState.pieces.get(pieceIndex).setPieceStatus(PieceStatus.Downloaded);

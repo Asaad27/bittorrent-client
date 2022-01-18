@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class PeerInfo {
 
-    private final InetAddress addr;
+    public final InetAddress addr;
     public int port;
     private PeerState peerState;
 

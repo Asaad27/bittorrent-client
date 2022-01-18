@@ -35,8 +35,8 @@ import static misc.messages.PeerMessage.MsgType.UNINTERESTED;
 public class TCPMessagesHandler {
 
     public static final int NUMBER_OF_PIECES_PER_REQUEST = 3;
-    public static final int NUMBER_OF_REQUEST_PER_PEER = 20;
-    public static final int NUMBER_OF_READ_MSG_PER_PEER = 7;
+    public static final int NUMBER_OF_REQUEST_PER_PEER = 50;
+    public static final int NUMBER_OF_READ_MSG_PER_PEER = 50;
 
     public NIODownloadHandler peerDownloadHandler;
     public Set<PeerInfo> peerList;
@@ -184,12 +184,12 @@ public class TCPMessagesHandler {
             socketChannel.write(writeBuf);
         } catch (IOException e) {
             DEBUG.printError(e, getClass().getName());
-            DEBUG.loge("--->sending message ", message.toString(), "to peer number", String.valueOf(peerInfo.getPort()));
+            DEBUG.logf("--->sending message ", message.toString(), "to peer number", String.valueOf(peerInfo.getPort()));
             return;
         }
 
 
-        DEBUG.log("--->sent message ", message.toString(), "to peer number", String.valueOf(peerInfo.getPort()));
+        DEBUG.logf("--->sent message ", message.toString(), "to peer number", String.valueOf(peerInfo.getPort()));
 
 
     }
@@ -201,13 +201,13 @@ public class TCPMessagesHandler {
         PeerState peerState = peerInfo.getPeerState();
 
 
-        if (peerState.queuedRequestsFromPeer.get() >= NUMBER_OF_REQUEST_PER_PEER && peerState.queuedRequestsFromClient.get() < NUMBER_OF_REQUEST_PER_PEER) {
+        /*if (peerState.queuedRequestsFromPeer.get() >= NUMBER_OF_REQUEST_PER_PEER && peerState.queuedRequestsFromClient.get() < NUMBER_OF_REQUEST_PER_PEER) {
             System.out.print(".");
             if (key.isValid()) {
                 key.interestOps(SelectionKey.OP_WRITE);
             }
             return;
-        }
+        }*/
 
         if (!peerState.sentHandshake) {
             HandShake hd = HandShake.readHandshake(clientChannel);
@@ -218,7 +218,7 @@ public class TCPMessagesHandler {
                 return;
             }
 
-            DEBUG.log("<---received handshake ", "from peer number", String.valueOf(peerInfo.getPort()), hd.toString());
+            DEBUG.logf("<---received handshake ", "from peer number", String.valueOf(peerInfo.getPort()), hd.toString());
 
             peerState.sentHandshake = true;
 
@@ -265,7 +265,7 @@ public class TCPMessagesHandler {
             }
 
             if (clientState.isDownloading) {
-                DEBUG.log("<---recieved message ", message.toString(), " from peer number", String.valueOf(peerInfo.getPort()));
+                DEBUG.logf("<---recieved message ", message.toString(), " from peer number", String.valueOf(peerInfo.getPort()));
             }
 
             peerDownloadHandler.stateMachine(message, peerState);
@@ -293,7 +293,7 @@ public class TCPMessagesHandler {
         //HANDSHAKE HANDLING
 
         if (!peerState.receivedHandshake) {
-            DEBUG.log("--->sending handshake", "to peer number", String.valueOf(peerInfo.getPort()));
+            DEBUG.logf("--->sending handshake", "to peer number", String.valueOf(peerInfo.getPort()));
             HandShake sentHand = new HandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(TrackerHandler.PEER_ID));
             ByteBuffer writeBuf = ByteBuffer.wrap(sentHand.createHandshakeMsg());
             try {

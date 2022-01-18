@@ -42,7 +42,7 @@ public class LocalFileHandler {
 	}
 	
 	public void initBitfield() {
-		System.out.println("generating BITFIELD");
+		DEBUG.logf("generating BITFIELD");
 		boolean isSeeder = true;
 		if(tempFile.exists()) {
 			for(int i = 0; i < torrentMetaData.getNumberOfPieces() ; i++) {
@@ -51,7 +51,7 @@ public class LocalFileHandler {
 				isSeeder = isSeeder && verified;
 			}
 		}
-		System.out.println("BITFIELD generated : " + Utils.bytesToHex(bitfield.value));
+		DEBUG.logf("BITFIELD generated : " + Utils.bytesToHex(bitfield.value));
 
 		if (isSeeder){
 			clientState.isSeeder = true;
@@ -76,7 +76,7 @@ public class LocalFileHandler {
 			String downloadedHash = Utils.bytesToHex(sha);
 			if (!downloadedHash.equals(originalHash))
 			{
-				System.out.println("piece id : " + index + " not downloaded");
+				DEBUG.logf("piece id : " + index + " not downloaded");
 				return false;
 			}
 
@@ -85,7 +85,7 @@ public class LocalFileHandler {
 		}
 
 
-		System.out.println("piece id : " + index + " valid, downloaded");
+		DEBUG.logf("piece id : " + index + " valid, downloaded");
 
 		return true;
 	}
@@ -99,7 +99,7 @@ public class LocalFileHandler {
 			Piece piece = torrentState.pieces.get(i);
 			if(!verifyPiece(i)) {
 				setBitfield(i, false);
-				int downloadedSize = torrentState.getDownloadedSize();
+				long downloadedSize = torrentState.getDownloadedSize();
 
 				torrentState.setDownloadedSize(downloadedSize - (piece.getPieceSize()));
 				piece.setPieceStatus(PieceStatus.ToBeDownloaded);
@@ -114,7 +114,7 @@ public class LocalFileHandler {
 		return true;
 	}
 
-	public boolean setBitfield(int pieceNb, boolean value) {
+	public void setBitfield(int pieceNb, boolean value) {
 		if (value)
 			bitfield.setPiece(pieceNb);
 		else{
@@ -122,7 +122,6 @@ public class LocalFileHandler {
 				bitfield.unsetPiece(pieceNb);
 		}
 
-		return value;
 	}
 	
 	public ByteBitfield getBitfield() {

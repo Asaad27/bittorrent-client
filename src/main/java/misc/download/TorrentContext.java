@@ -39,13 +39,11 @@ public class TorrentContext {
             changeStrategy(piece);
         }
 
-        if (piece >= 0)
-            //DEBUG.log("*********************** la piece  est ", String.valueOf(piece), strategy.getName());
 
-            if (piece >= 0 && piece < torrentMetaData.getNumberOfPieces() && status.pieces.get(piece).getStatus() == PieceStatus.ToBeDownloaded) {
-                clientState.piecesToRequest.add(piece);
-                return true;
-            }
+        if (piece >= 0 && piece < torrentMetaData.getNumberOfPieces() && status.pieces.get(piece).getStatus() == PieceStatus.ToBeDownloaded) {
+            clientState.piecesToRequest.add(piece);
+            return true;
+        }
         return false;
     }
 
@@ -54,12 +52,12 @@ public class TorrentContext {
         switch (ID) {
             case -3:
                 this.strategy.clear();
-                DEBUG.loge("changing strategy to RANDOM");
+                DEBUG.logf("changing strategy to RANDOM");
                 chooseStrategy(Strategies.RANDOM);
                 break;
             case -4:
                 this.strategy.clear();
-                DEBUG.loge("changing strategy to ENDGAME");
+                DEBUG.logf("changing strategy to ENDGAME");
                 chooseStrategy(Strategies.END_GAME);
                 break;
             default:
