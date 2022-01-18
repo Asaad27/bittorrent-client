@@ -35,7 +35,6 @@ public class PeerInfo {
         return "(port : " + port + " addr : " + addr + ")";
     }
 
-
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

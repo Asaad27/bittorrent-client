@@ -5,7 +5,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
-public class TrackerPeriodic implements Runnable{
+public class TrackerPeriodic implements Runnable {
 
     public static final int SCHEDULER = 15;
     private final AtomicBoolean connectToTracker;
@@ -21,8 +21,8 @@ public class TrackerPeriodic implements Runnable{
             public void run() {
                 connectToTracker.set(true);
             }
-        } ;
+        };
         Timer timer = new Timer();
-        timer.schedule(timerTask, 1000 * SCHEDULER, 1000* SCHEDULER);
+        timer.schedule(timerTask, 1000 * SCHEDULER, 1000 * SCHEDULER);
     }
 }

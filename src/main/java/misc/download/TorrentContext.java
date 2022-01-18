@@ -1,4 +1,5 @@
 package misc.download;
+
 import misc.download.strategies.*;
 import misc.peers.ClientState;
 import misc.torrent.Observer;
@@ -12,76 +13,76 @@ import java.util.Set;
 import static misc.download.TCPClient.torrentMetaData;
 
 public class TorrentContext {
-	
-	private Set<PeerInfo> peers;
-	private IDownloadStrategy strategy;
-	private final TorrentState status;
-	private final Observer subject;
-	private final ClientState clientState;
 
-	public TorrentContext(Set<PeerInfo> peers, TorrentState torrentState, ClientState clientState, Observer subject) {
-		this.peers = peers;
-		this.status = torrentState;
-		this.subject = subject;
-		this.clientState = clientState;
-		chooseStrategy(Strategies.RAREST_FIRST);
-	}
-	
-	public void setPeers(Set<PeerInfo> peers) {
-		this.peers = peers;
-	}
-	
-	public boolean updatePeerState() {
-		int piece = strategy.updatePeerState();
+    private final TorrentState status;
+    private final Observer subject;
+    private final ClientState clientState;
+    private Set<PeerInfo> peers;
+    private IDownloadStrategy strategy;
 
-		if (piece < 0){
-			changeStrategy(piece);
-		}
+    public TorrentContext(Set<PeerInfo> peers, TorrentState torrentState, ClientState clientState, Observer subject) {
+        this.peers = peers;
+        this.status = torrentState;
+        this.subject = subject;
+        this.clientState = clientState;
+        chooseStrategy(Strategies.RAREST_FIRST);
+    }
 
-		if (piece >= 0)
-			//DEBUG.log("*********************** la piece  est ", String.valueOf(piece), strategy.getName());
+    public void setPeers(Set<PeerInfo> peers) {
+        this.peers = peers;
+    }
 
-		if (piece >= 0 && piece < torrentMetaData.getNumberOfPieces()  && status.pieces.get(piece).getStatus() == PieceStatus.ToBeDownloaded ){
-			clientState.piecesToRequest.add(piece);
-			return true;
-		}
-		return false;
-	}
+    public boolean updatePeerState() {
+        int piece = strategy.updatePeerState();
 
-	private void changeStrategy(int ID){
+        if (piece < 0) {
+            changeStrategy(piece);
+        }
 
-		switch (ID){
-			case -3:
-				this.strategy.clear();
-				DEBUG.loge("changing strategy to RANDOM");
-				chooseStrategy(Strategies.RANDOM);
-				break;
-			case -4:
-				this.strategy.clear();
-				DEBUG.loge("changing strategy to ENDGAME");
-				chooseStrategy(Strategies.END_GAME);
-				break;
-			default:
-				break;
-		}
-	}
+        if (piece >= 0)
+            //DEBUG.log("*********************** la piece  est ", String.valueOf(piece), strategy.getName());
 
-	private void chooseStrategy(Strategies strategy) {
-		switch (strategy){
-			case RANDOM:
-				this.strategy = RandomPiece.instance(peers, status, subject);
-				break;
-			case RAREST_FIRST:
-				this.strategy = RarestFirst.instance(peers, status, subject);
-				break;
-			case END_GAME:
-				this.strategy = EndGame.instance(peers, status, subject);
-				break;
-		}
+            if (piece >= 0 && piece < torrentMetaData.getNumberOfPieces() && status.pieces.get(piece).getStatus() == PieceStatus.ToBeDownloaded) {
+                clientState.piecesToRequest.add(piece);
+                return true;
+            }
+        return false;
+    }
 
-	}
+    private void changeStrategy(int ID) {
 
-	public IDownloadStrategy getStrategy() {
-		return strategy;
-	}
+        switch (ID) {
+            case -3:
+                this.strategy.clear();
+                DEBUG.loge("changing strategy to RANDOM");
+                chooseStrategy(Strategies.RANDOM);
+                break;
+            case -4:
+                this.strategy.clear();
+                DEBUG.loge("changing strategy to ENDGAME");
+                chooseStrategy(Strategies.END_GAME);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void chooseStrategy(Strategies strategy) {
+        switch (strategy) {
+            case RANDOM:
+                this.strategy = RandomPiece.instance(peers, status, subject);
+                break;
+            case RAREST_FIRST:
+                this.strategy = RarestFirst.instance(peers, status, subject);
+                break;
+            case END_GAME:
+                this.strategy = EndGame.instance(peers, status, subject);
+                break;
+        }
+
+    }
+
+    public IDownloadStrategy getStrategy() {
+        return strategy;
+    }
 }

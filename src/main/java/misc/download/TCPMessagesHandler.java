@@ -120,7 +120,7 @@ public class TCPMessagesHandler {
 
                     if (cancelKey && peerState.writeMessageQ.isEmpty())
                         cancelKey(key);
-                    else{
+                    else {
                         key.interestOps(SelectionKey.OP_WRITE);
                     }
                     return null;

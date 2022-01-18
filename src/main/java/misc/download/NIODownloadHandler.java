@@ -197,7 +197,7 @@ public class NIODownloadHandler {
     }
 
     private void sendCancels(Set<PeerInfo> peerInfoList, int index, int begin, int length, PeerState peerState) {
-        for (PeerInfo peer: peerInfoList) {
+        for (PeerInfo peer : peerInfoList) {
             if (peer.getPeerState() == peerState)
                 continue;
             Message cancel = new Message(CANCEL, index, begin, length);
@@ -250,10 +250,9 @@ public class NIODownloadHandler {
             }
         }
 
-        if (!clientState.isDownloading){
+        if (!clientState.isDownloading) {
             System.out.println("download ended");
-        }
-        else
+        } else
             return;
 
         Stack<PeerInfo> peerNotNeeded = new Stack<>();
@@ -277,8 +276,8 @@ public class NIODownloadHandler {
 
             }
 
-            if (needToSeed && peerInfo.getPeerState().interested){
-                Message chokeMessage = new Message(PeerMessage.MsgType. UNCHOKE);
+            if (needToSeed && peerInfo.getPeerState().interested) {
+                Message chokeMessage = new Message(PeerMessage.MsgType.UNCHOKE);
                 peerInfo.getPeerState().writeMessageQ.add(chokeMessage);
             }
 
@@ -313,7 +312,7 @@ public class NIODownloadHandler {
 
 
         if (!needToSeed(peerState) && !needToDownload(peerState)) {
-            if (peerState.writeMessageQ.isEmpty()){
+            if (peerState.writeMessageQ.isEmpty()) {
                 peerInfoList.removeIf(peerInfo -> peerInfo.getPeerState() == peerState);
                 System.out.println("removing useless peer");
             }
@@ -383,9 +382,9 @@ public class NIODownloadHandler {
         for (int j = 0; j < piece.getNumberOfBlocks() - 1; j++) {
             Message request = new Message(PeerMessage.MsgType.REQUEST, pieceIndex, offset, piece.getBlockSize());
             piece.setBlocks(offset / torrentState.BLOCK_SIZE, BlockStatus.QUEUED);
-            if (j%10 == 0){
+            if (j % 10 == 0) {
                 //n = random.nextInt(numberOfPeers);
-                n = (n+1) % numberOfPeers;
+                n = (n + 1) % numberOfPeers;
             }
             valuablePeers.get(n).getPeerState().writeMessageQ.add(request);
             offset += torrentState.BLOCK_SIZE;

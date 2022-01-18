@@ -28,13 +28,13 @@ public class TCPClient implements Runnable {
     public static TorrentContext torrentContext;
     public static TorrentMetaData torrentMetaData;
     private final TCPMessagesHandler tcpMessagesHandler;
+    private final TrackerHandler tracker;
+    private final Set<PeerInfo> peerInfoList;
+    private final AtomicBoolean connectToTracker = new AtomicBoolean(false);
     public TorrentFileController torrentHandler;
     public ClientState clientState;
     public TorrentState torrentState;
-    private final TrackerHandler tracker;
-    private final Set<PeerInfo> peerInfoList;
     private Selector selector;
-    private final AtomicBoolean connectToTracker = new AtomicBoolean(false);
 
     public TCPClient(String torrentPath) {
 
@@ -63,7 +63,7 @@ public class TCPClient implements Runnable {
     public void run() {
 
         while (true) {
-            if (connectToTracker.getAndSet(false)){
+            if (connectToTracker.getAndSet(false)) {
                 Set<PeerInfo> newPeers = null;
                 try {
                     newPeers = tracker.getPeerList();
@@ -143,7 +143,7 @@ public class TCPClient implements Runnable {
         if (newPeers == null)
             return;
         System.out.println(newPeers);
-        for (PeerInfo newPeer : newPeers){
+        for (PeerInfo newPeer : newPeers) {
             boolean contains = false;
             for (PeerInfo oldPeer : peerInfoList)
                 if (oldPeer.equals(newPeer)) {
@@ -153,13 +153,13 @@ public class TCPClient implements Runnable {
             if (contains)
                 continue;
             System.out.println("new peer " + newPeer);
-                peerInfoList.add(newPeer);
-                assert newPeer.getPort() >= 0;
-                SocketChannel clientChannel = SocketChannel.open();
-                clientChannel.configureBlocking(false);
-                clientChannel.register(selector, SelectionKey.OP_CONNECT, newPeer);
-                int port = newPeer.getPort();
-                clientChannel.connect(new InetSocketAddress(SERVER, port));
+            peerInfoList.add(newPeer);
+            assert newPeer.getPort() >= 0;
+            SocketChannel clientChannel = SocketChannel.open();
+            clientChannel.configureBlocking(false);
+            clientChannel.register(selector, SelectionKey.OP_CONNECT, newPeer);
+            int port = newPeer.getPort();
+            clientChannel.connect(new InetSocketAddress(SERVER, port));
         }
 
     }
@@ -195,7 +195,7 @@ public class TCPClient implements Runnable {
         return newPeers;
     }
 
-    public URL createAnnounceURL(){
+    public URL createAnnounceURL() {
         URL announceURL = null;
         try {
             announceURL = new URL(torrentMetaData.getAnnounceUrlString());
@@ -218,7 +218,6 @@ public class TCPClient implements Runnable {
 
         return list;
     }
-
 
 
 }
