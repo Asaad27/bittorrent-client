@@ -1,0 +1,85 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[export]{adjustbox}
+
+\RequirePackage[french]{babel} %Langue du document
+\RequirePackage[utf8]{inputenc} %Caractères spéciaux
+\RequirePackage[section]{placeins}%Pour placement de section
+\RequirePackage[T1]{fontenc} %Quelques lettres qui sont pas inclus dans UTF-8
+\RequirePackage{mathtools} %Paquet pour des équations et symboles mathématiques
+\RequirePackage{siunitx} %Pour écrire avec la notation scientifique (Ex.: \num{2e+9})
+\RequirePackage{float} %Pour placement d'images
+\RequirePackage{graphicx} %Paquet pour insérer des images
+\RequirePackage[justification=centering]{caption} %Pour les légendes centralisées
+\RequirePackage{subcaption}
+\RequirePackage{wallpaper}
+\RequirePackage{nomencl}
+%\makenomenclature
+\RequirePackage{fancyhdr}
+%\pagestyle{fancy}
+%\fancyheadoffset{1cm}
+%\setlength{\headheight}{2cm}
+\RequirePackage{url}
+\RequirePackage[hidelinks]{hyperref}%Paquet pour insérer légendes dans des sous-figures comme Figure 1a, 1b
+\RequirePackage[left=3cm,right=3cm,top=3cm,bottom=5cm]{geometry} %Configuration de la page
+
+
+\begin{document}
+\begin{titlepage}
+
+\centering
+\begin{figure}
+   \includegraphics[width=0.4\textwidth]{logophelma.jpg}
+   \hfill
+   \includegraphics[width=0.4\textwidth]{logoimag.png}
+\end{figure}
+
+\rule{\linewidth}{0.2 mm} \\[0.4 cm]
+{\huge\bfseries Rapport de Projet Réseaux \par\vspace{1cm}}
+{\Large Réalisation d'un Client Bittorent en Java}
+\rule{\linewidth}{0.2 mm} \\[1.0 cm]
+
+
+
+{\scshape\Large
+Équipe 5 : Youssef Boulkhir, Asaad Belarbi, Pierre Cheylus
+\par}
+\vspace{1cm}
+
+{\scshape \Large Phelma 3A 2021-2022 \\
+Filière Systèmes Embarqués et Objets Connectés \par}
+\vspace{7cm}
+
+\begin{flushleft}
+\emph{\textbf{Superviseur école :}}\\
+\textsc{Olivier Alphand} \\
+olivier.alphand@univ-grenoble-alpes.fr\\
+\end{flushleft}
+\end{titlepage}
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+% Nécessaire ?
+
+\section{Implémentation}
+    \subsection{Tableau des fonctionnalités}
+    \subsection{Architecture}
+    % Ici on pourrait mettre le diagramme UML et parler des design patterns utilisés
+    \subsection{Traitement de messages}
+    \subsection{Algorithme de sélection des pièces}
+
+\section{Performances}
+    \subsection{Scénario de Test}
+    \subsection{Tableau de performances}
+
+\section{Tests \& Validation}
+
+\section{Organisation du travail}
+    \subsection{Organisation générale}
+    \subsection{Conclusions personnelles}
+
+
+\end{document}
