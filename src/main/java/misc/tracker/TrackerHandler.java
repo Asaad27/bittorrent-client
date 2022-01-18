@@ -29,6 +29,8 @@ public class TrackerHandler {
     private final byte[] SHA1Info;
     private final int port;
     private final int totalPieces;
+    
+    private int interval;
 
     public TrackerHandler(URL announceURL, byte[] SHA1Info, int port, int totalPieces) {
 
@@ -126,6 +128,7 @@ public class TrackerHandler {
             Map<String, BEncodedValue> response = reader.decodeMap().getMap();
 
             byte[] peers = response.get("peers").getBytes();
+            interval = response.get("interval").getInt();
 
             conn.disconnect();
 
@@ -179,6 +182,10 @@ public class TrackerHandler {
 
         return lst;
 
+    }
+    
+    public int getInterval() {
+    	return this.interval;
     }
 
 
