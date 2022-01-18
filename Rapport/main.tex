@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage[export]{adjustbox}
+\usepackage{tabularx}
 
 \RequirePackage[french]{babel} %Langue du document
 \RequirePackage[utf8]{inputenc} %Caractères spéciaux
@@ -22,7 +23,8 @@
 \RequirePackage{url}
 \RequirePackage[hidelinks]{hyperref}%Paquet pour insérer légendes dans des sous-figures comme Figure 1a, 1b
 \RequirePackage[left=3cm,right=3cm,top=3cm,bottom=5cm]{geometry} %Configuration de la page
-
+\newcolumntype{b}{X}
+\newcolumntype{s}{>{\hsize=.5\hsize}X}
 
 \begin{document}
 \begin{titlepage}
@@ -35,13 +37,13 @@
 \end{figure}
 
 \rule{\linewidth}{0.2 mm} \\[0.4 cm]
-{\huge\bfseries Rapport de Projet Réseaux \par\vspace{1cm}}
-{\Large Réalisation d'un Client Bittorent en Java}
+{\huge\bfseries Rapport de Projet Réseaux \par\vspace{1cm}} 
+{\Large Réalisation d'un Client Bittorent en Java} 
 \rule{\linewidth}{0.2 mm} \\[1.0 cm]
 
 
 
-{\scshape\Large
+{\scshape\Large 
 Équipe 5 : Youssef Boulkhir, Asaad Belarbi, Pierre Cheylus
 \par}
 \vspace{1cm}
@@ -63,9 +65,48 @@ olivier.alphand@univ-grenoble-alpes.fr\\
 
 \section{Introduction}
 % Nécessaire ?
+L'bjectif de ce projet était de réaliser un client Java implémentant le protocole Bittorent selon sa spécification 1.0 et permettant ainsi de faire des transferts de fichiers pair à pair pour des torrents mono-fichier. \\
+Dans ce rapport nous présenterons d'abord les fonctionnalités implémentées dans notre client en détaillant quelques points clefs de notre implémentation ainsi que l'architecture objet que nous avons utilisée. Ensuite nous présenterons les performances réseaux en se basant sur un scénario test de référence et enfin nous présenterons notre méthode de tests et validation du fonctionnement du client ainsi que notre organisation du travail au cours de ce projet. 
+
 
 \section{Implémentation}
     \subsection{Tableau des fonctionnalités}
+        \begin{center}
+        \begin{tabularx}{\textwidth} {sbs}
+         \hline
+         Sprint & Fonctionnalité & avancement (précision) \\
+         \hline \\
+         Sprint 1  & Tracker (HTTP Req URLEncodé/Réponse de-béncodée) & OK  \\
+         Leecher 0\% & Socket bloquante + java.io & OK \\
+         Leecher 0\% & Ecriture pièce sur disque & au fur et à mesure \\
+         Leecher 0\% & Plusieurs messages bittorent au sein d'un segment TCP & OK \\
+         Leecher 0\% & Message inconnu traîté & ??? \\
+         Leecher 0\% & Sélection de pièces & ??? \\
+         Seeder 100\% & Sélection de pièces : Stratégie & ??? \\
+         Seeder 100\% & Bitfield créé en fonction du test & OK \\
+         Seeder 100\% & Gestion pièces et blocs & OK \\
+         & Clients supportés & Aria2C, ... \\
+         Sprint 2 & Support Multi-Leecher & OK \\
+         & Support Multi-Seeder & ??? \\
+         & Bytebuffer & 1 par message \\
+         & Sélection de pièces & ??? \\
+         & Evaluation de performances & local, Machine perso \\
+         & Resume calculé à partir du fichier partiel & OK \\
+         & Scénario multi-Leecher supporté & OK \\
+         & Gestion concurrente & Selector \\
+         Sprint 3 & Design patterns & Observer, Stratégie \\
+         & Sélection de pièces & Random, RarestFirst \\
+         & Message supporté & ??? \\
+         & Clean Code, Factorisation, Archi. Objet, . . . & ??? \\
+         Avancé & Test automatisé & ??? \\
+         & Calcul débit, barre progression & Calcul débit \\
+         & Compilation automatique & ??? \\
+         & Taille de pièce (32K et plus) & OK \\
+         & Extensions & Aucune \\
+         & Tracker contacté à intervalle régulier & OK \\ 
+         \hline
+        \end{tabularx}
+        \end{center}
     \subsection{Architecture}
     % Ici on pourrait mettre le diagramme UML et parler des design patterns utilisés
     \subsection{Traitement de messages}
@@ -80,6 +121,9 @@ olivier.alphand@univ-grenoble-alpes.fr\\
 \section{Organisation du travail}
     \subsection{Organisation générale}
     \subsection{Conclusions personnelles}
-
+        \subsubsection{Youssef Boulkhir}
+        \subsubsection{Asaad Belarbi}
+        \subsubsection{Pierre Cheylus}
 
 \end{document}
+
