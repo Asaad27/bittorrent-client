@@ -23,10 +23,10 @@ public class MainBittorrent {
 
     public static void parseArgs(String[] args){
         for (String arg : args){
-            if (arg.equals("-f")){
+            if (arg.equalsIgnoreCase("-f")){
                 downloadMode = DownloadMode.FAST;
             }
-            else {
+            else if (arg.equalsIgnoreCase("-s")){
                 downloadMode = DownloadMode.SLOW;
             }
         }
