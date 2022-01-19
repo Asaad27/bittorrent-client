@@ -23,7 +23,7 @@ import static misc.messages.PeerMessage.MsgType.*;
  */
 public class NIODownloadHandler {
 
-    public static final int BLOCKS_PER_PEER = 6;
+    public static int BLOCKS_PER_PEER = 60;  //safe mode : 6, fast mode : 60
     private final ClientState clientState;
     private final TorrentState torrentState;
     private final Set<PeerInfo> peerInfoList;
@@ -82,6 +82,7 @@ public class NIODownloadHandler {
         switch (message.getID()) {
             case UNCHOKE:
                 peerState.choked = false;
+                ClientState.isSeeder = true;
                 break;
             case CHOKE:
                 peerState.choked = true;
@@ -135,9 +136,7 @@ public class NIODownloadHandler {
 
         } else if (receivedMessage.ID == PeerMessage.MsgType.INTERESTED) {
             peerState.interested = true;
-            if (peerState.choked) {
-                peerState.writeMessageQ.addFirst(new Message(PeerMessage.MsgType.UNCHOKE));
-            }
+            peerState.writeMessageQ.addFirst(new Message(PeerMessage.MsgType.UNCHOKE));
 
         } else if (receivedMessage.ID == UNINTERESTED) {
             peerState.interested = false;
@@ -270,19 +269,19 @@ public class NIODownloadHandler {
      */
     public void onDownloadCompleted() {
 
-        if (!clientState.isDownloading)
+        if (!ClientState.isDownloading)
             return;
-        clientState.isDownloading = false;
+        ClientState.isDownloading = false;
 
 
         System.out.println("processing file verification ");
         if (!torrentState.fileCheckedSuccess) {
             if (!torrentState.localFileHandler.verifyDownloadedFile()) {
-                clientState.isDownloading = true;
+                ClientState.isDownloading = true;
             }
         }
 
-        if (!clientState.isDownloading) {
+        if (!ClientState.isDownloading) {
             System.out.println("download ended");
         } else
             return;
@@ -311,6 +310,7 @@ public class NIODownloadHandler {
             if (needToSeed && peerInfo.getPeerState().interested) {
                 Message chokeMessage = new Message(PeerMessage.MsgType.UNCHOKE);
                 peerInfo.getPeerState().writeMessageQ.add(chokeMessage);
+                ClientState.isSeeder = true;
             }
 
             if (!needToDownload && !needToSeed)
@@ -339,6 +339,7 @@ public class NIODownloadHandler {
         if (needToDownload(peerState)) {
             Message interested = new Message(PeerMessage.MsgType.INTERESTED);
             peerState.welcomeQ.add(interested);
+            ClientState.isDownloading = true;
         }
         if (needToSeed(peerState)) {
             if (peerState.interested) {

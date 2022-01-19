@@ -1,6 +1,8 @@
 package misc.download.strategies;
 
+import misc.download.TCPClient;
 import misc.messages.ByteBitfield;
+import misc.peers.ClientState;
 import misc.peers.PeerInfo;
 import misc.peers.PeerState;
 import misc.torrent.*;

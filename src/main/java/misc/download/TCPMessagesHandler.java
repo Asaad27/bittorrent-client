@@ -37,9 +37,9 @@ import static misc.messages.PeerMessage.MsgType.UNINTERESTED;
  */
 public class TCPMessagesHandler {
 
-    public static final int NUMBER_OF_PIECES_PER_REQUEST = 2;
-    public static final int NUMBER_OF_REQUEST_PER_PEER = 100;
-    public static final int NUMBER_OF_READ_MSG_PER_PEER = 100;
+    public static final int NUMBER_OF_PIECES_PER_REQUEST = 2;  //50mb/S foe 2
+    public static int NUMBER_OF_REQUEST_PER_PEER = 60; //Safe mode : 6
+    public static int NUMBER_OF_READ_MSG_PER_PEER = 60;   //safe mode : 6
 
     public NIODownloadHandler peerDownloadHandler;
     public Set<PeerInfo> peerList;

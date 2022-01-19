@@ -12,7 +12,7 @@ public abstract class State {
     public boolean sentBitfield = false;
     public boolean receivedBitfield = false;
     public boolean weAreChokedByPeer = true;
-    public boolean isDownloading = true;
+
 
 
 

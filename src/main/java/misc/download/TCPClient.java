@@ -1,6 +1,7 @@
 package misc.download;
 
 
+import misc.DownloadMode;
 import misc.peers.ClientState;
 import misc.peers.PeerInfo;
 import misc.torrent.Observer;
@@ -96,7 +97,7 @@ public class TCPClient implements Runnable {
                 PeerInfo peerInfo = (PeerInfo) key.attachment();
 
 
-                if (clientState.isDownloading)
+                if (ClientState.isDownloading && receivedAllBitfields())
                     tcpMessagesHandler.fetchRequests();
 
                 if (key.isValid() && key.isConnectable()) {
@@ -248,6 +249,44 @@ public class TCPClient implements Runnable {
         }
 
         return list;
+    }
+
+    /**
+     * set the download mode
+     * @param mode FAST : unlimited download and upload speed
+     *             SLOW : limited but more secure download/upload speed
+     */
+    public void setDownloadMode(DownloadMode mode){
+        switch (mode){
+            case FAST:
+                setFastMode();
+                break;
+            case SLOW:
+                setSlowMode();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void setFastMode(){
+        NIODownloadHandler.BLOCKS_PER_PEER = 100;
+        TCPMessagesHandler.NUMBER_OF_READ_MSG_PER_PEER = 100;
+        TCPMessagesHandler.NUMBER_OF_REQUEST_PER_PEER = 100;
+    }
+
+    private void setSlowMode(){
+        NIODownloadHandler.BLOCKS_PER_PEER = 6;
+        TCPMessagesHandler.NUMBER_OF_READ_MSG_PER_PEER = 6;
+        TCPMessagesHandler.NUMBER_OF_REQUEST_PER_PEER = 6;
+    }
+
+    public boolean receivedAllBitfields() {
+        for (PeerInfo peer : peerInfoList) {
+            if (!peer.getPeerState().sentBitfield)
+                return false;
+        }
+        return true;
     }
 
 
