@@ -118,7 +118,7 @@ public class TCPMessagesHandler {
                     //System.out.println("end of stream");
                     PeerInfo peerInfo = (PeerInfo) key.attachment();
                     PeerState peerState = peerInfo.getPeerState();
-                    boolean cancelKey = true;
+                    /*boolean cancelKey = true;
 
                     for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
                         if ((!clientState.hasPiece(i) && peerState.hasPiece(i) || (clientState.hasPiece(i) && !peerState.hasPiece(i)))) {
@@ -130,7 +130,8 @@ public class TCPMessagesHandler {
                         cancelKey(key);
                     else {
                         key.interestOps(SelectionKey.OP_WRITE);
-                    }
+                    }*/
+                    cancelKey(key);
                     return null;
                 }
                 if (bRead == 0) {
@@ -468,7 +469,8 @@ public class TCPMessagesHandler {
 
     public void removePeer(PeerInfo peerInfo) {
 
-        observer.notifyAllObserves(Events.PEER_DISCONNECTED, peerInfo.getPeerState());
+        if (peerInfo.getPeerState().sentBitfield)
+            observer.notifyAllObserves(Events.PEER_DISCONNECTED, peerInfo.getPeerState());
         //give his request messages to others
         peerList.remove(peerInfo);
 

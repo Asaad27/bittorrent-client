@@ -14,7 +14,7 @@ public class DownloadRate implements Runnable {
     public static final int SCHEDULER = 1;
     public TorrentState torrentState;
     DecimalFormat df = new DecimalFormat();
-
+    public static double rate = -1;
 
     private long downloadSize;
     public DownloadRate(TorrentState torrentState) {
@@ -29,7 +29,7 @@ public class DownloadRate implements Runnable {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                double rate = (torrentState.getDownloadedSize() - downloadSize)*1.0/1024;
+                rate = (torrentState.getDownloadedSize() - downloadSize)*1.0/1024;
                 downloadSize = torrentState.getDownloadedSize();
                 System.out.println("==================" + df.format(rate) + "Mb/s");
             }
