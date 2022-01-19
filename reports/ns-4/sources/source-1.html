@@ -1,0 +1,191 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > Bitfield</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">misc.messages</a>
+</div>
+
+<h1>Coverage Summary for Class: Bitfield (misc.messages)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Bitfield</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/34)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package misc.messages;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import java.util.BitSet;
+<i class="no-highlight">4</i>&nbsp;
+<i class="no-highlight">5</i>&nbsp;public class Bitfield {
+<i class="no-highlight">6</i>&nbsp;	private BitSet value;
+<i class="no-highlight">7</i>&nbsp;	private int maxindex;
+<i class="no-highlight">8</i>&nbsp;	
+<b class="nc"><i class="no-highlight">9</i>&nbsp;	public Bitfield(int totalPieces) {</b>
+<b class="nc"><i class="no-highlight">10</i>&nbsp;		this.value = new BitSet(totalPieces);</b>
+<b class="nc"><i class="no-highlight">11</i>&nbsp;		this.maxindex = totalPieces;</b>
+<i class="no-highlight">12</i>&nbsp;	}
+<i class="no-highlight">13</i>&nbsp;	
+<i class="no-highlight">14</i>&nbsp;	public void set(int pieceNb, boolean val) {
+<b class="nc"><i class="no-highlight">15</i>&nbsp;		if((pieceNb &lt; maxindex) &amp;&amp; (pieceNb &gt;= 0)) {</b>
+<b class="nc"><i class="no-highlight">16</i>&nbsp;			this.value.set(pieceNb, val);</b>
+<i class="no-highlight">17</i>&nbsp;		} else {
+<b class="nc"><i class="no-highlight">18</i>&nbsp;			throw new IndexOutOfBoundsException();</b>
+<i class="no-highlight">19</i>&nbsp;		}
+<i class="no-highlight">20</i>&nbsp;	}
+<i class="no-highlight">21</i>&nbsp;	
+<i class="no-highlight">22</i>&nbsp;	public boolean get(int pieceNb) {
+<b class="nc"><i class="no-highlight">23</i>&nbsp;		if((pieceNb &lt; maxindex) &amp;&amp; (pieceNb &gt;= 0)) {</b>
+<b class="nc"><i class="no-highlight">24</i>&nbsp;			return this.value.get(pieceNb);</b>
+<i class="no-highlight">25</i>&nbsp;		} else {
+<b class="nc"><i class="no-highlight">26</i>&nbsp;			throw new IndexOutOfBoundsException();</b>
+<i class="no-highlight">27</i>&nbsp;		}
+<i class="no-highlight">28</i>&nbsp;	}
+<i class="no-highlight">29</i>&nbsp;	public BitSet getValue() {
+<b class="nc"><i class="no-highlight">30</i>&nbsp;		return this.value;</b>
+<i class="no-highlight">31</i>&nbsp;	}
+<i class="no-highlight">32</i>&nbsp;	
+<i class="no-highlight">33</i>&nbsp;	public void setValue(byte[] bitfield) {
+<b class="nc"><i class="no-highlight">34</i>&nbsp;		this.value = BitSet.valueOf(bitfield);</b>
+<i class="no-highlight">35</i>&nbsp;	}
+<i class="no-highlight">36</i>&nbsp;	
+<i class="no-highlight">37</i>&nbsp;	public byte[] toByteArray() {
+<b class="nc"><i class="no-highlight">38</i>&nbsp;		byte[] array = this.value.toByteArray();</b>
+<b class="nc"><i class="no-highlight">39</i>&nbsp;		reverse(array);</b>
+<b class="nc"><i class="no-highlight">40</i>&nbsp;		return array;</b>
+<i class="no-highlight">41</i>&nbsp;		
+<i class="no-highlight">42</i>&nbsp;	}
+<i class="no-highlight">43</i>&nbsp;	
+<i class="no-highlight">44</i>&nbsp;	public static void reverse(byte[] in) {
+<b class="nc"><i class="no-highlight">45</i>&nbsp;	      if (in == null) {</b>
+<i class="no-highlight">46</i>&nbsp;	          return;
+<i class="no-highlight">47</i>&nbsp;	      }
+<b class="nc"><i class="no-highlight">48</i>&nbsp;	      int i = 0;</b>
+<b class="nc"><i class="no-highlight">49</i>&nbsp;	      int j = in.length - 1;</b>
+<i class="no-highlight">50</i>&nbsp;	      byte tmp;
+<b class="nc"><i class="no-highlight">51</i>&nbsp;	      while (j &gt; i) {</b>
+<b class="nc"><i class="no-highlight">52</i>&nbsp;	          tmp = in[j];</b>
+<b class="nc"><i class="no-highlight">53</i>&nbsp;	          in[j] = in[i];</b>
+<b class="nc"><i class="no-highlight">54</i>&nbsp;	          in[i] = tmp;</b>
+<b class="nc"><i class="no-highlight">55</i>&nbsp;	          j--;</b>
+<b class="nc"><i class="no-highlight">56</i>&nbsp;	          i++;</b>
+<i class="no-highlight">57</i>&nbsp;	      }
+<i class="no-highlight">58</i>&nbsp;	  }
+<i class="no-highlight">59</i>&nbsp;
+<i class="no-highlight">60</i>&nbsp;	
+<i class="no-highlight">61</i>&nbsp;	@Override
+<i class="no-highlight">62</i>&nbsp;	public String toString() {
+<i class="no-highlight">63</i>&nbsp;		
+<b class="nc"><i class="no-highlight">64</i>&nbsp;		String s = new String(&quot;{&quot;);</b>
+<i class="no-highlight">65</i>&nbsp;		
+<b class="nc"><i class="no-highlight">66</i>&nbsp;		for(int i = 0; i &lt; maxindex; i++) {</b>
+<b class="nc"><i class="no-highlight">67</i>&nbsp;			String val = new String();</b>
+<b class="nc"><i class="no-highlight">68</i>&nbsp;			if(value.get(i)) {</b>
+<b class="nc"><i class="no-highlight">69</i>&nbsp;				val = &quot;1&quot;;</b>
+<i class="no-highlight">70</i>&nbsp;			} else {
+<b class="nc"><i class="no-highlight">71</i>&nbsp;				val = &quot;0&quot;;</b>
+<i class="no-highlight">72</i>&nbsp;			}
+<b class="nc"><i class="no-highlight">73</i>&nbsp;			s = s.concat(val);</b>
+<b class="nc"><i class="no-highlight">74</i>&nbsp;			if(i != maxindex - 1) {</b>
+<b class="nc"><i class="no-highlight">75</i>&nbsp;				s = s.concat(&quot;, &quot;);</b>
+<i class="no-highlight">76</i>&nbsp;			}
+<i class="no-highlight">77</i>&nbsp;		}
+<b class="nc"><i class="no-highlight">78</i>&nbsp;		s = s.concat(&quot;}&quot;);</b>
+<i class="no-highlight">79</i>&nbsp;		
+<b class="nc"><i class="no-highlight">80</i>&nbsp;		return s;</b>
+<i class="no-highlight">81</i>&nbsp;	}
+<i class="no-highlight">82</i>&nbsp;	
+<i class="no-highlight">83</i>&nbsp;	
+<i class="no-highlight">84</i>&nbsp;	
+<i class="no-highlight">85</i>&nbsp;	
+<i class="no-highlight">86</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-01-19 01:45</div>
+</div>
+</body>
+</html>

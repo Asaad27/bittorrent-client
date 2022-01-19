@@ -1,0 +1,190 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > Main</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">misc</a>
+</div>
+
+<h1>Coverage Summary for Class: Main (misc)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Main</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/13)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Main$PORTCLIENT</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/7)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/20)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package misc;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import misc.download.PeerDownloadHandler;
+<i class="no-highlight">4</i>&nbsp;import misc.torrent.TorrentFileController;
+<i class="no-highlight">5</i>&nbsp;import misc.torrent.TorrentMetaData;
+<i class="no-highlight">6</i>&nbsp;
+<i class="no-highlight">7</i>&nbsp;import java.io.FileInputStream;
+<i class="no-highlight">8</i>&nbsp;import java.io.IOException;
+<i class="no-highlight">9</i>&nbsp;import java.security.NoSuchAlgorithmException;
+<i class="no-highlight">10</i>&nbsp;
+<i class="no-highlight">11</i>&nbsp;
+<b class="nc"><i class="no-highlight">12</i>&nbsp;public class Main {</b>
+<i class="no-highlight">13</i>&nbsp;
+<b class="nc"><i class="no-highlight">14</i>&nbsp;    public enum PORTCLIENT {</b>
+<b class="nc"><i class="no-highlight">15</i>&nbsp;        VUZE(12314),</b>
+<b class="nc"><i class="no-highlight">16</i>&nbsp;        QBITTORRENT(12316),</b>
+<b class="nc"><i class="no-highlight">17</i>&nbsp;        DELUGE(57675),</b>
+<b class="nc"><i class="no-highlight">18</i>&nbsp;        UTORRENT(33580)</b>
+<i class="no-highlight">19</i>&nbsp;        ;
+<i class="no-highlight">20</i>&nbsp;
+<i class="no-highlight">21</i>&nbsp;        public final int port;
+<b class="nc"><i class="no-highlight">22</i>&nbsp;        PORTCLIENT(int port) {</b>
+<b class="nc"><i class="no-highlight">23</i>&nbsp;            this.port = port;</b>
+<i class="no-highlight">24</i>&nbsp;        }
+<i class="no-highlight">25</i>&nbsp;
+<i class="no-highlight">26</i>&nbsp;    }
+<i class="no-highlight">27</i>&nbsp;
+<i class="no-highlight">28</i>&nbsp;    public static void main(String[] args) {
+<i class="no-highlight">29</i>&nbsp;
+<i class="no-highlight">30</i>&nbsp;        //qbittorrent  THE FASTEST CLIENT IN THE WEST
+<i class="no-highlight">31</i>&nbsp;        //int PORT = 59407;
+<i class="no-highlight">32</i>&nbsp;        //vuze
+<i class="no-highlight">33</i>&nbsp;        //int PORT = 12314;
+<i class="no-highlight">34</i>&nbsp;        //int PORT = 57675;
+<b class="nc"><i class="no-highlight">35</i>&nbsp;        int PORT = 62875;</b>
+<b class="nc"><i class="no-highlight">36</i>&nbsp;        String SERVER = &quot;127.0.0.1&quot;;</b>
+<i class="no-highlight">37</i>&nbsp;        //String filePath = &quot;C:\\Users\\asaad_6stn3w\\IdeaProjects\\latestequipe5\\src\\main\\CTos-8.2-2004-VB-64bit.7z&quot;;  //path of the file to seed
+<b class="nc"><i class="no-highlight">38</i>&nbsp;        PeerDownloadHandler peerDownloadHandler = null;</b>
+<b class="nc"><i class="no-highlight">39</i>&nbsp;        TorrentFileController torrentHandler = null;</b>
+<b class="nc"><i class="no-highlight">40</i>&nbsp;        TorrentMetaData torrentMetaData = null;</b>
+<i class="no-highlight">41</i>&nbsp;        try {
+<b class="nc"><i class="no-highlight">42</i>&nbsp;            torrentHandler = new TorrentFileController(new FileInputStream(args[0]));</b>
+<b class="nc"><i class="no-highlight">43</i>&nbsp;            torrentMetaData = torrentHandler.ParseTorrent();</b>
+<i class="no-highlight">44</i>&nbsp;
+<b class="nc"><i class="no-highlight">45</i>&nbsp;            peerDownloadHandler = new PeerDownloadHandler(PORT, SERVER, torrentMetaData);</b>
+<b class="nc"><i class="no-highlight">46</i>&nbsp;            peerDownloadHandler.downloadTorrent();</b>
+<i class="no-highlight">47</i>&nbsp;
+<i class="no-highlight">48</i>&nbsp;            //peerDownloadHandler.seedTorrent(filePath);
+<i class="no-highlight">49</i>&nbsp;
+<i class="no-highlight">50</i>&nbsp;
+<b class="nc"><i class="no-highlight">51</i>&nbsp;        } catch (IOException | NoSuchAlgorithmException e) {</b>
+<b class="nc"><i class="no-highlight">52</i>&nbsp;            e.printStackTrace();</b>
+<b class="nc"><i class="no-highlight">53</i>&nbsp;        }</b>
+<i class="no-highlight">54</i>&nbsp;
+<i class="no-highlight">55</i>&nbsp;
+<i class="no-highlight">56</i>&nbsp;    }
+<i class="no-highlight">57</i>&nbsp;
+<i class="no-highlight">58</i>&nbsp;
+<i class="no-highlight">59</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-01-19 01:45</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,273 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > LocalFileHandler</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">misc.torrent</a>
+</div>
+
+<h1>Coverage Summary for Class: LocalFileHandler (misc.torrent)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">LocalFileHandler</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (6/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.2%
+  </span>
+  <span class="absValue">
+    (49/74)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package misc.torrent;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import java.io.File;
+<i class="no-highlight">4</i>&nbsp;import java.io.IOException;
+<i class="no-highlight">5</i>&nbsp;import java.io.RandomAccessFile;
+<i class="no-highlight">6</i>&nbsp;import java.security.MessageDigest;
+<i class="no-highlight">7</i>&nbsp;import java.security.NoSuchAlgorithmException;
+<i class="no-highlight">8</i>&nbsp;
+<i class="no-highlight">9</i>&nbsp;import misc.messages.ByteBitfield;
+<i class="no-highlight">10</i>&nbsp;import misc.peers.ClientState;
+<i class="no-highlight">11</i>&nbsp;import misc.utils.DEBUG;
+<i class="no-highlight">12</i>&nbsp;import misc.utils.Utils;
+<i class="no-highlight">13</i>&nbsp;
+<i class="no-highlight">14</i>&nbsp;import static misc.download.TCPClient.torrentMetaData;
+<i class="no-highlight">15</i>&nbsp;
+<i class="no-highlight">16</i>&nbsp;/**
+<i class="no-highlight">17</i>&nbsp; * Handles interactions with the downloaded file
+<i class="no-highlight">18</i>&nbsp; */
+<i class="no-highlight">19</i>&nbsp;public class LocalFileHandler {
+<i class="no-highlight">20</i>&nbsp;
+<i class="no-highlight">21</i>&nbsp;	private final File tempFile;
+<i class="no-highlight">22</i>&nbsp;	private RandomAccessFile fileAccess;
+<i class="no-highlight">23</i>&nbsp;	private final ByteBitfield bitfield;
+<i class="no-highlight">24</i>&nbsp;	private final ClientState clientState;
+<i class="no-highlight">25</i>&nbsp;
+<i class="no-highlight">26</i>&nbsp;
+<i class="no-highlight">27</i>&nbsp;	private final TorrentState torrentState;
+<i class="no-highlight">28</i>&nbsp;	
+<b class="fc"><i class="no-highlight">29</i>&nbsp;	public LocalFileHandler(TorrentState torrentState, ClientState clientState) {</b>
+<i class="no-highlight">30</i>&nbsp;
+<b class="fc"><i class="no-highlight">31</i>&nbsp;		this.torrentState = torrentState;</b>
+<b class="fc"><i class="no-highlight">32</i>&nbsp;		this.clientState = clientState;</b>
+<b class="fc"><i class="no-highlight">33</i>&nbsp;		this.bitfield = clientState.bitfield;</b>
+<i class="no-highlight">34</i>&nbsp;
+<b class="fc"><i class="no-highlight">35</i>&nbsp;		tempFile = new File(torrentMetaData.getName());</b>
+<b class="fc"><i class="no-highlight">36</i>&nbsp;		long fileLength = torrentMetaData.getLength();</b>
+<i class="no-highlight">37</i>&nbsp;
+<i class="no-highlight">38</i>&nbsp;		try {
+<b class="fc"><i class="no-highlight">39</i>&nbsp;			fileAccess = new RandomAccessFile(torrentMetaData.getName(), &quot;rw&quot;);</b>
+<b class="fc"><i class="no-highlight">40</i>&nbsp;			fileAccess.setLength((int) fileLength);</b>
+<b class="nc"><i class="no-highlight">41</i>&nbsp;		} catch (IOException e) {</b>
+<b class="nc"><i class="no-highlight">42</i>&nbsp;			DEBUG.printError(e, getClass().getName());</b>
+<b class="fc"><i class="no-highlight">43</i>&nbsp;		}</b>
+<b class="fc"><i class="no-highlight">44</i>&nbsp;		initBitfield();</b>
+<i class="no-highlight">45</i>&nbsp;	}
+<i class="no-highlight">46</i>&nbsp;	
+<i class="no-highlight">47</i>&nbsp;	public void initBitfield() {
+<b class="fc"><i class="no-highlight">48</i>&nbsp;		DEBUG.logf(&quot;generating BITFIELD&quot;);</b>
+<b class="fc"><i class="no-highlight">49</i>&nbsp;		boolean isSeeder = true;</b>
+<b class="fc"><i class="no-highlight">50</i>&nbsp;		if(tempFile.exists()) {</b>
+<b class="fc"><i class="no-highlight">51</i>&nbsp;			for(int i = 0; i &lt; torrentMetaData.getNumberOfPieces() ; i++) {</b>
+<b class="fc"><i class="no-highlight">52</i>&nbsp;				boolean verified = verifyPiece(i);</b>
+<b class="fc"><i class="no-highlight">53</i>&nbsp;				setBitfield(i, verified);</b>
+<b class="fc"><i class="no-highlight">54</i>&nbsp;				isSeeder = isSeeder &amp;&amp; verified;</b>
+<i class="no-highlight">55</i>&nbsp;			}
+<i class="no-highlight">56</i>&nbsp;		}
+<b class="fc"><i class="no-highlight">57</i>&nbsp;		DEBUG.logf(&quot;BITFIELD generated : &quot; + Utils.bytesToHex(bitfield.value));</b>
+<i class="no-highlight">58</i>&nbsp;
+<b class="fc"><i class="no-highlight">59</i>&nbsp;		if (isSeeder){</b>
+<b class="nc"><i class="no-highlight">60</i>&nbsp;			clientState.isSeeder = true;</b>
+<b class="nc"><i class="no-highlight">61</i>&nbsp;			clientState.isDownloading = false;</b>
+<i class="no-highlight">62</i>&nbsp;		}
+<i class="no-highlight">63</i>&nbsp;
+<i class="no-highlight">64</i>&nbsp;	}
+<i class="no-highlight">65</i>&nbsp;
+<i class="no-highlight">66</i>&nbsp;	public  boolean verifyPiece(int index){
+<b class="fc"><i class="no-highlight">67</i>&nbsp;		Piece pieceToVerify = torrentState.pieces.get(index);</b>
+<b class="fc"><i class="no-highlight">68</i>&nbsp;		int pieceSize = pieceToVerify.getPieceSize();</b>
+<b class="fc"><i class="no-highlight">69</i>&nbsp;		byte[] piece = new byte[pieceSize];</b>
+<i class="no-highlight">70</i>&nbsp;
+<i class="no-highlight">71</i>&nbsp;		try {
+<b class="fc"><i class="no-highlight">72</i>&nbsp;			fileAccess.seek((long) index * pieceSize);</b>
+<b class="fc"><i class="no-highlight">73</i>&nbsp;			fileAccess.read(piece);</b>
+<i class="no-highlight">74</i>&nbsp;
+<b class="fc"><i class="no-highlight">75</i>&nbsp;			MessageDigest digest=MessageDigest.getInstance(&quot;SHA-1&quot;);</b>
+<b class="fc"><i class="no-highlight">76</i>&nbsp;			digest.update(piece);</b>
+<b class="fc"><i class="no-highlight">77</i>&nbsp;			byte[] sha = digest.digest();</b>
+<b class="fc"><i class="no-highlight">78</i>&nbsp;			String originalHash = torrentMetaData.getPiecesList().get(index);</b>
+<b class="fc"><i class="no-highlight">79</i>&nbsp;			String downloadedHash = Utils.bytesToHex(sha);</b>
+<b class="fc"><i class="no-highlight">80</i>&nbsp;			if (!downloadedHash.equals(originalHash))</b>
+<i class="no-highlight">81</i>&nbsp;			{
+<b class="fc"><i class="no-highlight">82</i>&nbsp;				DEBUG.logf(&quot;piece id : &quot; + index + &quot; not downloaded&quot;);</b>
+<b class="fc"><i class="no-highlight">83</i>&nbsp;				return false;</b>
+<i class="no-highlight">84</i>&nbsp;			}
+<i class="no-highlight">85</i>&nbsp;
+<b class="nc"><i class="no-highlight">86</i>&nbsp;		} catch (IOException | NoSuchAlgorithmException e) {</b>
+<b class="nc"><i class="no-highlight">87</i>&nbsp;			e.printStackTrace();</b>
+<b class="fc"><i class="no-highlight">88</i>&nbsp;		}</b>
+<i class="no-highlight">89</i>&nbsp;
+<i class="no-highlight">90</i>&nbsp;
+<b class="fc"><i class="no-highlight">91</i>&nbsp;		DEBUG.logf(&quot;piece id : &quot; + index + &quot; valid, downloaded&quot;);</b>
+<i class="no-highlight">92</i>&nbsp;
+<b class="fc"><i class="no-highlight">93</i>&nbsp;		return true;</b>
+<i class="no-highlight">94</i>&nbsp;	}
+<i class="no-highlight">95</i>&nbsp;
+<i class="no-highlight">96</i>&nbsp;
+<i class="no-highlight">97</i>&nbsp;	/**
+<i class="no-highlight">98</i>&nbsp;	 *
+<i class="no-highlight">99</i>&nbsp;	 * @return True if file is completely downloaded
+<i class="no-highlight">100</i>&nbsp;	 */
+<i class="no-highlight">101</i>&nbsp;	public  boolean verifyDownloadedFile(){
+<b class="fc"><i class="no-highlight">102</i>&nbsp;		System.out.println(&quot;Checking File&quot;);</b>
+<b class="fc"><i class="no-highlight">103</i>&nbsp;		int numPieces = torrentMetaData.getNumberOfPieces();</b>
+<b class="fc"><i class="no-highlight">104</i>&nbsp;		for (int i = 0; i &lt; numPieces; i++)</b>
+<i class="no-highlight">105</i>&nbsp;		{
+<b class="fc"><i class="no-highlight">106</i>&nbsp;			Piece piece = torrentState.pieces.get(i);</b>
+<b class="fc"><i class="no-highlight">107</i>&nbsp;			if(!verifyPiece(i)) {</b>
+<b class="nc"><i class="no-highlight">108</i>&nbsp;				setBitfield(i, false);</b>
+<b class="nc"><i class="no-highlight">109</i>&nbsp;				long downloadedSize = torrentState.getDownloadedSize();</b>
+<i class="no-highlight">110</i>&nbsp;
+<b class="nc"><i class="no-highlight">111</i>&nbsp;				torrentState.setDownloadedSize(downloadedSize - (piece.getPieceSize()));</b>
+<b class="nc"><i class="no-highlight">112</i>&nbsp;				piece.setPieceStatus(PieceStatus.ToBeDownloaded);</b>
+<i class="no-highlight">113</i>&nbsp;
+<i class="no-highlight">114</i>&nbsp;			}
+<i class="no-highlight">115</i>&nbsp;		}
+<i class="no-highlight">116</i>&nbsp;
+<b class="fc"><i class="no-highlight">117</i>&nbsp;		System.out.println(&quot;FILE CHECK SUCCESS 100%&quot;);</b>
+<b class="fc"><i class="no-highlight">118</i>&nbsp;		torrentState.fileCheckedSuccess = true;</b>
+<b class="fc"><i class="no-highlight">119</i>&nbsp;		return true;</b>
+<i class="no-highlight">120</i>&nbsp;	}
+<i class="no-highlight">121</i>&nbsp;
+<i class="no-highlight">122</i>&nbsp;
+<i class="no-highlight">123</i>&nbsp;	public void setBitfield(int pieceNb, boolean value) {
+<b class="fc"><i class="no-highlight">124</i>&nbsp;		if (value)</b>
+<b class="nc"><i class="no-highlight">125</i>&nbsp;			bitfield.setPiece(pieceNb);</b>
+<i class="no-highlight">126</i>&nbsp;		else{
+<b class="fc"><i class="no-highlight">127</i>&nbsp;			if (bitfield.hasPiece(pieceNb))</b>
+<b class="nc"><i class="no-highlight">128</i>&nbsp;				bitfield.unsetPiece(pieceNb);</b>
+<i class="no-highlight">129</i>&nbsp;		}
+<i class="no-highlight">130</i>&nbsp;
+<i class="no-highlight">131</i>&nbsp;	}
+<i class="no-highlight">132</i>&nbsp;	
+<i class="no-highlight">133</i>&nbsp;	public ByteBitfield getBitfield() {
+<b class="nc"><i class="no-highlight">134</i>&nbsp;		return this.bitfield;</b>
+<i class="no-highlight">135</i>&nbsp;	}
+<i class="no-highlight">136</i>&nbsp;
+<i class="no-highlight">137</i>&nbsp;	public boolean writePieceBlock(int index, int begin, byte[] payload){
+<i class="no-highlight">138</i>&nbsp;		try {
+<b class="fc"><i class="no-highlight">139</i>&nbsp;			fileAccess.seek(((long) index * torrentMetaData.getPieceLength() + begin));</b>
+<b class="fc"><i class="no-highlight">140</i>&nbsp;			fileAccess.write(payload);</b>
+<b class="nc"><i class="no-highlight">141</i>&nbsp;		} catch (IOException e) {</b>
+<b class="nc"><i class="no-highlight">142</i>&nbsp;			DEBUG.printError(e, &quot;write piece block&quot;);</b>
+<b class="nc"><i class="no-highlight">143</i>&nbsp;			return false;</b>
+<b class="fc"><i class="no-highlight">144</i>&nbsp;		}</b>
+<i class="no-highlight">145</i>&nbsp;
+<b class="fc"><i class="no-highlight">146</i>&nbsp;		return true;</b>
+<i class="no-highlight">147</i>&nbsp;	}
+<i class="no-highlight">148</i>&nbsp;
+<i class="no-highlight">149</i>&nbsp;	public byte[] readPieceBlock(int size, int index, int begin) {
+<i class="no-highlight">150</i>&nbsp;
+<b class="nc"><i class="no-highlight">151</i>&nbsp;		byte[] ans = new byte[size];</b>
+<i class="no-highlight">152</i>&nbsp;		try {
+<b class="nc"><i class="no-highlight">153</i>&nbsp;			fileAccess.seek((long) (index) * torrentMetaData.getPieceLength() +begin);</b>
+<b class="nc"><i class="no-highlight">154</i>&nbsp;			fileAccess.read(ans);</b>
+<b class="nc"><i class="no-highlight">155</i>&nbsp;		} catch (IOException e) {</b>
+<b class="nc"><i class="no-highlight">156</i>&nbsp;			e.printStackTrace();</b>
+<b class="nc"><i class="no-highlight">157</i>&nbsp;		}</b>
+<i class="no-highlight">158</i>&nbsp;
+<b class="nc"><i class="no-highlight">159</i>&nbsp;		return ans;</b>
+<i class="no-highlight">160</i>&nbsp;	}
+<i class="no-highlight">161</i>&nbsp;
+<i class="no-highlight">162</i>&nbsp;	public void close() {
+<i class="no-highlight">163</i>&nbsp;		try {
+<b class="nc"><i class="no-highlight">164</i>&nbsp;			fileAccess.close();</b>
+<b class="nc"><i class="no-highlight">165</i>&nbsp;		} catch (IOException e){ e.printStackTrace(); }</b>
+<i class="no-highlight">166</i>&nbsp;	}
+<i class="no-highlight">167</i>&nbsp;	
+<i class="no-highlight">168</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-01-19 01:45</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,324 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > PeerMessage</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">misc.messages</a>
+</div>
+
+<h1>Coverage Summary for Class: PeerMessage (misc.messages)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PeerMessage</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (2/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    61.7%
+  </span>
+  <span class="absValue">
+    (50/81)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">PeerMessage$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">PeerMessage$MsgType</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (2/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    93.3%
+  </span>
+  <span class="absValue">
+    (14/15)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    71.4%
+  </span>
+  <span class="absValue">
+    (5/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    67%
+  </span>
+  <span class="absValue">
+    (65/97)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package misc.messages;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;
+<i class="no-highlight">4</i>&nbsp;import java.nio.ByteBuffer;
+<i class="no-highlight">5</i>&nbsp;
+<i class="no-highlight">6</i>&nbsp;/**
+<i class="no-highlight">7</i>&nbsp; * Class to handle messages sent and received from peer
+<i class="no-highlight">8</i>&nbsp; *
+<i class="no-highlight">9</i>&nbsp; * @author Asaad
+<i class="no-highlight">10</i>&nbsp; */
+<i class="no-highlight">11</i>&nbsp;
+<b class="nc"><i class="no-highlight">12</i>&nbsp;public class PeerMessage {</b>
+<i class="no-highlight">13</i>&nbsp;
+<i class="no-highlight">14</i>&nbsp;    /**
+<i class="no-highlight">15</i>&nbsp;     * @param msg message to pack
+<i class="no-highlight">16</i>&nbsp;     * @return unpacked message in byte array reader to be sent
+<i class="no-highlight">17</i>&nbsp;     */
+<i class="no-highlight">18</i>&nbsp;
+<i class="no-highlight">19</i>&nbsp;    public static byte[] serialize(Message msg) {
+<b class="fc"><i class="no-highlight">20</i>&nbsp;        ByteBuffer buffer = null;</b>
+<b class="fc"><i class="no-highlight">21</i>&nbsp;        MsgType msgType = msg.ID;</b>
+<i class="no-highlight">22</i>&nbsp;
+<b class="fc"><i class="no-highlight">23</i>&nbsp;        if (msgType == MsgType.KEEPALIVE)</b>
+<b class="nc"><i class="no-highlight">24</i>&nbsp;            return new byte[4];</b>
+<i class="no-highlight">25</i>&nbsp;
+<b class="fc"><i class="no-highlight">26</i>&nbsp;        switch (msgType) {</b>
+<i class="no-highlight">27</i>&nbsp;            case CHOKE:
+<b class="nc"><i class="no-highlight">28</i>&nbsp;                buffer = ByteBuffer.allocate(5);</b>
+<b class="nc"><i class="no-highlight">29</i>&nbsp;                buffer.putInt(1);</b>
+<b class="nc"><i class="no-highlight">30</i>&nbsp;                buffer.put((byte) 0);</b>
+<b class="nc"><i class="no-highlight">31</i>&nbsp;                break;</b>
+<i class="no-highlight">32</i>&nbsp;
+<i class="no-highlight">33</i>&nbsp;            case UNCHOKE:
+<b class="nc"><i class="no-highlight">34</i>&nbsp;                buffer = ByteBuffer.allocate(5);</b>
+<b class="nc"><i class="no-highlight">35</i>&nbsp;                buffer.putInt(1);</b>
+<b class="nc"><i class="no-highlight">36</i>&nbsp;                buffer.put((byte) 1);</b>
+<b class="nc"><i class="no-highlight">37</i>&nbsp;                break;</b>
+<i class="no-highlight">38</i>&nbsp;
+<i class="no-highlight">39</i>&nbsp;            case INTERESTED:
+<b class="fc"><i class="no-highlight">40</i>&nbsp;                buffer = ByteBuffer.allocate(5);</b>
+<b class="fc"><i class="no-highlight">41</i>&nbsp;                buffer.putInt(1);</b>
+<b class="fc"><i class="no-highlight">42</i>&nbsp;                buffer.put((byte) 2);</b>
+<i class="no-highlight">43</i>&nbsp;
+<b class="fc"><i class="no-highlight">44</i>&nbsp;                break;</b>
+<i class="no-highlight">45</i>&nbsp;
+<i class="no-highlight">46</i>&nbsp;            case UNINTERESTED:
+<b class="fc"><i class="no-highlight">47</i>&nbsp;                buffer = ByteBuffer.allocate(5);</b>
+<b class="fc"><i class="no-highlight">48</i>&nbsp;                buffer.putInt(1);</b>
+<b class="fc"><i class="no-highlight">49</i>&nbsp;                buffer.put((byte) 3);</b>
+<b class="fc"><i class="no-highlight">50</i>&nbsp;                break;</b>
+<i class="no-highlight">51</i>&nbsp;
+<i class="no-highlight">52</i>&nbsp;            case HAVE:
+<b class="nc"><i class="no-highlight">53</i>&nbsp;                buffer = ByteBuffer.allocate(9);</b>
+<b class="nc"><i class="no-highlight">54</i>&nbsp;                buffer.putInt(5);</b>
+<b class="nc"><i class="no-highlight">55</i>&nbsp;                buffer.put((byte) 4);</b>
+<b class="nc"><i class="no-highlight">56</i>&nbsp;                buffer.putInt(msg.getIndex());</b>
+<b class="nc"><i class="no-highlight">57</i>&nbsp;                break;</b>
+<i class="no-highlight">58</i>&nbsp;
+<i class="no-highlight">59</i>&nbsp;            case BITFIELD:
+<b class="fc"><i class="no-highlight">60</i>&nbsp;                buffer = ByteBuffer.allocate(5 + msg.payload.length);</b>
+<b class="fc"><i class="no-highlight">61</i>&nbsp;                buffer.putInt(1 + msg.payload.length);</b>
+<b class="fc"><i class="no-highlight">62</i>&nbsp;                buffer.put((byte) 5);</b>
+<b class="fc"><i class="no-highlight">63</i>&nbsp;                buffer.put(msg.payload, 0, msg.payload.length);</b>
+<b class="fc"><i class="no-highlight">64</i>&nbsp;                break;</b>
+<i class="no-highlight">65</i>&nbsp;
+<i class="no-highlight">66</i>&nbsp;            case PIECE:
+<b class="nc"><i class="no-highlight">67</i>&nbsp;                buffer = ByteBuffer.allocate(13 + msg.payload.length);</b>
+<b class="nc"><i class="no-highlight">68</i>&nbsp;                buffer.putInt(9 + msg.payload.length);</b>
+<b class="nc"><i class="no-highlight">69</i>&nbsp;                buffer.put((byte) 7);</b>
+<b class="nc"><i class="no-highlight">70</i>&nbsp;                buffer.putInt(msg.getIndex());</b>
+<b class="nc"><i class="no-highlight">71</i>&nbsp;                buffer.putInt(msg.getBegin());</b>
+<b class="nc"><i class="no-highlight">72</i>&nbsp;                buffer.put(msg.payload, 0, msg.payload.length);</b>
+<b class="nc"><i class="no-highlight">73</i>&nbsp;                break;</b>
+<i class="no-highlight">74</i>&nbsp;
+<i class="no-highlight">75</i>&nbsp;            case REQUEST:
+<b class="fc"><i class="no-highlight">76</i>&nbsp;                buffer = ByteBuffer.allocate(17);</b>
+<b class="fc"><i class="no-highlight">77</i>&nbsp;                buffer.putInt(13);</b>
+<b class="fc"><i class="no-highlight">78</i>&nbsp;                buffer.put((byte) 6);</b>
+<b class="fc"><i class="no-highlight">79</i>&nbsp;                buffer.putInt(msg.getIndex());</b>
+<b class="fc"><i class="no-highlight">80</i>&nbsp;                buffer.putInt(msg.getBegin());</b>
+<b class="fc"><i class="no-highlight">81</i>&nbsp;                buffer.putInt(msg.getLength());</b>
+<b class="fc"><i class="no-highlight">82</i>&nbsp;                break;</b>
+<i class="no-highlight">83</i>&nbsp;
+<i class="no-highlight">84</i>&nbsp;            case CANCEL:
+<b class="fc"><i class="no-highlight">85</i>&nbsp;                buffer = ByteBuffer.allocate(17);</b>
+<b class="fc"><i class="no-highlight">86</i>&nbsp;                buffer.putInt(13);</b>
+<b class="fc"><i class="no-highlight">87</i>&nbsp;                buffer.put((byte) 8);</b>
+<b class="fc"><i class="no-highlight">88</i>&nbsp;                buffer.putInt(msg.getIndex());</b>
+<b class="fc"><i class="no-highlight">89</i>&nbsp;                buffer.putInt(msg.getBegin());</b>
+<b class="fc"><i class="no-highlight">90</i>&nbsp;                buffer.putInt(msg.getLength());</b>
+<b class="fc"><i class="no-highlight">91</i>&nbsp;                break;</b>
+<i class="no-highlight">92</i>&nbsp;
+<i class="no-highlight">93</i>&nbsp;            default:
+<b class="nc"><i class="no-highlight">94</i>&nbsp;                System.err.println(&quot;MSG TYPE UNKNOWN&quot;);</b>
+<b class="nc"><i class="no-highlight">95</i>&nbsp;                return new byte[1];</b>
+<i class="no-highlight">96</i>&nbsp;        }
+<i class="no-highlight">97</i>&nbsp;
+<i class="no-highlight">98</i>&nbsp;
+<b class="fc"><i class="no-highlight">99</i>&nbsp;        return buffer.array();</b>
+<i class="no-highlight">100</i>&nbsp;    }
+<i class="no-highlight">101</i>&nbsp;
+<i class="no-highlight">102</i>&nbsp;    /**
+<i class="no-highlight">103</i>&nbsp;     * @param msg message to unpack
+<i class="no-highlight">104</i>&nbsp;     * @return Unpacked message
+<i class="no-highlight">105</i>&nbsp;     */
+<i class="no-highlight">106</i>&nbsp;    public static Message deserialize(byte[] msg) {
+<b class="fc"><i class="no-highlight">107</i>&nbsp;        ByteBuffer buffer = ByteBuffer.wrap(msg);</b>
+<i class="no-highlight">108</i>&nbsp;
+<b class="fc"><i class="no-highlight">109</i>&nbsp;        int len = buffer.getInt();</b>
+<b class="fc"><i class="no-highlight">110</i>&nbsp;        if (len == 0)</b>
+<b class="nc"><i class="no-highlight">111</i>&nbsp;            return new Message(MsgType.KEEPALIVE);</b>
+<b class="fc"><i class="no-highlight">112</i>&nbsp;        byte id = buffer.get();</b>
+<b class="fc"><i class="no-highlight">113</i>&nbsp;        if (len == 1)</b>
+<b class="fc"><i class="no-highlight">114</i>&nbsp;            return new Message(MsgType.getById(id));</b>
+<i class="no-highlight">115</i>&nbsp;        //Have
+<b class="fc"><i class="no-highlight">116</i>&nbsp;        if (id == 4) {</b>
+<b class="nc"><i class="no-highlight">117</i>&nbsp;            return new Message(MsgType.HAVE, buffer.getInt());</b>
+<i class="no-highlight">118</i>&nbsp;        }
+<i class="no-highlight">119</i>&nbsp;        //bitfield
+<b class="fc"><i class="no-highlight">120</i>&nbsp;        if (id == 5) {</b>
+<b class="fc"><i class="no-highlight">121</i>&nbsp;            byte[] bitfield = new byte[len - 1];</b>
+<b class="fc"><i class="no-highlight">122</i>&nbsp;            buffer.get(bitfield, 0, len - 1);</b>
+<b class="fc"><i class="no-highlight">123</i>&nbsp;            return new Message(MsgType.BITFIELD, bitfield);</b>
+<i class="no-highlight">124</i>&nbsp;        }
+<i class="no-highlight">125</i>&nbsp;        //request
+<b class="fc"><i class="no-highlight">126</i>&nbsp;        if (id == 6) {</b>
+<b class="nc"><i class="no-highlight">127</i>&nbsp;            return new Message(MsgType.REQUEST, buffer.getInt(), buffer.getInt(), buffer.getInt());</b>
+<i class="no-highlight">128</i>&nbsp;        }
+<i class="no-highlight">129</i>&nbsp;        //piece
+<b class="fc"><i class="no-highlight">130</i>&nbsp;        if (id == 7) {</b>
+<b class="fc"><i class="no-highlight">131</i>&nbsp;            int index = buffer.getInt();</b>
+<b class="fc"><i class="no-highlight">132</i>&nbsp;            int begin = buffer.getInt();</b>
+<b class="fc"><i class="no-highlight">133</i>&nbsp;            byte[] payload = new byte[len - 9];</b>
+<i class="no-highlight">134</i>&nbsp;
+<b class="fc"><i class="no-highlight">135</i>&nbsp;            buffer.get(payload, 0, len - 9);</b>
+<b class="fc"><i class="no-highlight">136</i>&nbsp;            return new Message(MsgType.PIECE, index, begin, payload);</b>
+<i class="no-highlight">137</i>&nbsp;        }
+<i class="no-highlight">138</i>&nbsp;
+<i class="no-highlight">139</i>&nbsp;        //Cancel
+<b class="nc"><i class="no-highlight">140</i>&nbsp;        if (id == 8) {</b>
+<b class="nc"><i class="no-highlight">141</i>&nbsp;            return new Message(MsgType.CANCEL, buffer.getInt(), buffer.getInt(), buffer.getInt());</b>
+<i class="no-highlight">142</i>&nbsp;        }
+<i class="no-highlight">143</i>&nbsp;
+<i class="no-highlight">144</i>&nbsp;
+<b class="nc"><i class="no-highlight">145</i>&nbsp;        System.err.println(&quot;no matching id&quot;);</b>
+<b class="nc"><i class="no-highlight">146</i>&nbsp;        return null;</b>
+<i class="no-highlight">147</i>&nbsp;
+<i class="no-highlight">148</i>&nbsp;    }
+<i class="no-highlight">149</i>&nbsp;
+<b class="fc"><i class="no-highlight">150</i>&nbsp;    public enum MsgType {</b>
+<b class="fc"><i class="no-highlight">151</i>&nbsp;        CHOKE,</b>
+<b class="fc"><i class="no-highlight">152</i>&nbsp;        UNCHOKE,</b>
+<b class="fc"><i class="no-highlight">153</i>&nbsp;        INTERESTED,</b>
+<b class="fc"><i class="no-highlight">154</i>&nbsp;        UNINTERESTED,</b>
+<b class="fc"><i class="no-highlight">155</i>&nbsp;        HAVE,</b>
+<b class="fc"><i class="no-highlight">156</i>&nbsp;        BITFIELD,</b>
+<b class="fc"><i class="no-highlight">157</i>&nbsp;        REQUEST,</b>
+<b class="fc"><i class="no-highlight">158</i>&nbsp;        PIECE,</b>
+<b class="fc"><i class="no-highlight">159</i>&nbsp;        CANCEL,</b>
+<b class="fc"><i class="no-highlight">160</i>&nbsp;        PORT,</b>
+<b class="fc"><i class="no-highlight">161</i>&nbsp;        KEEPALIVE;</b>
+<b class="fc"><i class="no-highlight">162</i>&nbsp;        private static final MsgType[] values = MsgType.values();</b>
+<i class="no-highlight">163</i>&nbsp;
+<i class="no-highlight">164</i>&nbsp;        public static MsgType getById(int id) {
+<b class="fc"><i class="no-highlight">165</i>&nbsp;            return values[id];</b>
+<i class="no-highlight">166</i>&nbsp;        }
+<i class="no-highlight">167</i>&nbsp;
+<i class="no-highlight">168</i>&nbsp;        public int getID() {
+<b class="nc"><i class="no-highlight">169</i>&nbsp;            return ordinal();</b>
+<i class="no-highlight">170</i>&nbsp;        }
+<i class="no-highlight">171</i>&nbsp;    }
+<i class="no-highlight">172</i>&nbsp;
+<i class="no-highlight">173</i>&nbsp;
+<i class="no-highlight">174</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-01-19 01:45</div>
+</div>
+</body>
+</html>

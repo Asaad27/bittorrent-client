@@ -1,0 +1,133 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > PeerState</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">misc.peers</a>
+</div>
+
+<h1>Coverage Summary for Class: PeerState (misc.peers)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PeerState</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package misc.peers;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import misc.messages.Message;
+<i class="no-highlight">4</i>&nbsp;
+<i class="no-highlight">5</i>&nbsp;import java.util.Deque;
+<i class="no-highlight">6</i>&nbsp;import java.util.LinkedHashSet;
+<i class="no-highlight">7</i>&nbsp;import java.util.LinkedList;
+<i class="no-highlight">8</i>&nbsp;import java.util.Queue;
+<i class="no-highlight">9</i>&nbsp;
+<i class="no-highlight">10</i>&nbsp;
+<i class="no-highlight">11</i>&nbsp;public class PeerState extends State {
+<i class="no-highlight">12</i>&nbsp;	public LinkedHashSet&lt;Integer&gt; piecesToRequest;
+<i class="no-highlight">13</i>&nbsp;	
+<b class="fc"><i class="no-highlight">14</i>&nbsp;    public Deque&lt;Message&gt; writeMessageQ= new LinkedList&lt;&gt;();</b>
+<b class="fc"><i class="no-highlight">15</i>&nbsp;    public Queue&lt;Message&gt; welcomeQ = new LinkedList&lt;&gt;();</b>
+<i class="no-highlight">16</i>&nbsp;
+<i class="no-highlight">17</i>&nbsp;
+<i class="no-highlight">18</i>&nbsp;
+<i class="no-highlight">19</i>&nbsp;    public PeerState(int numPieces) {
+<b class="fc"><i class="no-highlight">20</i>&nbsp;        super(numPieces);</b>
+<b class="fc"><i class="no-highlight">21</i>&nbsp;        piecesToRequest = new LinkedHashSet&lt;&gt;();</b>
+<i class="no-highlight">22</i>&nbsp;    }
+<i class="no-highlight">23</i>&nbsp;
+<i class="no-highlight">24</i>&nbsp;    public boolean isConnected(){
+<b class="fc"><i class="no-highlight">25</i>&nbsp;        return ((sentBitfield || interested) &amp;&amp; welcomeQ.isEmpty());</b>
+<i class="no-highlight">26</i>&nbsp;    }
+<i class="no-highlight">27</i>&nbsp;
+<i class="no-highlight">28</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-01-19 01:45</div>
+</div>
+</body>
+</html>

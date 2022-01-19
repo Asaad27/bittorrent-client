@@ -30,15 +30,16 @@ import static java.lang.System.in;
 import static misc.messages.PeerMessage.MsgType.INTERESTED;
 import static misc.messages.PeerMessage.MsgType.UNINTERESTED;
 
+//TODO : secure mode vs fast mode
 
 /**
  * handles read and write operations to channels
  */
 public class TCPMessagesHandler {
 
-    public static final int NUMBER_OF_PIECES_PER_REQUEST = 3;
-    public static final int NUMBER_OF_REQUEST_PER_PEER = 50;
-    public static final int NUMBER_OF_READ_MSG_PER_PEER = 50;
+    public static final int NUMBER_OF_PIECES_PER_REQUEST = 2;
+    public static final int NUMBER_OF_REQUEST_PER_PEER = 100;
+    public static final int NUMBER_OF_READ_MSG_PER_PEER = 100;
 
     public NIODownloadHandler peerDownloadHandler;
     public Set<PeerInfo> peerList;
@@ -64,14 +65,14 @@ public class TCPMessagesHandler {
      */
     public boolean fetchRequests() {
 
-        boolean everyoneIsConnected = true;
+       /* boolean everyoneIsConnected = true;
         for (PeerInfo peer : peerList) {
             PeerState peerState = peer.getPeerState();
             everyoneIsConnected = everyoneIsConnected && peerState.isConnected();
         }
         if (!everyoneIsConnected) {
             return false;
-        }
+        }*/
 
         boolean fetched = false;
         if (!TCPClient.torrentContext.getStrategy().getName().equals("ENDGAME")) {

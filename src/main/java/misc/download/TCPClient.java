@@ -51,8 +51,8 @@ public class TCPClient implements Runnable {
         tcpMessagesHandler = new TCPMessagesHandler(torrentMetaData, peerInfoList, clientState, torrentState, subject);
         tracker = new TrackerHandler(createAnnounceURL(), torrentMetaData.getSHA1InfoByte(), OURPORT, torrentMetaData.getNumberOfPieces());
 
-        //Set<PeerInfo> peers = generatePeerList(2001, 2002, 2003, 2004, 2005);
-        Set<PeerInfo> peers = getPeersFromTracker();
+        Set<PeerInfo> peers = generatePeerList(2001, 2002, 2003, 2004, 2005);
+        //Set<PeerInfo> peers = getPeersFromTracker();
         initializeSelector(peers);
 
         TrackerPeriodic trackerPeriodic = new TrackerPeriodic(connectToTracker);

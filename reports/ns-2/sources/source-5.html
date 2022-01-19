@@ -1,0 +1,608 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > TCPMessagesHandler</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">misc.download</a>
+</div>
+
+<h1>Coverage Summary for Class: TCPMessagesHandler (misc.download)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TCPMessagesHandler</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (8/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    55.5%
+  </span>
+  <span class="absValue">
+    (136/245)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package misc.download;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import misc.download.strategies.DownloadStrategy;
+<i class="no-highlight">4</i>&nbsp;import misc.messages.HandShake;
+<i class="no-highlight">5</i>&nbsp;import misc.messages.Message;
+<i class="no-highlight">6</i>&nbsp;import misc.messages.PeerMessage;
+<i class="no-highlight">7</i>&nbsp;import misc.peers.ClientState;
+<i class="no-highlight">8</i>&nbsp;import misc.peers.PeerInfo;
+<i class="no-highlight">9</i>&nbsp;import misc.peers.PeerState;
+<i class="no-highlight">10</i>&nbsp;import misc.torrent.*;
+<i class="no-highlight">11</i>&nbsp;import misc.tracker.TrackerHandler;
+<i class="no-highlight">12</i>&nbsp;import misc.utils.DEBUG;
+<i class="no-highlight">13</i>&nbsp;import misc.utils.Utils;
+<i class="no-highlight">14</i>&nbsp;
+<i class="no-highlight">15</i>&nbsp;import java.awt.image.WritableRenderedImage;
+<i class="no-highlight">16</i>&nbsp;import java.io.IOException;
+<i class="no-highlight">17</i>&nbsp;import java.net.InetAddress;
+<i class="no-highlight">18</i>&nbsp;import java.nio.BufferUnderflowException;
+<i class="no-highlight">19</i>&nbsp;import java.nio.ByteBuffer;
+<i class="no-highlight">20</i>&nbsp;import java.nio.channels.SelectionKey;
+<i class="no-highlight">21</i>&nbsp;import java.nio.channels.ServerSocketChannel;
+<i class="no-highlight">22</i>&nbsp;import java.nio.channels.SocketChannel;
+<i class="no-highlight">23</i>&nbsp;import java.util.Iterator;
+<i class="no-highlight">24</i>&nbsp;import java.util.List;
+<i class="no-highlight">25</i>&nbsp;import java.util.Set;
+<i class="no-highlight">26</i>&nbsp;import java.util.Stack;
+<i class="no-highlight">27</i>&nbsp;
+<i class="no-highlight">28</i>&nbsp;import static java.lang.System.exit;
+<i class="no-highlight">29</i>&nbsp;import static java.lang.System.in;
+<i class="no-highlight">30</i>&nbsp;import static misc.messages.PeerMessage.MsgType.INTERESTED;
+<i class="no-highlight">31</i>&nbsp;import static misc.messages.PeerMessage.MsgType.UNINTERESTED;
+<i class="no-highlight">32</i>&nbsp;
+<i class="no-highlight">33</i>&nbsp;
+<i class="no-highlight">34</i>&nbsp;/**
+<i class="no-highlight">35</i>&nbsp; * handles read and write operations to channels
+<i class="no-highlight">36</i>&nbsp; */
+<i class="no-highlight">37</i>&nbsp;public class TCPMessagesHandler {
+<i class="no-highlight">38</i>&nbsp;
+<i class="no-highlight">39</i>&nbsp;    public static final int NUMBER_OF_PIECES_PER_REQUEST = 3;
+<i class="no-highlight">40</i>&nbsp;    public static final int NUMBER_OF_REQUEST_PER_PEER = 50;
+<i class="no-highlight">41</i>&nbsp;    public static final int NUMBER_OF_READ_MSG_PER_PEER = 50;
+<i class="no-highlight">42</i>&nbsp;
+<i class="no-highlight">43</i>&nbsp;    public NIODownloadHandler peerDownloadHandler;
+<i class="no-highlight">44</i>&nbsp;    public Set&lt;PeerInfo&gt; peerList;
+<i class="no-highlight">45</i>&nbsp;    public TorrentMetaData torrentMetaData;
+<i class="no-highlight">46</i>&nbsp;    public ClientState clientState;
+<i class="no-highlight">47</i>&nbsp;    public Observer observer;
+<i class="no-highlight">48</i>&nbsp;    public TorrentState torrentState;
+<i class="no-highlight">49</i>&nbsp;
+<b class="fc"><i class="no-highlight">50</i>&nbsp;    public TCPMessagesHandler(TorrentMetaData torrentMetaData, Set&lt;PeerInfo&gt; peerList, ClientState clientState, TorrentState torrentState, Observer observer) {</b>
+<i class="no-highlight">51</i>&nbsp;
+<b class="fc"><i class="no-highlight">52</i>&nbsp;        this.torrentMetaData = torrentMetaData;</b>
+<b class="fc"><i class="no-highlight">53</i>&nbsp;        this.peerDownloadHandler = new NIODownloadHandler(clientState, torrentState, peerList, observer);</b>
+<b class="fc"><i class="no-highlight">54</i>&nbsp;        this.peerList = peerList;</b>
+<b class="fc"><i class="no-highlight">55</i>&nbsp;        this.clientState = clientState;</b>
+<b class="fc"><i class="no-highlight">56</i>&nbsp;        this.observer = observer;</b>
+<b class="fc"><i class="no-highlight">57</i>&nbsp;        this.torrentState = torrentState;</b>
+<i class="no-highlight">58</i>&nbsp;
+<i class="no-highlight">59</i>&nbsp;    }
+<i class="no-highlight">60</i>&nbsp;
+<i class="no-highlight">61</i>&nbsp;    /**
+<i class="no-highlight">62</i>&nbsp;     * search for requests to give to peers
+<i class="no-highlight">63</i>&nbsp;     * @return True if request could be fetched
+<i class="no-highlight">64</i>&nbsp;     */
+<i class="no-highlight">65</i>&nbsp;    public boolean fetchRequests() {
+<i class="no-highlight">66</i>&nbsp;
+<b class="fc"><i class="no-highlight">67</i>&nbsp;        boolean everyoneIsConnected = true;</b>
+<b class="fc"><i class="no-highlight">68</i>&nbsp;        for (PeerInfo peer : peerList) {</b>
+<b class="fc"><i class="no-highlight">69</i>&nbsp;            PeerState peerState = peer.getPeerState();</b>
+<b class="fc"><i class="no-highlight">70</i>&nbsp;            everyoneIsConnected = everyoneIsConnected &amp;&amp; peerState.isConnected();</b>
+<b class="fc"><i class="no-highlight">71</i>&nbsp;        }</b>
+<b class="fc"><i class="no-highlight">72</i>&nbsp;        if (!everyoneIsConnected) {</b>
+<b class="fc"><i class="no-highlight">73</i>&nbsp;            return false;</b>
+<i class="no-highlight">74</i>&nbsp;        }
+<i class="no-highlight">75</i>&nbsp;
+<b class="fc"><i class="no-highlight">76</i>&nbsp;        boolean fetched = false;</b>
+<b class="fc"><i class="no-highlight">77</i>&nbsp;        if (!TCPClient.torrentContext.getStrategy().getName().equals(&quot;ENDGAME&quot;)) {</b>
+<b class="fc"><i class="no-highlight">78</i>&nbsp;            fetched = generateRequests();</b>
+<i class="no-highlight">79</i>&nbsp;        } else {
+<b class="fc"><i class="no-highlight">80</i>&nbsp;            TCPClient.torrentContext.updatePeerState();</b>
+<i class="no-highlight">81</i>&nbsp;        }
+<i class="no-highlight">82</i>&nbsp;
+<b class="fc"><i class="no-highlight">83</i>&nbsp;        return fetched;</b>
+<i class="no-highlight">84</i>&nbsp;    }
+<i class="no-highlight">85</i>&nbsp;
+<i class="no-highlight">86</i>&nbsp;
+<i class="no-highlight">87</i>&nbsp;    public boolean generateRequests() {
+<i class="no-highlight">88</i>&nbsp;
+<b class="fc"><i class="no-highlight">89</i>&nbsp;        boolean sent = false;</b>
+<i class="no-highlight">90</i>&nbsp;        boolean generated;
+<i class="no-highlight">91</i>&nbsp;
+<b class="fc"><i class="no-highlight">92</i>&nbsp;        if (peerDownloadHandler.getClientState().piecesToRequest.size() &lt; NUMBER_OF_PIECES_PER_REQUEST) {</b>
+<b class="fc"><i class="no-highlight">93</i>&nbsp;            generated = TCPClient.torrentContext.updatePeerState();</b>
+<i class="no-highlight">94</i>&nbsp;
+<b class="fc"><i class="no-highlight">95</i>&nbsp;            Iterator&lt;Integer&gt; it = peerDownloadHandler.getClientState().piecesToRequest.iterator();</b>
+<i class="no-highlight">96</i>&nbsp;
+<b class="fc"><i class="no-highlight">97</i>&nbsp;            if (it.hasNext()) {</b>
+<b class="fc"><i class="no-highlight">98</i>&nbsp;                Integer index = it.next();</b>
+<b class="fc"><i class="no-highlight">99</i>&nbsp;                sent = peerDownloadHandler.sendBlockRequests(DownloadStrategy.peersByPieceIndex(peerList, index), index);</b>
+<i class="no-highlight">100</i>&nbsp;            }
+<i class="no-highlight">101</i>&nbsp;        }
+<i class="no-highlight">102</i>&nbsp;
+<b class="fc"><i class="no-highlight">103</i>&nbsp;        return sent;</b>
+<i class="no-highlight">104</i>&nbsp;    }
+<i class="no-highlight">105</i>&nbsp;
+<i class="no-highlight">106</i>&nbsp;    private Message receiveMessage(SocketChannel socketChannel, SelectionKey key) {
+<i class="no-highlight">107</i>&nbsp;
+<b class="fc"><i class="no-highlight">108</i>&nbsp;        byte[] buffLen = new byte[4];</b>
+<b class="fc"><i class="no-highlight">109</i>&nbsp;        ByteBuffer buffer = ByteBuffer.wrap(buffLen);</b>
+<i class="no-highlight">110</i>&nbsp;
+<b class="fc"><i class="no-highlight">111</i>&nbsp;        int bRead = 0;</b>
+<i class="no-highlight">112</i>&nbsp;        try {
+<b class="fc"><i class="no-highlight">113</i>&nbsp;            while (bRead &lt; 4) {</b>
+<b class="fc"><i class="no-highlight">114</i>&nbsp;                bRead += socketChannel.read(buffer);</b>
+<b class="fc"><i class="no-highlight">115</i>&nbsp;                if (bRead == -1) {</b>
+<i class="no-highlight">116</i>&nbsp;                    //System.out.println(&quot;...&quot;);
+<i class="no-highlight">117</i>&nbsp;                    //System.out.println(&quot;end of stream&quot;);
+<b class="nc"><i class="no-highlight">118</i>&nbsp;                    PeerInfo peerInfo = (PeerInfo) key.attachment();</b>
+<b class="nc"><i class="no-highlight">119</i>&nbsp;                    PeerState peerState = peerInfo.getPeerState();</b>
+<b class="nc"><i class="no-highlight">120</i>&nbsp;                    boolean cancelKey = true;</b>
+<i class="no-highlight">121</i>&nbsp;
+<b class="nc"><i class="no-highlight">122</i>&nbsp;                    for (int i = 0; i &lt; torrentMetaData.getNumberOfPieces(); i++) {</b>
+<b class="nc"><i class="no-highlight">123</i>&nbsp;                        if ((!clientState.hasPiece(i) &amp;&amp; peerState.hasPiece(i) || (clientState.hasPiece(i) &amp;&amp; !peerState.hasPiece(i)))) {</b>
+<b class="nc"><i class="no-highlight">124</i>&nbsp;                            cancelKey = false;</b>
+<i class="no-highlight">125</i>&nbsp;                        }
+<i class="no-highlight">126</i>&nbsp;                    }
+<i class="no-highlight">127</i>&nbsp;
+<b class="nc"><i class="no-highlight">128</i>&nbsp;                    if (cancelKey &amp;&amp; peerState.writeMessageQ.isEmpty())</b>
+<b class="nc"><i class="no-highlight">129</i>&nbsp;                        cancelKey(key);</b>
+<i class="no-highlight">130</i>&nbsp;                    else {
+<b class="nc"><i class="no-highlight">131</i>&nbsp;                        key.interestOps(SelectionKey.OP_WRITE);</b>
+<i class="no-highlight">132</i>&nbsp;                    }
+<b class="nc"><i class="no-highlight">133</i>&nbsp;                    return null;</b>
+<i class="no-highlight">134</i>&nbsp;                }
+<b class="fc"><i class="no-highlight">135</i>&nbsp;                if (bRead == 0) {</b>
+<b class="fc"><i class="no-highlight">136</i>&nbsp;                    return null;</b>
+<i class="no-highlight">137</i>&nbsp;                }
+<i class="no-highlight">138</i>&nbsp;            }
+<i class="no-highlight">139</i>&nbsp;
+<b class="nc"><i class="no-highlight">140</i>&nbsp;        } catch (IOException e) {</b>
+<b class="nc"><i class="no-highlight">141</i>&nbsp;            System.out.println(&quot;remote closed connection&quot;);</b>
+<b class="nc"><i class="no-highlight">142</i>&nbsp;            cancelKey(key);</b>
+<b class="nc"><i class="no-highlight">143</i>&nbsp;            return null;</b>
+<b class="nc"><i class="no-highlight">144</i>&nbsp;        } catch (BufferUnderflowException e) {</b>
+<b class="nc"><i class="no-highlight">145</i>&nbsp;            DEBUG.printError(e, getClass().getName());</b>
+<b class="nc"><i class="no-highlight">146</i>&nbsp;            return null;</b>
+<b class="fc"><i class="no-highlight">147</i>&nbsp;        }</b>
+<i class="no-highlight">148</i>&nbsp;
+<b class="fc"><i class="no-highlight">149</i>&nbsp;        if (bRead != 4)</b>
+<b class="nc"><i class="no-highlight">150</i>&nbsp;            return null;</b>
+<i class="no-highlight">151</i>&nbsp;
+<b class="fc"><i class="no-highlight">152</i>&nbsp;        buffer.flip();</b>
+<i class="no-highlight">153</i>&nbsp;        int len;
+<i class="no-highlight">154</i>&nbsp;        try {
+<b class="fc"><i class="no-highlight">155</i>&nbsp;            len = buffer.getInt();</b>
+<b class="nc"><i class="no-highlight">156</i>&nbsp;        } catch (BufferUnderflowException e) {</b>
+<b class="nc"><i class="no-highlight">157</i>&nbsp;            DEBUG.printError(e, getClass().getName());</b>
+<b class="nc"><i class="no-highlight">158</i>&nbsp;            return null;</b>
+<b class="fc"><i class="no-highlight">159</i>&nbsp;        }</b>
+<i class="no-highlight">160</i>&nbsp;
+<b class="fc"><i class="no-highlight">161</i>&nbsp;        if (len &lt; 0)</b>
+<b class="nc"><i class="no-highlight">162</i>&nbsp;            return null;</b>
+<i class="no-highlight">163</i>&nbsp;        //buffer.flip();
+<b class="fc"><i class="no-highlight">164</i>&nbsp;        byte[] finalData = new byte[4 + len];</b>
+<b class="fc"><i class="no-highlight">165</i>&nbsp;        System.arraycopy(buffer.array(), 0, finalData, 0, 4);</b>
+<i class="no-highlight">166</i>&nbsp;
+<b class="fc"><i class="no-highlight">167</i>&nbsp;        buffer = ByteBuffer.allocate(len);</b>
+<b class="fc"><i class="no-highlight">168</i>&nbsp;        int byteRead = 0;</b>
+<b class="fc"><i class="no-highlight">169</i>&nbsp;        while (byteRead &lt; len) {</b>
+<i class="no-highlight">170</i>&nbsp;            try {
+<b class="fc"><i class="no-highlight">171</i>&nbsp;                byteRead += socketChannel.read(buffer);</b>
+<b class="nc"><i class="no-highlight">172</i>&nbsp;            } catch (IOException | BufferUnderflowException e) {</b>
+<b class="nc"><i class="no-highlight">173</i>&nbsp;                DEBUG.printError(e, getClass().getName());</b>
+<b class="nc"><i class="no-highlight">174</i>&nbsp;                return null;</b>
+<b class="fc"><i class="no-highlight">175</i>&nbsp;            }</b>
+<i class="no-highlight">176</i>&nbsp;        }
+<i class="no-highlight">177</i>&nbsp;        //buffer.flip();
+<b class="fc"><i class="no-highlight">178</i>&nbsp;        System.arraycopy(buffer.array(), 0, finalData, 4, len);</b>
+<i class="no-highlight">179</i>&nbsp;
+<b class="fc"><i class="no-highlight">180</i>&nbsp;        if (byteRead != len)</b>
+<b class="nc"><i class="no-highlight">181</i>&nbsp;            return null;</b>
+<i class="no-highlight">182</i>&nbsp;
+<b class="fc"><i class="no-highlight">183</i>&nbsp;        return PeerMessage.deserialize(finalData);</b>
+<i class="no-highlight">184</i>&nbsp;    }
+<i class="no-highlight">185</i>&nbsp;
+<i class="no-highlight">186</i>&nbsp;    private void sendMessage(SocketChannel socketChannel, PeerInfo peerInfo, Message message) {
+<i class="no-highlight">187</i>&nbsp;
+<b class="fc"><i class="no-highlight">188</i>&nbsp;        byte[] msg = PeerMessage.serialize(message);</b>
+<b class="fc"><i class="no-highlight">189</i>&nbsp;        ByteBuffer writeBuf = ByteBuffer.wrap(msg);</b>
+<i class="no-highlight">190</i>&nbsp;        try {
+<b class="fc"><i class="no-highlight">191</i>&nbsp;            socketChannel.write(writeBuf);</b>
+<b class="nc"><i class="no-highlight">192</i>&nbsp;        } catch (IOException e) {</b>
+<b class="nc"><i class="no-highlight">193</i>&nbsp;            DEBUG.printError(e, getClass().getName());</b>
+<b class="nc"><i class="no-highlight">194</i>&nbsp;            DEBUG.logf(&quot;---&gt;sending message &quot;, message.toString(), &quot;to peer number&quot;, String.valueOf(peerInfo.getPort()));</b>
+<i class="no-highlight">195</i>&nbsp;            return;
+<b class="fc"><i class="no-highlight">196</i>&nbsp;        }</b>
+<i class="no-highlight">197</i>&nbsp;
+<i class="no-highlight">198</i>&nbsp;
+<b class="fc"><i class="no-highlight">199</i>&nbsp;        DEBUG.logf(&quot;---&gt;sent message &quot;, message.toString(), &quot;to peer number&quot;, String.valueOf(peerInfo.getPort()));</b>
+<i class="no-highlight">200</i>&nbsp;
+<i class="no-highlight">201</i>&nbsp;
+<i class="no-highlight">202</i>&nbsp;    }
+<i class="no-highlight">203</i>&nbsp;
+<i class="no-highlight">204</i>&nbsp;    public void handleRead(SelectionKey key) {
+<i class="no-highlight">205</i>&nbsp;
+<b class="fc"><i class="no-highlight">206</i>&nbsp;        SocketChannel clientChannel = (SocketChannel) key.channel();</b>
+<b class="fc"><i class="no-highlight">207</i>&nbsp;        PeerInfo peerInfo = (PeerInfo) key.attachment();</b>
+<b class="fc"><i class="no-highlight">208</i>&nbsp;        PeerState peerState = peerInfo.getPeerState();</b>
+<i class="no-highlight">209</i>&nbsp;
+<i class="no-highlight">210</i>&nbsp;
+<i class="no-highlight">211</i>&nbsp;        /*if (peerState.queuedRequestsFromPeer.get() &gt;= NUMBER_OF_REQUEST_PER_PEER &amp;&amp; peerState.queuedRequestsFromClient.get() &lt; NUMBER_OF_REQUEST_PER_PEER) {
+<i class="no-highlight">212</i>&nbsp;            System.out.print(&quot;.&quot;);
+<i class="no-highlight">213</i>&nbsp;            if (key.isValid()) {
+<i class="no-highlight">214</i>&nbsp;                key.interestOps(SelectionKey.OP_WRITE);
+<i class="no-highlight">215</i>&nbsp;            }
+<i class="no-highlight">216</i>&nbsp;            return;
+<i class="no-highlight">217</i>&nbsp;        }*/
+<i class="no-highlight">218</i>&nbsp;
+<b class="fc"><i class="no-highlight">219</i>&nbsp;        if (!peerState.sentHandshake) {</b>
+<b class="fc"><i class="no-highlight">220</i>&nbsp;            HandShake hd = HandShake.readHandshake(clientChannel);</b>
+<b class="fc"><i class="no-highlight">221</i>&nbsp;            if (hd == null) {</b>
+<b class="nc"><i class="no-highlight">222</i>&nbsp;                if (key.isValid()) {</b>
+<b class="nc"><i class="no-highlight">223</i>&nbsp;                    key.interestOps(SelectionKey.OP_READ);</b>
+<i class="no-highlight">224</i>&nbsp;                }
+<i class="no-highlight">225</i>&nbsp;                return;
+<i class="no-highlight">226</i>&nbsp;            }
+<i class="no-highlight">227</i>&nbsp;
+<b class="fc"><i class="no-highlight">228</i>&nbsp;            DEBUG.logf(&quot;&lt;---received handshake &quot;, &quot;from peer number&quot;, String.valueOf(peerInfo.getPort()), hd.toString());</b>
+<i class="no-highlight">229</i>&nbsp;
+<b class="fc"><i class="no-highlight">230</i>&nbsp;            peerState.sentHandshake = true;</b>
+<i class="no-highlight">231</i>&nbsp;
+<b class="fc"><i class="no-highlight">232</i>&nbsp;            if (!peerState.receivedHandshake) {</b>
+<b class="nc"><i class="no-highlight">233</i>&nbsp;                if (key.isValid()) {</b>
+<b class="nc"><i class="no-highlight">234</i>&nbsp;                    key.interestOps(SelectionKey.OP_WRITE);</b>
+<i class="no-highlight">235</i>&nbsp;                }
+<i class="no-highlight">236</i>&nbsp;
+<b class="nc"><i class="no-highlight">237</i>&nbsp;                TCPClient.waitingConnections.add(peerInfo);</b>
+<i class="no-highlight">238</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">239</i>&nbsp;            if (!HandShake.validateHandShake(hd, torrentMetaData.getSHA1Info())) {</b>
+<i class="no-highlight">240</i>&nbsp;
+<b class="nc"><i class="no-highlight">241</i>&nbsp;                System.out.println(&quot;handshake unvalid, removing peer&quot;);</b>
+<b class="nc"><i class="no-highlight">242</i>&nbsp;                cancelKey(key);</b>
+<b class="nc"><i class="no-highlight">243</i>&nbsp;                peerList.remove(peerInfo);</b>
+<i class="no-highlight">244</i>&nbsp;
+<i class="no-highlight">245</i>&nbsp;                try {
+<b class="nc"><i class="no-highlight">246</i>&nbsp;                    clientChannel.close();</b>
+<b class="nc"><i class="no-highlight">247</i>&nbsp;                } catch (IOException e) {</b>
+<b class="nc"><i class="no-highlight">248</i>&nbsp;                    e.printStackTrace();</b>
+<b class="nc"><i class="no-highlight">249</i>&nbsp;                }</b>
+<i class="no-highlight">250</i>&nbsp;
+<i class="no-highlight">251</i>&nbsp;                return;
+<i class="no-highlight">252</i>&nbsp;            }
+<i class="no-highlight">253</i>&nbsp;
+<i class="no-highlight">254</i>&nbsp;
+<b class="fc"><i class="no-highlight">255</i>&nbsp;            if (key.isValid()) {</b>
+<b class="fc"><i class="no-highlight">256</i>&nbsp;                key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);</b>
+<i class="no-highlight">257</i>&nbsp;            }
+<i class="no-highlight">258</i>&nbsp;            return;
+<i class="no-highlight">259</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">260</i>&nbsp;        int receivedMessages = 0;</b>
+<i class="no-highlight">261</i>&nbsp;        Message message;
+<i class="no-highlight">262</i>&nbsp;        do {
+<b class="fc"><i class="no-highlight">263</i>&nbsp;            receivedMessages++;</b>
+<b class="fc"><i class="no-highlight">264</i>&nbsp;            message = receiveMessage(clientChannel, key);</b>
+<b class="fc"><i class="no-highlight">265</i>&nbsp;            if (message == null) {</b>
+<b class="fc"><i class="no-highlight">266</i>&nbsp;                if (key.isValid()) {</b>
+<b class="fc"><i class="no-highlight">267</i>&nbsp;                    key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);</b>
+<i class="no-highlight">268</i>&nbsp;                }
+<i class="no-highlight">269</i>&nbsp;
+<i class="no-highlight">270</i>&nbsp;                // DEBUG.log(&quot;no message received&quot;);
+<i class="no-highlight">271</i>&nbsp;                return;
+<i class="no-highlight">272</i>&nbsp;            }
+<i class="no-highlight">273</i>&nbsp;
+<b class="fc"><i class="no-highlight">274</i>&nbsp;            if (clientState.isDownloading) {</b>
+<b class="fc"><i class="no-highlight">275</i>&nbsp;                DEBUG.logf(&quot;&lt;---recieved message &quot;, message.toString(), &quot; from peer number&quot;, String.valueOf(peerInfo.getPort()));</b>
+<i class="no-highlight">276</i>&nbsp;            }
+<i class="no-highlight">277</i>&nbsp;
+<b class="fc"><i class="no-highlight">278</i>&nbsp;            peerDownloadHandler.stateMachine(message, peerState);</b>
+<i class="no-highlight">279</i>&nbsp;
+<b class="fc"><i class="no-highlight">280</i>&nbsp;            if (key.isValid()) {</b>
+<b class="fc"><i class="no-highlight">281</i>&nbsp;                key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);</b>
+<i class="no-highlight">282</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">283</i>&nbsp;        } while (receivedMessages &lt;= NUMBER_OF_READ_MSG_PER_PEER);</b>
+<i class="no-highlight">284</i>&nbsp;
+<i class="no-highlight">285</i>&nbsp;    }
+<i class="no-highlight">286</i>&nbsp;
+<i class="no-highlight">287</i>&nbsp;    public void handleWrite(SelectionKey key) {
+<i class="no-highlight">288</i>&nbsp;
+<b class="fc"><i class="no-highlight">289</i>&nbsp;        SocketChannel clientChannel = (SocketChannel) key.channel();</b>
+<i class="no-highlight">290</i>&nbsp;
+<b class="fc"><i class="no-highlight">291</i>&nbsp;        PeerInfo peerInfo = (PeerInfo) key.attachment();</b>
+<b class="fc"><i class="no-highlight">292</i>&nbsp;        PeerState peerState = peerInfo.getPeerState();</b>
+<i class="no-highlight">293</i>&nbsp;
+<b class="fc"><i class="no-highlight">294</i>&nbsp;        if (peerState.receivedHandshake &amp;&amp; !peerState.sentHandshake) {</b>
+<b class="nc"><i class="no-highlight">295</i>&nbsp;            if (key.isValid()) {</b>
+<b class="nc"><i class="no-highlight">296</i>&nbsp;                key.interestOps(SelectionKey.OP_READ);</b>
+<i class="no-highlight">297</i>&nbsp;            }
+<i class="no-highlight">298</i>&nbsp;            return;
+<i class="no-highlight">299</i>&nbsp;        }
+<i class="no-highlight">300</i>&nbsp;        //HANDSHAKE HANDLING
+<i class="no-highlight">301</i>&nbsp;
+<b class="fc"><i class="no-highlight">302</i>&nbsp;        if (!peerState.receivedHandshake) {</b>
+<b class="fc"><i class="no-highlight">303</i>&nbsp;            DEBUG.logf(&quot;---&gt;sending handshake&quot;, &quot;to peer number&quot;, String.valueOf(peerInfo.getPort()));</b>
+<b class="fc"><i class="no-highlight">304</i>&nbsp;            HandShake sentHand = new HandShake(Utils.hexStringToByteArray(torrentMetaData.getSHA1Info()), Utils.hexStringToByteArray(TrackerHandler.PEER_ID));</b>
+<b class="fc"><i class="no-highlight">305</i>&nbsp;            ByteBuffer writeBuf = ByteBuffer.wrap(sentHand.createHandshakeMsg());</b>
+<i class="no-highlight">306</i>&nbsp;            try {
+<b class="fc"><i class="no-highlight">307</i>&nbsp;                clientChannel.write(writeBuf);</b>
+<b class="nc"><i class="no-highlight">308</i>&nbsp;            } catch (IOException e) {</b>
+<b class="nc"><i class="no-highlight">309</i>&nbsp;                System.err.println(&quot;error cannot send handshake&quot;);</b>
+<b class="nc"><i class="no-highlight">310</i>&nbsp;                DEBUG.printError(e, getClass().getName());</b>
+<i class="no-highlight">311</i>&nbsp;                return;
+<b class="fc"><i class="no-highlight">312</i>&nbsp;            }</b>
+<i class="no-highlight">313</i>&nbsp;
+<i class="no-highlight">314</i>&nbsp;            //our peer received our handshake
+<b class="fc"><i class="no-highlight">315</i>&nbsp;            peerState.receivedHandshake = true;</b>
+<b class="fc"><i class="no-highlight">316</i>&nbsp;            if (!peerState.sentHandshake) {</b>
+<b class="fc"><i class="no-highlight">317</i>&nbsp;                TCPClient.waitingConnections.add(peerInfo);</b>
+<b class="fc"><i class="no-highlight">318</i>&nbsp;                if (key.isValid()) {</b>
+<b class="fc"><i class="no-highlight">319</i>&nbsp;                    key.interestOps(SelectionKey.OP_READ);</b>
+<i class="no-highlight">320</i>&nbsp;                }
+<i class="no-highlight">321</i>&nbsp;            }
+<i class="no-highlight">322</i>&nbsp;
+<i class="no-highlight">323</i>&nbsp;            return;
+<i class="no-highlight">324</i>&nbsp;        } else {
+<b class="fc"><i class="no-highlight">325</i>&nbsp;            if (!peerState.welcomeQ.isEmpty()) {</b>
+<b class="fc"><i class="no-highlight">326</i>&nbsp;                while (!peerState.welcomeQ.isEmpty()) {</b>
+<b class="fc"><i class="no-highlight">327</i>&nbsp;                    Message writeMessage = peerState.welcomeQ.poll();</b>
+<b class="fc"><i class="no-highlight">328</i>&nbsp;                    sendMessage(clientChannel, peerInfo, writeMessage);</b>
+<b class="fc"><i class="no-highlight">329</i>&nbsp;                    peerDownloadHandler.sentStateMachine(writeMessage, peerState);</b>
+<b class="fc"><i class="no-highlight">330</i>&nbsp;                }</b>
+<b class="fc"><i class="no-highlight">331</i>&nbsp;                TCPClient.waitingConnections.remove(peerInfo);</b>
+<b class="fc"><i class="no-highlight">332</i>&nbsp;            } else if (!peerState.writeMessageQ.isEmpty()) {</b>
+<b class="fc"><i class="no-highlight">333</i>&nbsp;                if (peerState.weAreChokedByPeer &amp;&amp; peerState.writeMessageQ.peek().ID == PeerMessage.MsgType.REQUEST) {</b>
+<b class="nc"><i class="no-highlight">334</i>&nbsp;                    if (key.isValid()) {</b>
+<b class="nc"><i class="no-highlight">335</i>&nbsp;                        key.interestOps(SelectionKey.OP_READ);</b>
+<i class="no-highlight">336</i>&nbsp;                    }
+<i class="no-highlight">337</i>&nbsp;                    return;
+<i class="no-highlight">338</i>&nbsp;                }
+<i class="no-highlight">339</i>&nbsp;
+<b class="fc"><i class="no-highlight">340</i>&nbsp;                while (!peerState.writeMessageQ.isEmpty() &amp;&amp; peerState.queuedRequestsFromClient.get() &lt; NUMBER_OF_REQUEST_PER_PEER) {</b>
+<b class="fc"><i class="no-highlight">341</i>&nbsp;                    Message writeMessage = peerState.writeMessageQ.poll();</b>
+<i class="no-highlight">342</i>&nbsp;
+<b class="fc"><i class="no-highlight">343</i>&nbsp;                    if (writeMessage == null)</b>
+<b class="nc"><i class="no-highlight">344</i>&nbsp;                        System.err.println(&quot;null message to write&quot;);</b>
+<b class="fc"><i class="no-highlight">345</i>&nbsp;                    else if (writeMessage.getID() == PeerMessage.MsgType.REQUEST) {</b>
+<i class="no-highlight">346</i>&nbsp;
+<b class="fc"><i class="no-highlight">347</i>&nbsp;                        int pid = writeMessage.getIndex();</b>
+<b class="fc"><i class="no-highlight">348</i>&nbsp;                        int bid = writeMessage.getBegin() / torrentState.BLOCK_SIZE;</b>
+<b class="fc"><i class="no-highlight">349</i>&nbsp;                        Piece piece = torrentState.pieces.get(pid);</b>
+<b class="fc"><i class="no-highlight">350</i>&nbsp;                        if (!(piece.getBlocks().get(bid) == BlockStatus.Downloaded) &amp;&amp; !clientState.hasPiece(pid)) {</b>
+<b class="fc"><i class="no-highlight">351</i>&nbsp;                            sendMessage(clientChannel, peerInfo, writeMessage);</b>
+<b class="fc"><i class="no-highlight">352</i>&nbsp;                            peerDownloadHandler.sentStateMachine(writeMessage, peerState);</b>
+<i class="no-highlight">353</i>&nbsp;                        }
+<i class="no-highlight">354</i>&nbsp;
+<b class="fc"><i class="no-highlight">355</i>&nbsp;                    } else {</b>
+<b class="fc"><i class="no-highlight">356</i>&nbsp;                        sendMessage(clientChannel, peerInfo, writeMessage);</b>
+<b class="fc"><i class="no-highlight">357</i>&nbsp;                        peerDownloadHandler.sentStateMachine(writeMessage, peerState);</b>
+<i class="no-highlight">358</i>&nbsp;                    }
+<i class="no-highlight">359</i>&nbsp;
+<b class="fc"><i class="no-highlight">360</i>&nbsp;                }</b>
+<b class="fc"><i class="no-highlight">361</i>&nbsp;                if (peerState.queuedRequestsFromClient.get() &gt; 0) {</b>
+<b class="fc"><i class="no-highlight">362</i>&nbsp;                    if (key.isValid()) {</b>
+<b class="fc"><i class="no-highlight">363</i>&nbsp;                        key.interestOps(SelectionKey.OP_READ);</b>
+<i class="no-highlight">364</i>&nbsp;                    }
+<i class="no-highlight">365</i>&nbsp;                    return;
+<i class="no-highlight">366</i>&nbsp;                }
+<i class="no-highlight">367</i>&nbsp;            }
+<i class="no-highlight">368</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">369</i>&nbsp;        if (key.isValid()) {</b>
+<b class="fc"><i class="no-highlight">370</i>&nbsp;            key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);</b>
+<i class="no-highlight">371</i>&nbsp;        }
+<i class="no-highlight">372</i>&nbsp;
+<i class="no-highlight">373</i>&nbsp;    }
+<i class="no-highlight">374</i>&nbsp;
+<i class="no-highlight">375</i>&nbsp;    public void handleConnection(SelectionKey key) {
+<i class="no-highlight">376</i>&nbsp;
+<b class="fc"><i class="no-highlight">377</i>&nbsp;        SocketChannel clientChannel = (SocketChannel) key.channel();</b>
+<b class="fc"><i class="no-highlight">378</i>&nbsp;        PeerInfo peerInfo = (PeerInfo) key.attachment();</b>
+<b class="fc"><i class="no-highlight">379</i>&nbsp;        PeerState peerState = peerInfo.getPeerState();</b>
+<i class="no-highlight">380</i>&nbsp;
+<i class="no-highlight">381</i>&nbsp;        boolean isConnected;
+<i class="no-highlight">382</i>&nbsp;        try {
+<b class="fc"><i class="no-highlight">383</i>&nbsp;            DEBUG.log(&quot;connecting to &quot; + clientChannel.getRemoteAddress());</b>
+<b class="fc"><i class="no-highlight">384</i>&nbsp;            isConnected = clientChannel.finishConnect();</b>
+<i class="no-highlight">385</i>&nbsp;
+<b class="fc"><i class="no-highlight">386</i>&nbsp;            if (!isConnected) {</b>
+<b class="nc"><i class="no-highlight">387</i>&nbsp;                DEBUG.loge(&quot;cannot connect to &quot; + clientChannel.getRemoteAddress());</b>
+<i class="no-highlight">388</i>&nbsp;                return;
+<i class="no-highlight">389</i>&nbsp;            }
+<i class="no-highlight">390</i>&nbsp;
+<i class="no-highlight">391</i>&nbsp;
+<b class="fc"><i class="no-highlight">392</i>&nbsp;            Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, clientState.getBitfield());</b>
+<b class="fc"><i class="no-highlight">393</i>&nbsp;            peerState.welcomeQ.add(bitfield);</b>
+<i class="no-highlight">394</i>&nbsp;
+<b class="nc"><i class="no-highlight">395</i>&nbsp;        } catch (IOException connectException) {</b>
+<b class="nc"><i class="no-highlight">396</i>&nbsp;            removePeer(peerInfo);</b>
+<i class="no-highlight">397</i>&nbsp;            try {
+<b class="nc"><i class="no-highlight">398</i>&nbsp;                clientChannel.close();</b>
+<b class="nc"><i class="no-highlight">399</i>&nbsp;            } catch (IOException e) {</b>
+<b class="nc"><i class="no-highlight">400</i>&nbsp;                DEBUG.printError(e, getClass().getName());</b>
+<b class="nc"><i class="no-highlight">401</i>&nbsp;            }</b>
+<i class="no-highlight">402</i>&nbsp;
+<b class="nc"><i class="no-highlight">403</i>&nbsp;            System.out.println(&quot;peer cannot connect, removing key&quot;);</b>
+<b class="nc"><i class="no-highlight">404</i>&nbsp;            cancelKey(key);</b>
+<i class="no-highlight">405</i>&nbsp;            return;
+<b class="fc"><i class="no-highlight">406</i>&nbsp;        }</b>
+<i class="no-highlight">407</i>&nbsp;
+<i class="no-highlight">408</i>&nbsp;        try {
+<b class="fc"><i class="no-highlight">409</i>&nbsp;            if (clientChannel.finishConnect()) {</b>
+<b class="fc"><i class="no-highlight">410</i>&nbsp;                if (key.isValid()) {</b>
+<b class="fc"><i class="no-highlight">411</i>&nbsp;                    key.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);</b>
+<i class="no-highlight">412</i>&nbsp;                }
+<i class="no-highlight">413</i>&nbsp;            }
+<i class="no-highlight">414</i>&nbsp;
+<b class="nc"><i class="no-highlight">415</i>&nbsp;        } catch (IOException e) {</b>
+<b class="nc"><i class="no-highlight">416</i>&nbsp;            DEBUG.printError(e, getClass().getName());</b>
+<b class="nc"><i class="no-highlight">417</i>&nbsp;            removePeer(peerInfo);</b>
+<i class="no-highlight">418</i>&nbsp;
+<i class="no-highlight">419</i>&nbsp;            try {
+<b class="nc"><i class="no-highlight">420</i>&nbsp;                clientChannel.close();</b>
+<b class="nc"><i class="no-highlight">421</i>&nbsp;            } catch (IOException ex) {</b>
+<b class="nc"><i class="no-highlight">422</i>&nbsp;                DEBUG.printError(e, getClass().getName());</b>
+<b class="nc"><i class="no-highlight">423</i>&nbsp;            }</b>
+<b class="nc"><i class="no-highlight">424</i>&nbsp;            System.out.println(&quot;cannot connect to peer, removing key&quot;);</b>
+<b class="nc"><i class="no-highlight">425</i>&nbsp;            cancelKey(key);</b>
+<i class="no-highlight">426</i>&nbsp;
+<b class="fc"><i class="no-highlight">427</i>&nbsp;        }</b>
+<i class="no-highlight">428</i>&nbsp;
+<i class="no-highlight">429</i>&nbsp;    }
+<i class="no-highlight">430</i>&nbsp;
+<i class="no-highlight">431</i>&nbsp;
+<i class="no-highlight">432</i>&nbsp;    public void cancelKey(SelectionKey key) {
+<b class="nc"><i class="no-highlight">433</i>&nbsp;        System.out.println(&quot;canceling key&quot;);</b>
+<b class="nc"><i class="no-highlight">434</i>&nbsp;        key.cancel();</b>
+<b class="nc"><i class="no-highlight">435</i>&nbsp;        PeerInfo peerInfo = (PeerInfo) key.attachment();</b>
+<b class="nc"><i class="no-highlight">436</i>&nbsp;        removePeer(peerInfo);</b>
+<i class="no-highlight">437</i>&nbsp;        //exit(0);
+<i class="no-highlight">438</i>&nbsp;
+<i class="no-highlight">439</i>&nbsp;    }
+<i class="no-highlight">440</i>&nbsp;
+<i class="no-highlight">441</i>&nbsp;    public void handleAccept(SelectionKey key) {
+<i class="no-highlight">442</i>&nbsp;        SocketChannel clientChannel;
+<i class="no-highlight">443</i>&nbsp;        try {
+<b class="nc"><i class="no-highlight">444</i>&nbsp;            clientChannel = ((ServerSocketChannel) key.channel()).accept();</b>
+<b class="nc"><i class="no-highlight">445</i>&nbsp;            clientChannel.configureBlocking(false);</b>
+<b class="nc"><i class="no-highlight">446</i>&nbsp;            int port = clientChannel.socket().getPort();</b>
+<b class="nc"><i class="no-highlight">447</i>&nbsp;            InetAddress address = clientChannel.socket().getInetAddress();</b>
+<b class="nc"><i class="no-highlight">448</i>&nbsp;            PeerInfo peerInfo = new PeerInfo(address, port, torrentMetaData.getNumberOfPieces());</b>
+<i class="no-highlight">449</i>&nbsp;
+<b class="nc"><i class="no-highlight">450</i>&nbsp;            clientChannel.register(key.selector(), SelectionKey.OP_READ, peerInfo);</b>
+<i class="no-highlight">451</i>&nbsp;            //peerList.add(new PeerInfo(InetAddress.getLocalHost(), port, torrentMetaData.getNumberOfPieces()));
+<b class="nc"><i class="no-highlight">452</i>&nbsp;            addPeer(peerInfo);</b>
+<i class="no-highlight">453</i>&nbsp;
+<i class="no-highlight">454</i>&nbsp;
+<b class="nc"><i class="no-highlight">455</i>&nbsp;            PeerState peerState = peerInfo.getPeerState();</b>
+<b class="nc"><i class="no-highlight">456</i>&nbsp;            Message bitfield = new Message(PeerMessage.MsgType.BITFIELD, clientState.getBitfield());</b>
+<b class="nc"><i class="no-highlight">457</i>&nbsp;            peerState.welcomeQ.add(bitfield);</b>
+<i class="no-highlight">458</i>&nbsp;
+<b class="nc"><i class="no-highlight">459</i>&nbsp;        } catch (IOException e) {</b>
+<b class="nc"><i class="no-highlight">460</i>&nbsp;            e.printStackTrace();</b>
+<b class="nc"><i class="no-highlight">461</i>&nbsp;        }</b>
+<i class="no-highlight">462</i>&nbsp;    }
+<i class="no-highlight">463</i>&nbsp;
+<i class="no-highlight">464</i>&nbsp;    public void addPeer(PeerInfo peerInfo) {
+<b class="nc"><i class="no-highlight">465</i>&nbsp;        peerList.add(peerInfo);</b>
+<i class="no-highlight">466</i>&nbsp;    }
+<i class="no-highlight">467</i>&nbsp;
+<i class="no-highlight">468</i>&nbsp;    public void removePeer(PeerInfo peerInfo) {
+<i class="no-highlight">469</i>&nbsp;
+<b class="nc"><i class="no-highlight">470</i>&nbsp;        observer.notifyAllObserves(Events.PEER_DISCONNECTED, peerInfo.getPeerState());</b>
+<i class="no-highlight">471</i>&nbsp;        //give his request messages to others
+<b class="nc"><i class="no-highlight">472</i>&nbsp;        peerList.remove(peerInfo);</b>
+<i class="no-highlight">473</i>&nbsp;
+<b class="nc"><i class="no-highlight">474</i>&nbsp;        Stack&lt;Integer&gt; pieceToRemove = new Stack&lt;&gt;();</b>
+<b class="nc"><i class="no-highlight">475</i>&nbsp;        for (Integer pid : clientState.piecesToRequest) {</b>
+<b class="nc"><i class="no-highlight">476</i>&nbsp;            Piece piece = torrentState.pieces.get(pid);</b>
+<b class="nc"><i class="no-highlight">477</i>&nbsp;            if (!clientState.hasPiece(pid)) {</b>
+<b class="nc"><i class="no-highlight">478</i>&nbsp;                piece.setPieceStatus(PieceStatus.ToBeDownloaded);</b>
+<b class="nc"><i class="no-highlight">479</i>&nbsp;                pieceToRemove.add(pid);</b>
+<i class="no-highlight">480</i>&nbsp;            }
+<b class="nc"><i class="no-highlight">481</i>&nbsp;        }</b>
+<i class="no-highlight">482</i>&nbsp;
+<b class="nc"><i class="no-highlight">483</i>&nbsp;        for (Integer pid : pieceToRemove) {</b>
+<b class="nc"><i class="no-highlight">484</i>&nbsp;            clientState.piecesToRequest.remove(pid);</b>
+<b class="nc"><i class="no-highlight">485</i>&nbsp;        }</b>
+<i class="no-highlight">486</i>&nbsp;
+<b class="nc"><i class="no-highlight">487</i>&nbsp;        for (Message message : peerInfo.getPeerState().writeMessageQ) {</b>
+<b class="nc"><i class="no-highlight">488</i>&nbsp;            if (message.getID() == PeerMessage.MsgType.REQUEST) {</b>
+<b class="nc"><i class="no-highlight">489</i>&nbsp;                int id = message.getIndex();</b>
+<b class="nc"><i class="no-highlight">490</i>&nbsp;                Piece piece = torrentState.pieces.get(id);</b>
+<b class="nc"><i class="no-highlight">491</i>&nbsp;                int blockId = message.getBegin() / torrentState.BLOCK_SIZE;</b>
+<b class="nc"><i class="no-highlight">492</i>&nbsp;                piece.getBlocks().set(blockId, BlockStatus.ToBeDownloaded);</b>
+<b class="nc"><i class="no-highlight">493</i>&nbsp;                if (!clientState.hasPiece(id))</b>
+<b class="nc"><i class="no-highlight">494</i>&nbsp;                    piece.setPieceStatus(PieceStatus.ToBeDownloaded);</b>
+<b class="nc"><i class="no-highlight">495</i>&nbsp;                List&lt;PeerInfo&gt; valuablePeers = DownloadStrategy.peersByPieceIndex(peerList, id);</b>
+<b class="nc"><i class="no-highlight">496</i>&nbsp;                if (valuablePeers.size() != 0)</b>
+<b class="nc"><i class="no-highlight">497</i>&nbsp;                    valuablePeers.get(0).getPeerState().writeMessageQ.addFirst(message);</b>
+<i class="no-highlight">498</i>&nbsp;            }
+<b class="nc"><i class="no-highlight">499</i>&nbsp;        }</b>
+<i class="no-highlight">500</i>&nbsp;
+<i class="no-highlight">501</i>&nbsp;    }
+<i class="no-highlight">502</i>&nbsp;
+<i class="no-highlight">503</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-01-19 01:45</div>
+</div>
+</body>
+</html>

@@ -23,6 +23,7 @@ import static misc.messages.PeerMessage.MsgType.*;
  */
 public class NIODownloadHandler {
 
+    public static final int BLOCKS_PER_PEER = 6;
     private final ClientState clientState;
     private final TorrentState torrentState;
     private final Set<PeerInfo> peerInfoList;
@@ -140,7 +141,6 @@ public class NIODownloadHandler {
 
         } else if (receivedMessage.ID == UNINTERESTED) {
             peerState.interested = false;
-            peerState.writeMessageQ.add(new Message(CHOKE));
 
         } else if (receivedMessage.ID == PeerMessage.MsgType.HAVE) {
             if (!peerState.hasPiece(receivedMessage.getIndex())) {
@@ -428,7 +428,7 @@ public class NIODownloadHandler {
         for (int j = 0; j < piece.getNumberOfBlocks() - 1; j++) {
             Message request = new Message(PeerMessage.MsgType.REQUEST, pieceIndex, offset, piece.getBlockSize());
             piece.setBlocks(offset / torrentState.BLOCK_SIZE, BlockStatus.QUEUED);
-            if (j % 10 == 0) {
+            if (j % BLOCKS_PER_PEER == 0) {
                 //n = random.nextInt(numberOfPeers);
                 n = (n + 1) % numberOfPeers;
             }

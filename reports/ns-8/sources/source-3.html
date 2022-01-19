@@ -1,0 +1,188 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > Utils</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">misc.utils</a>
+</div>
+
+<h1>Coverage Summary for Class: Utils (misc.utils)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Utils</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    57.1%
+  </span>
+  <span class="absValue">
+    (4/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    60%
+  </span>
+  <span class="absValue">
+    (18/30)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package misc.utils;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import java.io.UnsupportedEncodingException;
+<i class="no-highlight">4</i>&nbsp;import java.net.URLEncoder;
+<i class="no-highlight">5</i>&nbsp;import java.security.MessageDigest;
+<i class="no-highlight">6</i>&nbsp;import java.security.NoSuchAlgorithmException;
+<i class="no-highlight">7</i>&nbsp;import java.util.Formatter;
+<i class="no-highlight">8</i>&nbsp;
+<b class="nc"><i class="no-highlight">9</i>&nbsp;public class Utils {</b>
+<i class="no-highlight">10</i>&nbsp;
+<b class="fc"><i class="no-highlight">11</i>&nbsp;	private static final char[] HEX_ARRAY = &quot;0123456789ABCDEF&quot;.toCharArray();</b>
+<i class="no-highlight">12</i>&nbsp;
+<i class="no-highlight">13</i>&nbsp;    public static String SHAsum(byte[] input)
+<i class="no-highlight">14</i>&nbsp;    {
+<i class="no-highlight">15</i>&nbsp;        MessageDigest md;
+<i class="no-highlight">16</i>&nbsp;        try
+<i class="no-highlight">17</i>&nbsp;        {
+<b class="nc"><i class="no-highlight">18</i>&nbsp;            md = MessageDigest.getInstance(&quot;SHA-1&quot;);</b>
+<b class="nc"><i class="no-highlight">19</i>&nbsp;            return byteArray2Hex(md.digest(input));</b>
+<b class="nc"><i class="no-highlight">20</i>&nbsp;        } catch (NoSuchAlgorithmException e)</b>
+<i class="no-highlight">21</i>&nbsp;        {
+<b class="nc"><i class="no-highlight">22</i>&nbsp;            e.printStackTrace();</b>
+<i class="no-highlight">23</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">24</i>&nbsp;        return null;</b>
+<i class="no-highlight">25</i>&nbsp;    }
+<i class="no-highlight">26</i>&nbsp;
+<i class="no-highlight">27</i>&nbsp;    private static String byteArray2Hex(final byte[] bytes)
+<i class="no-highlight">28</i>&nbsp;    {
+<b class="nc"><i class="no-highlight">29</i>&nbsp;        Formatter formatter = new Formatter();</b>
+<b class="nc"><i class="no-highlight">30</i>&nbsp;        for (byte b : bytes)</b>
+<i class="no-highlight">31</i>&nbsp;        {
+<b class="nc"><i class="no-highlight">32</i>&nbsp;            formatter.format(&quot;%02x&quot;, b);</b>
+<i class="no-highlight">33</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">34</i>&nbsp;        return formatter.toString();</b>
+<i class="no-highlight">35</i>&nbsp;    }
+<i class="no-highlight">36</i>&nbsp;    /**
+<i class="no-highlight">37</i>&nbsp;     * Convert a byte array to a string containing its hexadecimal
+<i class="no-highlight">38</i>&nbsp;     * representation (as expressed in the 
+<i class="no-highlight">39</i>&nbsp;     * &lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/ChUseMainWindowSection.html&quot;&gt;
+<i class="no-highlight">40</i>&nbsp;     * &quot;packet details&quot; and &quot;packet bytes&quot; panes&lt;/a&gt; 
+<i class="no-highlight">41</i>&nbsp;     * of wireshark
+<i class="no-highlight">42</i>&nbsp;     * @param bytes the bytes to convert
+<i class="no-highlight">43</i>&nbsp;     * @return the hexadecimal string of the byte array
+<i class="no-highlight">44</i>&nbsp;     * @see &lt;a href=&quot;https://stackoverflow.com/q/9655181&quot;&gt;https://stackoverflow.com/q/9655181&lt;/a&gt;
+<i class="no-highlight">45</i>&nbsp;     */
+<i class="no-highlight">46</i>&nbsp;    public static String bytesToHex(byte[] bytes) {
+<b class="fc"><i class="no-highlight">47</i>&nbsp;        char[] hexChars = new char[bytes.length * 2];</b>
+<b class="fc"><i class="no-highlight">48</i>&nbsp;        for (int j = 0; j &lt; bytes.length; j++) {</b>
+<b class="fc"><i class="no-highlight">49</i>&nbsp;            int v = bytes[j] &amp; 0xFF;</b>
+<b class="fc"><i class="no-highlight">50</i>&nbsp;            hexChars[j * 2] = HEX_ARRAY[v &gt;&gt;&gt; 4];</b>
+<b class="fc"><i class="no-highlight">51</i>&nbsp;            hexChars[j * 2 + 1] = HEX_ARRAY[v &amp; 0x0F];</b>
+<i class="no-highlight">52</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">53</i>&nbsp;        return new String(hexChars);</b>
+<i class="no-highlight">54</i>&nbsp;    }
+<i class="no-highlight">55</i>&nbsp;
+<i class="no-highlight">56</i>&nbsp;    //convert hexString into a bytearray
+<i class="no-highlight">57</i>&nbsp;    public static byte[] hexStringToByteArray(String s) {
+<b class="fc"><i class="no-highlight">58</i>&nbsp;        int len = s.length();</b>
+<b class="fc"><i class="no-highlight">59</i>&nbsp;        byte[] data = new byte[len / 2];</b>
+<b class="fc"><i class="no-highlight">60</i>&nbsp;        for (int i = 0; i &lt; len; i += 2) {</b>
+<b class="fc"><i class="no-highlight">61</i>&nbsp;            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) &lt;&lt; 4)</b>
+<b class="fc"><i class="no-highlight">62</i>&nbsp;                    + Character.digit(s.charAt(i+1), 16));</b>
+<i class="no-highlight">63</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">64</i>&nbsp;        return data;</b>
+<i class="no-highlight">65</i>&nbsp;    }
+<i class="no-highlight">66</i>&nbsp;	
+<i class="no-highlight">67</i>&nbsp;    //function for URL encoding info_hash and peer_id
+<i class="no-highlight">68</i>&nbsp;    //like https://wiki.theory.org/BitTorrentSpecification#Tracker_HTTP.2FHTTPS_Protocol
+<i class="no-highlight">69</i>&nbsp;    //info_hash and peer_id must be given as bytearray
+<i class="no-highlight">70</i>&nbsp;    public static String byteArrayToURLString(byte[] in) {
+<i class="no-highlight">71</i>&nbsp;    	
+<b class="fc"><i class="no-highlight">72</i>&nbsp;    	String resultat= &quot;&quot;;</b>
+<b class="fc"><i class="no-highlight">73</i>&nbsp;    	String BYTE_ENCODING=&quot;ISO-8859-1&quot;;</b>
+<i class="no-highlight">74</i>&nbsp;    	try {
+<b class="fc"><i class="no-highlight">75</i>&nbsp;			resultat = URLEncoder.encode(new String(in, BYTE_ENCODING), BYTE_ENCODING).replaceAll(&quot;\\+&quot;, &quot;%20&quot;);</b>
+<b class="nc"><i class="no-highlight">76</i>&nbsp;		} catch (UnsupportedEncodingException e) {</b>
+<b class="nc"><i class="no-highlight">77</i>&nbsp;			e.printStackTrace();</b>
+<b class="fc"><i class="no-highlight">78</i>&nbsp;		}</b>
+<b class="fc"><i class="no-highlight">79</i>&nbsp;    	return resultat;</b>
+<i class="no-highlight">80</i>&nbsp;    	
+<i class="no-highlight">81</i>&nbsp;    }
+<i class="no-highlight">82</i>&nbsp;
+<i class="no-highlight">83</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-01-19 01:45</div>
+</div>
+</body>
+</html>

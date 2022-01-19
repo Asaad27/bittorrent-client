@@ -38,7 +38,7 @@ public class TorrentContext {
     public boolean updatePeerState() {
         int piece = strategy.updatePeerState();
 
-        if (piece < 0) {
+        if (piece < 0 ) {
             changeStrategy(piece);
         }
 

@@ -1,0 +1,294 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > TrackerHandler</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">misc.tracker</a>
+</div>
+
+<h1>Coverage Summary for Class: TrackerHandler (misc.tracker)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">TrackerHandler</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    85.7%
+  </span>
+  <span class="absValue">
+    (6/7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    85.9%
+  </span>
+  <span class="absValue">
+    (61/71)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package misc.tracker;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import misc.peers.PeerInfo;
+<i class="no-highlight">4</i>&nbsp;import misc.utils.DEBUG;
+<i class="no-highlight">5</i>&nbsp;import misc.utils.Utils;
+<i class="no-highlight">6</i>&nbsp;
+<i class="no-highlight">7</i>&nbsp;import java.net.URL;
+<i class="no-highlight">8</i>&nbsp;import java.net.URLEncoder;
+<i class="no-highlight">9</i>&nbsp;import java.net.UnknownHostException;
+<i class="no-highlight">10</i>&nbsp;import java.nio.ByteBuffer;
+<i class="no-highlight">11</i>&nbsp;import java.util.*;
+<i class="no-highlight">12</i>&nbsp;
+<i class="no-highlight">13</i>&nbsp;import be.adaxisoft.bencode.BDecoder;
+<i class="no-highlight">14</i>&nbsp;import be.adaxisoft.bencode.BEncodedValue;
+<i class="no-highlight">15</i>&nbsp;
+<i class="no-highlight">16</i>&nbsp;import java.io.IOException;
+<i class="no-highlight">17</i>&nbsp;import java.io.UnsupportedEncodingException;
+<i class="no-highlight">18</i>&nbsp;import java.net.HttpURLConnection;
+<i class="no-highlight">19</i>&nbsp;import java.net.InetAddress;
+<i class="no-highlight">20</i>&nbsp;
+<i class="no-highlight">21</i>&nbsp;import static misc.download.TCPClient.OURPORT;
+<i class="no-highlight">22</i>&nbsp;
+<i class="no-highlight">23</i>&nbsp;public class TrackerHandler {
+<i class="no-highlight">24</i>&nbsp;
+<i class="no-highlight">25</i>&nbsp;    private static final String PEER_ID_HEAD = &quot;-PYA501-&quot;;
+<b class="fc"><i class="no-highlight">26</i>&nbsp;    public static final String PEER_ID = genPeerId();</b>
+<b class="fc"><i class="no-highlight">27</i>&nbsp;    int debug = 0;</b>
+<i class="no-highlight">28</i>&nbsp;    private final URL announceURL;
+<i class="no-highlight">29</i>&nbsp;    private final byte[] SHA1Info;
+<i class="no-highlight">30</i>&nbsp;    private final int port;
+<i class="no-highlight">31</i>&nbsp;    private final int totalPieces;
+<i class="no-highlight">32</i>&nbsp;    
+<i class="no-highlight">33</i>&nbsp;    private int interval;
+<i class="no-highlight">34</i>&nbsp;
+<b class="fc"><i class="no-highlight">35</i>&nbsp;    public TrackerHandler(URL announceURL, byte[] SHA1Info, int port, int totalPieces) {</b>
+<i class="no-highlight">36</i>&nbsp;
+<b class="fc"><i class="no-highlight">37</i>&nbsp;        this.announceURL = announceURL;</b>
+<b class="fc"><i class="no-highlight">38</i>&nbsp;        this.SHA1Info = SHA1Info;</b>
+<b class="fc"><i class="no-highlight">39</i>&nbsp;        this.port = port;</b>
+<b class="fc"><i class="no-highlight">40</i>&nbsp;        this.totalPieces = totalPieces;</b>
+<i class="no-highlight">41</i>&nbsp;    }
+<i class="no-highlight">42</i>&nbsp;
+<i class="no-highlight">43</i>&nbsp;    public static String genPeerId() {
+<i class="no-highlight">44</i>&nbsp;
+<i class="no-highlight">45</i>&nbsp;        // System.out.println(&quot;Getting local Peer ID&quot;);
+<b class="fc"><i class="no-highlight">46</i>&nbsp;        String peerId = &quot;&quot;;</b>
+<b class="fc"><i class="no-highlight">47</i>&nbsp;        peerId = peerId.concat(PEER_ID_HEAD);</b>
+<b class="fc"><i class="no-highlight">48</i>&nbsp;        Random r = new Random();</b>
+<i class="no-highlight">49</i>&nbsp;        String randomStr;
+<i class="no-highlight">50</i>&nbsp;        int rand;
+<i class="no-highlight">51</i>&nbsp;
+<b class="fc"><i class="no-highlight">52</i>&nbsp;        while (peerId.length() &lt; 20) {</b>
+<i class="no-highlight">53</i>&nbsp;
+<b class="fc"><i class="no-highlight">54</i>&nbsp;            rand = r.nextInt(9);</b>
+<b class="fc"><i class="no-highlight">55</i>&nbsp;            randomStr = Integer.toString(rand);</b>
+<i class="no-highlight">56</i>&nbsp;
+<b class="fc"><i class="no-highlight">57</i>&nbsp;            peerId = peerId.concat(randomStr);</b>
+<i class="no-highlight">58</i>&nbsp;        }
+<i class="no-highlight">59</i>&nbsp;
+<b class="fc"><i class="no-highlight">60</i>&nbsp;        return peerId;</b>
+<i class="no-highlight">61</i>&nbsp;    }
+<i class="no-highlight">62</i>&nbsp;
+<i class="no-highlight">63</i>&nbsp;    public String buildQueryURI() {
+<i class="no-highlight">64</i>&nbsp;
+<b class="fc"><i class="no-highlight">65</i>&nbsp;        Map&lt;String, String&gt; params = new HashMap&lt;&gt;();</b>
+<i class="no-highlight">66</i>&nbsp;
+<b class="fc"><i class="no-highlight">67</i>&nbsp;        params.put(&quot;peer_id&quot;, PEER_ID);</b>
+<b class="fc"><i class="no-highlight">68</i>&nbsp;        params.put(&quot;port&quot;, Integer.toString(port));</b>
+<b class="fc"><i class="no-highlight">69</i>&nbsp;        params.put(&quot;compact&quot;, &quot;1&quot;);</b>
+<i class="no-highlight">70</i>&nbsp;
+<b class="fc"><i class="no-highlight">71</i>&nbsp;        StringBuilder queryParams = new StringBuilder();</b>
+<i class="no-highlight">72</i>&nbsp;
+<b class="fc"><i class="no-highlight">73</i>&nbsp;        queryParams.append(&quot;?&quot;);</b>
+<i class="no-highlight">74</i>&nbsp;        try {
+<b class="fc"><i class="no-highlight">75</i>&nbsp;            queryParams.append(URLEncoder.encode(&quot;info_hash&quot;, &quot;US-ASCII&quot;));</b>
+<b class="nc"><i class="no-highlight">76</i>&nbsp;        } catch (UnsupportedEncodingException e) {</b>
+<b class="nc"><i class="no-highlight">77</i>&nbsp;            e.printStackTrace();</b>
+<b class="fc"><i class="no-highlight">78</i>&nbsp;        }</b>
+<b class="fc"><i class="no-highlight">79</i>&nbsp;        queryParams.append(&quot;=&quot;);</b>
+<b class="fc"><i class="no-highlight">80</i>&nbsp;        queryParams.append(Utils.byteArrayToURLString(SHA1Info));</b>
+<b class="fc"><i class="no-highlight">81</i>&nbsp;        queryParams.append(&quot;&amp;&quot;);</b>
+<i class="no-highlight">82</i>&nbsp;
+<i class="no-highlight">83</i>&nbsp;        try {
+<i class="no-highlight">84</i>&nbsp;
+<b class="fc"><i class="no-highlight">85</i>&nbsp;            for (Map.Entry&lt;String, String&gt; entry : params.entrySet()) {</b>
+<b class="fc"><i class="no-highlight">86</i>&nbsp;                queryParams.append(URLEncoder.encode(entry.getKey(), &quot;US-ASCII&quot;));</b>
+<b class="fc"><i class="no-highlight">87</i>&nbsp;                queryParams.append(&quot;=&quot;);</b>
+<b class="fc"><i class="no-highlight">88</i>&nbsp;                queryParams.append(URLEncoder.encode(entry.getValue(), &quot;US-ASCII&quot;));</b>
+<b class="fc"><i class="no-highlight">89</i>&nbsp;                queryParams.append(&quot;&amp;&quot;);</b>
+<b class="fc"><i class="no-highlight">90</i>&nbsp;            }</b>
+<i class="no-highlight">91</i>&nbsp;
+<b class="fc"><i class="no-highlight">92</i>&nbsp;            queryParams.deleteCharAt(queryParams.length() - 1); // On supprimme le dernier &quot;&amp;&quot;</b>
+<i class="no-highlight">93</i>&nbsp;
+<b class="nc"><i class="no-highlight">94</i>&nbsp;        } catch (UnsupportedEncodingException e) {</b>
+<b class="nc"><i class="no-highlight">95</i>&nbsp;            e.printStackTrace();</b>
+<b class="fc"><i class="no-highlight">96</i>&nbsp;        }</b>
+<i class="no-highlight">97</i>&nbsp;
+<b class="fc"><i class="no-highlight">98</i>&nbsp;        return announceURL.toString().concat(queryParams.toString());</b>
+<i class="no-highlight">99</i>&nbsp;    }
+<i class="no-highlight">100</i>&nbsp;
+<i class="no-highlight">101</i>&nbsp;    public Set&lt;PeerInfo&gt; getPeerList() throws IOException {
+<i class="no-highlight">102</i>&nbsp;
+<b class="fc"><i class="no-highlight">103</i>&nbsp;        DEBUG.log(&quot;generating peers from tracker ...&quot; + debug);</b>
+<b class="fc"><i class="no-highlight">104</i>&nbsp;        URL uri = new URL(buildQueryURI());</b>
+<i class="no-highlight">105</i>&nbsp;        // System.out.println(uri.toString());
+<i class="no-highlight">106</i>&nbsp;
+<b class="fc"><i class="no-highlight">107</i>&nbsp;        HttpURLConnection conn = (HttpURLConnection) uri.openConnection();</b>
+<b class="fc"><i class="no-highlight">108</i>&nbsp;        conn.setRequestMethod(&quot;GET&quot;);</b>
+<i class="no-highlight">109</i>&nbsp;
+<i class="no-highlight">110</i>&nbsp;
+<b class="fc"><i class="no-highlight">111</i>&nbsp;        int status = conn.getResponseCode(); // On exécute la requête</b>
+<i class="no-highlight">112</i>&nbsp;
+<b class="fc"><i class="no-highlight">113</i>&nbsp;        if (status &gt; 299) {</b>
+<i class="no-highlight">114</i>&nbsp;
+<i class="no-highlight">115</i>&nbsp;            // Erreur HTTP
+<i class="no-highlight">116</i>&nbsp;
+<b class="nc"><i class="no-highlight">117</i>&nbsp;            System.err.println(&quot;Erreur &quot; + status);</b>
+<b class="nc"><i class="no-highlight">118</i>&nbsp;            conn.disconnect();</b>
+<b class="nc"><i class="no-highlight">119</i>&nbsp;            return null;</b>
+<i class="no-highlight">120</i>&nbsp;
+<i class="no-highlight">121</i>&nbsp;        } else {
+<i class="no-highlight">122</i>&nbsp;
+<i class="no-highlight">123</i>&nbsp;
+<b class="fc"><i class="no-highlight">124</i>&nbsp;            BDecoder reader = new BDecoder(conn.getInputStream());</b>
+<b class="fc"><i class="no-highlight">125</i>&nbsp;            Map&lt;String, BEncodedValue&gt; response = reader.decodeMap().getMap();</b>
+<i class="no-highlight">126</i>&nbsp;
+<b class="fc"><i class="no-highlight">127</i>&nbsp;            byte[] peers = response.get(&quot;peers&quot;).getBytes();</b>
+<b class="fc"><i class="no-highlight">128</i>&nbsp;            interval = response.get(&quot;interval&quot;).getInt();</b>
+<i class="no-highlight">129</i>&nbsp;
+<b class="fc"><i class="no-highlight">130</i>&nbsp;            conn.disconnect();</b>
+<i class="no-highlight">131</i>&nbsp;
+<i class="no-highlight">132</i>&nbsp;
+<b class="fc"><i class="no-highlight">133</i>&nbsp;            return processHttpResponse(peers);</b>
+<i class="no-highlight">134</i>&nbsp;
+<i class="no-highlight">135</i>&nbsp;        }
+<i class="no-highlight">136</i>&nbsp;
+<i class="no-highlight">137</i>&nbsp;    }
+<i class="no-highlight">138</i>&nbsp;
+<i class="no-highlight">139</i>&nbsp;    private Set&lt;PeerInfo&gt; processHttpResponse(byte[] response) {
+<i class="no-highlight">140</i>&nbsp;
+<b class="fc"><i class="no-highlight">141</i>&nbsp;        Set&lt;PeerInfo&gt; lst = new HashSet&lt;&gt;();</b>
+<i class="no-highlight">142</i>&nbsp;
+<b class="fc"><i class="no-highlight">143</i>&nbsp;        if (response.length % 6 == 0) {</b>
+<i class="no-highlight">144</i>&nbsp;
+<b class="fc"><i class="no-highlight">145</i>&nbsp;            int peer_nb = response.length / 6;</b>
+<i class="no-highlight">146</i>&nbsp;
+<b class="fc"><i class="no-highlight">147</i>&nbsp;            for (int i = 0; i &lt; peer_nb; i++) {</b>
+<i class="no-highlight">148</i>&nbsp;
+<b class="fc"><i class="no-highlight">149</i>&nbsp;                byte[] addr_byte = {response[6 * i], response[6 * i + 1], response[6 * i + 2], response[6 * i + 3]};</b>
+<b class="fc"><i class="no-highlight">150</i>&nbsp;                byte[] port_byte = {response[6 * i + 4], response[6 * i + 5]};</b>
+<i class="no-highlight">151</i>&nbsp;
+<i class="no-highlight">152</i>&nbsp;
+<i class="no-highlight">153</i>&nbsp;                try {
+<b class="fc"><i class="no-highlight">154</i>&nbsp;                    InetAddress addr = InetAddress.getByAddress(addr_byte);</b>
+<b class="fc"><i class="no-highlight">155</i>&nbsp;                    ByteBuffer wrapped = ByteBuffer.wrap(port_byte);</b>
+<b class="fc"><i class="no-highlight">156</i>&nbsp;                    int port = wrapped.getShort();</b>
+<i class="no-highlight">157</i>&nbsp;
+<i class="no-highlight">158</i>&nbsp;
+<i class="no-highlight">159</i>&nbsp;					/*System.out.println(&quot;Peer Info n°&quot; + i);
+<i class="no-highlight">160</i>&nbsp;					System.out.println(&quot;Addresse IPv4 : &quot; + addr.toString());
+<i class="no-highlight">161</i>&nbsp;					System.out.println(&quot;Port : &quot; + port);*/
+<i class="no-highlight">162</i>&nbsp;
+<i class="no-highlight">163</i>&nbsp;
+<b class="fc"><i class="no-highlight">164</i>&nbsp;                    PeerInfo peer = new PeerInfo(addr, port, totalPieces);</b>
+<b class="fc"><i class="no-highlight">165</i>&nbsp;                    if (port &gt;= 0) lst.add(peer);</b>
+<i class="no-highlight">166</i>&nbsp;
+<b class="nc"><i class="no-highlight">167</i>&nbsp;                } catch (UnknownHostException e) {</b>
+<b class="nc"><i class="no-highlight">168</i>&nbsp;                    e.printStackTrace();</b>
+<b class="fc"><i class="no-highlight">169</i>&nbsp;                }</b>
+<i class="no-highlight">170</i>&nbsp;
+<i class="no-highlight">171</i>&nbsp;
+<i class="no-highlight">172</i>&nbsp;            }
+<i class="no-highlight">173</i>&nbsp;
+<i class="no-highlight">174</i>&nbsp;        }
+<i class="no-highlight">175</i>&nbsp;
+<i class="no-highlight">176</i>&nbsp;        //System.out.println(&quot;peer list : &quot; + lst);
+<i class="no-highlight">177</i>&nbsp;
+<b class="fc"><i class="no-highlight">178</i>&nbsp;        lst.removeIf(peerInfo -&gt; peerInfo.getPort() == OURPORT);</b>
+<i class="no-highlight">179</i>&nbsp;
+<b class="fc"><i class="no-highlight">180</i>&nbsp;        return lst;</b>
+<i class="no-highlight">181</i>&nbsp;
+<i class="no-highlight">182</i>&nbsp;    }
+<i class="no-highlight">183</i>&nbsp;    
+<i class="no-highlight">184</i>&nbsp;    public int getInterval() {
+<b class="nc"><i class="no-highlight">185</i>&nbsp;    	return this.interval;</b>
+<i class="no-highlight">186</i>&nbsp;    }
+<i class="no-highlight">187</i>&nbsp;
+<i class="no-highlight">188</i>&nbsp;
+<i class="no-highlight">189</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-01-19 01:45</div>
+</div>
+</body>
+</html>
