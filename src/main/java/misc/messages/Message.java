@@ -13,7 +13,6 @@ public class Message {
     private int index;
     private int begin;
     private int length;
-    int blockSize;
 
 
     public Message(PeerMessage.MsgType ID) {
@@ -72,9 +71,6 @@ public class Message {
         this.length = length;
     }
 
-    public int getBlockSize() {
-        return blockSize;
-    }
 
     @Override
     public String toString() {

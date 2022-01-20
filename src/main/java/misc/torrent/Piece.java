@@ -77,10 +77,6 @@ public class Piece {
         return numberOfPeerOwners;
     }
 
-    public void setNumberOfPeerOwners(int numberOfPeerOwners) {
-        this.numberOfPeerOwners = numberOfPeerOwners;
-    }
-
     public void incrementNumOfPeerOwners(){
         numberOfPeerOwners++;
     }

@@ -128,12 +128,6 @@ public class TorrentFileController {
         }
 
         return this.document.get("info").getMap();
-
-        // contenu de info :
-        // String name : filename
-        // int length : length of the file in bytes
-        // md5sum : 32 hex characters : MD5 sum of the file
-
     }
 
     private String getPieces() throws InvalidBEncodingException {

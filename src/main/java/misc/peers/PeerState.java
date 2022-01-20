@@ -19,6 +19,15 @@ public class PeerState extends State {
     public PeerState(int numPieces) {
         super(numPieces);
         piecesToRequest = new LinkedHashSet<>();
+        super.lastResponseTime = System.currentTimeMillis();
+    }
+
+    public void updateTime(){
+        super.lastResponseTime = System.currentTimeMillis();
+    }
+
+    public Long nonResponseTime(){
+        return System.currentTimeMillis() - super.lastResponseTime;
     }
 
     public boolean isConnected(){

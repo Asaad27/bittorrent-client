@@ -24,6 +24,7 @@ public class PeerMessage {
             return new byte[4];
 
         switch (msgType) {
+
             case CHOKE:
                 buffer = ByteBuffer.allocate(5);
                 buffer.putInt(1);

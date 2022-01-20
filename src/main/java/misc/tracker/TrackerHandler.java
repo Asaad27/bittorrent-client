@@ -18,7 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 
-import static misc.download.TCPClient.OURPORT;
+import static misc.download.TCPClient.CLIENT_PORT;
 
 public class TrackerHandler {
 
@@ -175,7 +175,7 @@ public class TrackerHandler {
 
         //System.out.println("peer list : " + lst);
 
-        lst.removeIf(peerInfo -> peerInfo.getPort() == OURPORT);
+        lst.removeIf(peerInfo -> peerInfo.getPort() == CLIENT_PORT);
 
         return lst;
 

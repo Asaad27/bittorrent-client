@@ -12,7 +12,6 @@ import misc.tracker.TrackerHandler;
 import misc.tracker.TrackerPeriodic;
 import misc.utils.DEBUG;
 
-import javax.management.InstanceAlreadyExistsException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.*;
@@ -28,7 +27,7 @@ import static misc.download.TCPMessagesHandler.NUMBER_OF_PIECES_PER_REQUEST;
  */
 public class TCPClient implements Runnable {
 
-    public static final int OURPORT = 12274;
+    public static final int CLIENT_PORT = 12274;
 
     public static Queue<PeerInfo> waitingConnections = new LinkedList<>();
     public static TorrentContext torrentContext;
@@ -53,9 +52,9 @@ public class TCPClient implements Runnable {
         torrentState = TorrentState.getInstance(clientState);
         torrentContext = new TorrentContext(peerInfoList, torrentState, clientState, subject);
         tcpMessagesHandler = new TCPMessagesHandler(torrentMetaData, peerInfoList, clientState, torrentState, subject);
-        tracker = new TrackerHandler(createAnnounceURL(), torrentMetaData.getSHA1InfoByte(), OURPORT, torrentMetaData.getNumberOfPieces());
+        tracker = new TrackerHandler(createAnnounceURL(), torrentMetaData.getSHA1InfoByte(), CLIENT_PORT, torrentMetaData.getNumberOfPieces());
 
-        //Set<PeerInfo> peers = generatePeerList(6868);
+        //Set<PeerInfo> peers = generatePeerList(2001, 2002, 2003, 2004, 2005);
         Set<PeerInfo> peers = getPeersFromTracker();
         initializeSelector(peers);
 
@@ -96,11 +95,8 @@ public class TCPClient implements Runnable {
             while (keyIter.hasNext()) {
 
                 SelectionKey key = keyIter.next();
-                //PeerInfo peerInfo = (PeerInfo) key.attachment();
 
-                if (ClientState.isDownloading && receivedAllBitfields())
-                    tcpMessagesHandler.fetchRequests();
-
+                if (ClientState.isDownloading && receivedAllBitfields()) tcpMessagesHandler.fetchRequests();
 
                 if (key.isValid() && key.isConnectable()) {
                     tcpMessagesHandler.handleConnection(key);
@@ -116,7 +112,6 @@ public class TCPClient implements Runnable {
                     } catch (CancelledKeyException e) {
                         DEBUG.printError(e, getClass().getName());
                     }
-
                 }
 
                 if (key.isValid() && key.isWritable()) {
@@ -130,6 +125,7 @@ public class TCPClient implements Runnable {
 
     /**
      * initialize selector
+     *
      * @param peers initial peer list
      */
     private void initializeSelector(Set<PeerInfo> peers) {
@@ -137,7 +133,7 @@ public class TCPClient implements Runnable {
             selector = Selector.open();
 
             ServerSocketChannel passiveChannel = ServerSocketChannel.open();
-            passiveChannel.socket().bind(new InetSocketAddress(OURPORT));
+            passiveChannel.socket().bind(new InetSocketAddress(CLIENT_PORT));
             passiveChannel.configureBlocking(false);
             passiveChannel.register(selector, SelectionKey.OP_ACCEPT);
 
@@ -152,13 +148,13 @@ public class TCPClient implements Runnable {
 
     /**
      * check, and add newPeers to the selector
+     *
      * @param newPeers new peers to add
      */
     public void addToSelector(Set<PeerInfo> newPeers) throws IOException {
         System.out.println("querying for peers");
 
-        if (newPeers == null)
-            return;
+        if (newPeers == null) return;
         System.out.println(newPeers);
         for (PeerInfo newPeer : newPeers) {
             boolean contains = false;
@@ -167,8 +163,7 @@ public class TCPClient implements Runnable {
                     contains = true;
                     break;
                 }
-            if (contains)
-                continue;
+            if (contains) continue;
             System.out.println("new peer to be added" + newPeer);
             peerInfoList.add(newPeer);
             assert newPeer.getPort() >= 0;
@@ -183,6 +178,7 @@ public class TCPClient implements Runnable {
 
     /**
      * Parse torrent metainfo file
+     *
      * @param torrentPath path of the torrent file
      */
     public void parseTorrent(String torrentPath) {
@@ -198,6 +194,7 @@ public class TCPClient implements Runnable {
 
     /**
      * Contact tracker and getPeers from it
+     *
      * @return peers received from tracker
      */
     public Set<PeerInfo> getPeersFromTracker() {
@@ -213,7 +210,6 @@ public class TCPClient implements Runnable {
         }
         //remove our client from the tracker response
 
-
         DEBUG.logf("generated peers from tracker");
 
         return newPeers;
@@ -221,6 +217,7 @@ public class TCPClient implements Runnable {
 
     /**
      * generate announceUrl from meta info file
+     *
      * @return URL of the announce
      */
     public URL createAnnounceURL() {
@@ -235,6 +232,7 @@ public class TCPClient implements Runnable {
 
     /**
      * manually generate peers without contacting tracker
+     *
      * @param ports ports of each peer to add
      * @return peers
      */
@@ -256,11 +254,12 @@ public class TCPClient implements Runnable {
 
     /**
      * set the download mode
+     *
      * @param mode FAST : unlimited download and upload speed
      *             SLOW : limited but more secure download/upload speed
      */
-    public void setDownloadMode(DownloadMode mode){
-        switch (mode){
+    public void setDownloadMode(DownloadMode mode) {
+        switch (mode) {
             case FAST:
                 setFastMode();
                 break;
@@ -272,14 +271,14 @@ public class TCPClient implements Runnable {
         }
     }
 
-    private void setFastMode(){
+    private void setFastMode() {
         NIODownloadHandler.BLOCKS_PER_PEER = 100;
         TCPMessagesHandler.NUMBER_OF_READ_MSG_PER_PEER = 100;
         TCPMessagesHandler.NUMBER_OF_REQUEST_PER_PEER = 100;
         NUMBER_OF_PIECES_PER_REQUEST = 6;
     }
 
-    private void setSlowMode(){
+    private void setSlowMode() {
         NIODownloadHandler.BLOCKS_PER_PEER = 6;
         TCPMessagesHandler.NUMBER_OF_READ_MSG_PER_PEER = 6;
         TCPMessagesHandler.NUMBER_OF_REQUEST_PER_PEER = 6;
@@ -288,8 +287,7 @@ public class TCPClient implements Runnable {
 
     public boolean receivedAllBitfields() {
         for (PeerInfo peer : peerInfoList) {
-            if (!peer.getPeerState().sentBitfield)
-                return false;
+            if (!peer.getPeerState().sentBitfield) return false;
         }
         return true;
     }

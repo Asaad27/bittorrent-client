@@ -27,8 +27,7 @@ import java.util.Stack;
 
 import static java.lang.System.exit;
 import static java.lang.System.in;
-import static misc.messages.PeerMessage.MsgType.INTERESTED;
-import static misc.messages.PeerMessage.MsgType.UNINTERESTED;
+import static misc.messages.PeerMessage.MsgType.*;
 
 //TODO : secure mode vs fast mode
 
@@ -129,7 +128,16 @@ public class TCPMessagesHandler {
                     else {
                         key.interestOps(SelectionKey.OP_WRITE);
                     }*/
-                    cancelKey(key);
+                    long nonResponseTime = peerState.nonResponseTime();
+                    if (nonResponseTime/1000 >=  10 && nonResponseTime/1000 <= 15){
+                        Message keepAlive = new Message(PeerMessage.MsgType.KEEPALIVE);
+                        peerState.writeMessageQ.add(keepAlive);
+                        if (key.isValid()){
+                            key.interestOps(SelectionKey.OP_WRITE);
+                        }
+                    }else if (nonResponseTime > 1000 * 15){
+                        cancelKey(key);
+                    }
 
                     return null;
                 }
@@ -184,7 +192,7 @@ public class TCPMessagesHandler {
         return PeerMessage.deserialize(finalData);
     }
 
-    private void sendMessage(SocketChannel socketChannel, PeerInfo peerInfo, Message message) {
+    private void sendMessage(SocketChannel socketChannel, PeerInfo peerInfo, Message message, SelectionKey key) {
 
         byte[] msg = PeerMessage.serialize(message);
         ByteBuffer writeBuf = ByteBuffer.wrap(msg);
@@ -193,6 +201,8 @@ public class TCPMessagesHandler {
         } catch (IOException e) {
             DEBUG.printError(e, getClass().getName());
             DEBUG.logf("--->sending message ", message.toString(), "to peer number", String.valueOf(peerInfo.getPort()));
+            if (message.getID() == KEEPALIVE)
+                cancelKey(key);
             return;
         }
 
@@ -239,7 +249,7 @@ public class TCPMessagesHandler {
             }
             if (!HandShake.validateHandShake(hd, torrentMetaData.getSHA1Info())) {
 
-                System.out.println("handshake unvalid, removing peer");
+                System.out.println("handshake invalid, removing peer");
                 cancelKey(key);
                 peerList.remove(peerInfo);
 
@@ -273,7 +283,7 @@ public class TCPMessagesHandler {
             }
 
             if (ClientState.isDownloading || ClientState.isSeeder) {
-                DEBUG.logf("<---recieved message ", message.toString(), " from peer number", String.valueOf(peerInfo.getPort()));
+                DEBUG.logf("<---received message ", message.toString(), " from peer number", String.valueOf(peerInfo.getPort()));
             }
 
             peerDownloadHandler.stateMachine(message, peerState);
@@ -326,7 +336,7 @@ public class TCPMessagesHandler {
             if (!peerState.welcomeQ.isEmpty()) {
                 while (!peerState.welcomeQ.isEmpty()) {
                     Message writeMessage = peerState.welcomeQ.poll();
-                    sendMessage(clientChannel, peerInfo, writeMessage);
+                    sendMessage(clientChannel, peerInfo, writeMessage, key);
                     peerDownloadHandler.sentStateMachine(writeMessage, peerState);
                 }
                 TCPClient.waitingConnections.remove(peerInfo);
@@ -349,12 +359,12 @@ public class TCPMessagesHandler {
                         int bid = writeMessage.getBegin() / torrentState.BLOCK_SIZE;
                         Piece piece = torrentState.pieces.get(pid);
                         if (!(piece.getBlocks().get(bid) == BlockStatus.Downloaded) && !clientState.hasPiece(pid)) {
-                            sendMessage(clientChannel, peerInfo, writeMessage);
+                            sendMessage(clientChannel, peerInfo, writeMessage, key);
                             peerDownloadHandler.sentStateMachine(writeMessage, peerState);
                         }
 
                     } else {
-                        sendMessage(clientChannel, peerInfo, writeMessage);
+                        sendMessage(clientChannel, peerInfo, writeMessage, key);
                         peerDownloadHandler.sentStateMachine(writeMessage, peerState);
                     }
 

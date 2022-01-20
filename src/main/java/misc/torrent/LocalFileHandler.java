@@ -21,7 +21,6 @@ public class LocalFileHandler {
 	private final File tempFile;
 	private RandomAccessFile fileAccess;
 	private final ByteBitfield bitfield;
-	private final ClientState clientState;
 
 
 	private final TorrentState torrentState;
@@ -29,7 +28,6 @@ public class LocalFileHandler {
 	public LocalFileHandler(TorrentState torrentState, ClientState clientState) {
 
 		this.torrentState = torrentState;
-		this.clientState = clientState;
 		this.bitfield = clientState.bitfield;
 
 		tempFile = new File(torrentMetaData.getName());
@@ -57,8 +55,8 @@ public class LocalFileHandler {
 		DEBUG.logf("BITFIELD generated : " + Utils.bytesToHex(bitfield.value));
 
 		if (isSeeder){
-			clientState.isSeeder = true;
-			clientState.isDownloading = false;
+			ClientState.isSeeder = true;
+			ClientState.isDownloading = false;
 		}
 
 	}

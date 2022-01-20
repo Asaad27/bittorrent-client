@@ -1,6 +1,7 @@
 package misc.peers;
 import misc.messages.ByteBitfield;
 
+import java.security.Timestamp;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class State {
@@ -13,7 +14,7 @@ public abstract class State {
     public boolean receivedBitfield = false;
     public boolean weAreChokedByPeer = true;
 
-
+    public long lastResponseTime;
 
 
     public ByteBitfield bitfield = null;

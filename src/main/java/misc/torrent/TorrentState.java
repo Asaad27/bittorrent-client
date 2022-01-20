@@ -22,7 +22,7 @@ public class TorrentState {
 
     private long downloadedSize = 0;
     private long uploadedSize = 0;
-    private long t = 0;
+
 
     public List<Piece> pieces;
     public ClientState clientState;
@@ -90,11 +90,4 @@ public class TorrentState {
         }
     }
 
-    public void setTime(long time) {
-        t = time;
-    }
-
-    public long getTime() {
-        return this.t;
-    }
 }

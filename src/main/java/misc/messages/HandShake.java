@@ -10,7 +10,7 @@ import java.nio.channels.SocketChannel;
 
 
 /**
- * Class to handle hanshake
+ * Class to handle handshake
  *
  * @author Asaad
  */
@@ -167,14 +167,6 @@ public class HandShake implements Serializable {
     public String toString() {
         return "pstrbyte: " + Utils.bytesToHex(pstrbyte) + " \n" + "reserved : " + Utils.bytesToHex(reserved) + "\n"
                 + "SHA1INFO: " + Utils.bytesToHex(SHA1Info) + " \n" + "peerID : " + Utils.bytesToHex(peerId) + "\n";
-    }
-
-    public String getPstr() {
-        return pstr;
-    }
-
-    public int getPstrlen() {
-        return pstrlen;
     }
 
     public byte[] getSHA1Info() {

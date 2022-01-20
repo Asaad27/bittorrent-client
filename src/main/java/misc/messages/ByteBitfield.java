@@ -5,7 +5,7 @@ public class ByteBitfield {
     public int bitfieldSize;
 
     public ByteBitfield(int numPieces) {
-        bitfieldSize = (numPieces + 7) / 8 ;
+        bitfieldSize = (numPieces + 7) / 8;
         value = new byte[bitfieldSize];
     }
 
@@ -15,7 +15,7 @@ public class ByteBitfield {
         int byteIndex = index / 8;
         int offset = index % 8;
 
-        return ((value[byteIndex]>>(7 - offset)) & 1) != 0;
+        return ((value[byteIndex] >> (7 - offset)) & 1) != 0;
     }
 
     /**
@@ -31,17 +31,17 @@ public class ByteBitfield {
         value[byteIndex] |= 1 << (7 - offset);
     }
 
-    public void unsetPiece(int index){
+    public void unsetPiece(int index) {
         if (value == null) {
             //in case we did not receive the peer bitfield
             return;
         }
-        int byteIndex = index/8;
+        int byteIndex = index / 8;
         int offset = index % 8;
         value[byteIndex] &= ~(1 << (7 - offset));
     }
 
-    public void initLeecher(){
+    public void initLeecher() {
         for (int i = 0; i < bitfieldSize; ++i) {
             value[i] = 0;
         }
