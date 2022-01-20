@@ -1,3 +1,8 @@
+##Informations
+
+reports folder contains profiler informations about the execution and call trees... <br />
+javadoc folder contains java documentation;
+
 ## How to Use
 either compile jar using : `mvn compile assembly:single` <br/>
 or use ready made equipe5-Final-jar-with-dependencies.jar
