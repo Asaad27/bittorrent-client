@@ -99,6 +99,12 @@ public class NIODownloadHandler {
                 Piece piece = torrentState.pieces.get(message.getIndex());
                 int blockId = message.getBegin() / torrentState.BLOCK_SIZE;
                 piece.setBlocks(blockId, BlockStatus.Requested);
+                long uploadedSize = torrentState.getUploadedSize();
+                if (blockId == piece.getNumberOfBlocks()-1){
+                    torrentState.setUploadedSize(uploadedSize + piece.getLastBlockSize());
+                }else{
+                    torrentState.setUploadedSize(uploadedSize + piece.getBlockSize());
+                }
                 break;
             case REQUEST:
                 peerState.queuedRequestsFromClient.incrementAndGet();
@@ -201,9 +207,7 @@ public class NIODownloadHandler {
 
             boolean pieceCompleted = onBlockDownloaded(receivedMessage);
 
-
         }
-
 
     }
 
@@ -247,8 +251,8 @@ public class NIODownloadHandler {
         boolean downloaded = downloadedBlocks == piece.getNumberOfBlocks();
 
         if (downloaded) {
-            System.out.println("PIECE N° : " + pieceIndex + " DOWNLOADED" + "\t" + df.format(torrentState.getDownloadedSize() * 1.0 / torrentMetaData.getLength() * 100) + "% downloaded");
-
+            System.out.print("PIECE N° : " + pieceIndex + " DOWNLOADED" + "\t" + df.format(torrentState.getDownloadedSize() * 1.0 / torrentMetaData.getLength() * 100) + "% downloaded");
+            System.out.println(" UL : " + df.format(DownloadRate.uploadRate) + "mb/s\t"  + "DL : " + df.format(DownloadRate.downloadRate) + "mb/s");
             clientState.setPiece(pieceIndex);
             clientState.piecesToRequest.remove(pieceIndex);
             torrentState.pieces.get(pieceIndex).setPieceStatus(PieceStatus.Downloaded);

@@ -37,7 +37,7 @@ import static misc.messages.PeerMessage.MsgType.UNINTERESTED;
  */
 public class TCPMessagesHandler {
 
-    public static final int NUMBER_OF_PIECES_PER_REQUEST = 2;  //50mb/S foe 2
+    public static int NUMBER_OF_PIECES_PER_REQUEST = 5;  //50mb/S foe 2
     public static int NUMBER_OF_REQUEST_PER_PEER = 60; //Safe mode : 6
     public static int NUMBER_OF_READ_MSG_PER_PEER = 60;   //safe mode : 6
 
@@ -114,8 +114,6 @@ public class TCPMessagesHandler {
             while (bRead < 4) {
                 bRead += socketChannel.read(buffer);
                 if (bRead == -1) {
-                    //System.out.println("...");
-                    //System.out.println("end of stream");
                     PeerInfo peerInfo = (PeerInfo) key.attachment();
                     PeerState peerState = peerInfo.getPeerState();
                     /*boolean cancelKey = true;
@@ -132,6 +130,7 @@ public class TCPMessagesHandler {
                         key.interestOps(SelectionKey.OP_WRITE);
                     }*/
                     cancelKey(key);
+
                     return null;
                 }
                 if (bRead == 0) {
@@ -273,7 +272,7 @@ public class TCPMessagesHandler {
                 return;
             }
 
-            if (clientState.isDownloading) {
+            if (ClientState.isDownloading || ClientState.isSeeder) {
                 DEBUG.logf("<---recieved message ", message.toString(), " from peer number", String.valueOf(peerInfo.getPort()));
             }
 

@@ -36,7 +36,7 @@ public class RandomPiece extends DownloadStrategy implements IObservable {
 
 	@Override
 	public int updatePeerState() {
-		if (pieceSet.size() <= Threshold){
+		if (pieceSet.size() <= Threshold) {
 			return -4;
 		}
 		int random = -1;

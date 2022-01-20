@@ -12,6 +12,7 @@ import misc.tracker.TrackerHandler;
 import misc.tracker.TrackerPeriodic;
 import misc.utils.DEBUG;
 
+import javax.management.InstanceAlreadyExistsException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.*;
@@ -19,6 +20,8 @@ import java.nio.channels.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static misc.download.TCPMessagesHandler.NUMBER_OF_PIECES_PER_REQUEST;
 
 /**
  * CLient main class
@@ -52,7 +55,7 @@ public class TCPClient implements Runnable {
         tcpMessagesHandler = new TCPMessagesHandler(torrentMetaData, peerInfoList, clientState, torrentState, subject);
         tracker = new TrackerHandler(createAnnounceURL(), torrentMetaData.getSHA1InfoByte(), OURPORT, torrentMetaData.getNumberOfPieces());
 
-        //Set<PeerInfo> peers = generatePeerList(2001, 2002, 2003, 2004, 2005);
+        //Set<PeerInfo> peers = generatePeerList(6868);
         Set<PeerInfo> peers = getPeersFromTracker();
         initializeSelector(peers);
 
@@ -71,7 +74,7 @@ public class TCPClient implements Runnable {
 
         while (true) {
             if (connectToTracker.getAndSet(false)) {
-                Set<PeerInfo> newPeers = null;
+                Set<PeerInfo> newPeers;
                 try {
                     newPeers = tracker.getPeerList();
                     addToSelector(newPeers);
@@ -92,10 +95,8 @@ public class TCPClient implements Runnable {
             Iterator<SelectionKey> keyIter = selector.selectedKeys().iterator();
             while (keyIter.hasNext()) {
 
-
                 SelectionKey key = keyIter.next();
-                PeerInfo peerInfo = (PeerInfo) key.attachment();
-
+                //PeerInfo peerInfo = (PeerInfo) key.attachment();
 
                 if (ClientState.isDownloading && receivedAllBitfields())
                     tcpMessagesHandler.fetchRequests();
@@ -152,7 +153,6 @@ public class TCPClient implements Runnable {
     /**
      * check, and add newPeers to the selector
      * @param newPeers new peers to add
-     * @throws IOException
      */
     public void addToSelector(Set<PeerInfo> newPeers) throws IOException {
         System.out.println("querying for peers");
@@ -242,7 +242,9 @@ public class TCPClient implements Runnable {
         Set<PeerInfo> list = new HashSet<>();
         for (int port : ports) {
             try {
-                PeerInfo peer = new PeerInfo(InetAddress.getLocalHost(), port, torrentMetaData.getNumberOfPieces());
+                InetAddress global = InetAddress.getByName("10.188.226.253");
+                InetAddress local = InetAddress.getLocalHost();
+                PeerInfo peer = new PeerInfo(local, port, torrentMetaData.getNumberOfPieces());
                 list.add(peer);
             } catch (UnknownHostException e) {
                 e.printStackTrace();
@@ -274,12 +276,14 @@ public class TCPClient implements Runnable {
         NIODownloadHandler.BLOCKS_PER_PEER = 100;
         TCPMessagesHandler.NUMBER_OF_READ_MSG_PER_PEER = 100;
         TCPMessagesHandler.NUMBER_OF_REQUEST_PER_PEER = 100;
+        NUMBER_OF_PIECES_PER_REQUEST = 6;
     }
 
     private void setSlowMode(){
         NIODownloadHandler.BLOCKS_PER_PEER = 6;
         TCPMessagesHandler.NUMBER_OF_READ_MSG_PER_PEER = 6;
         TCPMessagesHandler.NUMBER_OF_REQUEST_PER_PEER = 6;
+        NUMBER_OF_PIECES_PER_REQUEST = 3;
     }
 
     public boolean receivedAllBitfields() {

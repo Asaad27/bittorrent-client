@@ -14,12 +14,16 @@ public class DownloadRate implements Runnable {
     public static final int SCHEDULER = 1;
     public TorrentState torrentState;
     DecimalFormat df = new DecimalFormat();
-    public static double rate = -1;
+    public static double downloadRate = 0;
+    public static double uploadRate = 0;
 
     private long downloadSize;
+    private long uploadSize;
+
     public DownloadRate(TorrentState torrentState) {
         this.torrentState = torrentState;
         downloadSize =  torrentState.getDownloadedSize();
+        uploadSize = torrentState.getUploadedSize();
         df.setMaximumFractionDigits(1);
     }
 
@@ -29,13 +33,14 @@ public class DownloadRate implements Runnable {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                rate = (torrentState.getDownloadedSize() - downloadSize)*1.0/1024;
+                uploadRate = (torrentState.getUploadedSize() - uploadSize)*1.0/1024;
+                uploadSize = torrentState.getUploadedSize();
+                downloadRate = (torrentState.getDownloadedSize() - downloadSize)*1.0/1024;
                 downloadSize = torrentState.getDownloadedSize();
-                System.out.println("==================" + df.format(rate) + "Mb/s");
             }
         };
 
         Timer timer = new Timer();
-        timer.schedule(timerTask, 1000 * 3, 1000 * SCHEDULER);
+        timer.schedule(timerTask, 1000 * SCHEDULER, 1000 * SCHEDULER);
     }
 }

@@ -21,6 +21,7 @@ public class TorrentState {
     public final ConcurrentMap<Integer, AtomicInteger> pieceDownloadedBlocks = new ConcurrentHashMap<>();
 
     private long downloadedSize = 0;
+    private long uploadedSize = 0;
     private long t = 0;
 
     public List<Piece> pieces;
@@ -69,6 +70,14 @@ public class TorrentState {
 
     public void setDownloadedSize(long downloadedSize) {
         this.downloadedSize = downloadedSize;
+    }
+
+    public long getUploadedSize() {
+        return uploadedSize;
+    }
+
+    public void setUploadedSize(long uploadedSize) {
+        this.uploadedSize = uploadedSize;
     }
 
     private void initStatus(){
