@@ -20,10 +20,12 @@ public class PeerMessage {
         ByteBuffer buffer = null;
         MsgType msgType = msg.ID;
 
-        if (msgType == MsgType.KEEPALIVE)
-            return new byte[4];
 
         switch (msgType) {
+            case KEEPALIVE:
+                buffer = ByteBuffer.allocate(4);
+                buffer.putInt(0);
+                break;
 
             case CHOKE:
                 buffer = ByteBuffer.allocate(5);

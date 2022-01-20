@@ -113,20 +113,7 @@ public class TCPMessagesHandler {
             while (bRead < 4) {
                 bRead += socketChannel.read(buffer);
                 if (bRead == -1) {
-                    PeerInfo peerInfo = (PeerInfo) key.attachment();
-                    PeerState peerState = peerInfo.getPeerState();
-
-                    long nonResponseTime = peerState.nonResponseTime();
-                    if (nonResponseTime/1000 >=  10 && nonResponseTime/1000 <= 15){
-                        Message keepAlive = new Message(PeerMessage.MsgType.KEEPALIVE);
-                        peerState.writeMessageQ.add(keepAlive);
-                        if (key.isValid()){
-                            key.interestOps(SelectionKey.OP_WRITE);
-                        }
-                    }else if (nonResponseTime/1000 > 15){
-                        System.out.println("timeout for peer " + peerInfo);
-                        cancelKey(key);
-                    }
+                    endOfStream(key);
 
                     return null;
                 }
@@ -166,10 +153,15 @@ public class TCPMessagesHandler {
         while (byteRead < len) {
             try {
                 byteRead += socketChannel.read(buffer);
+                if (byteRead == -1){
+                    endOfStream(key);
+                    return null;
+                }
             } catch (IOException | BufferUnderflowException e) {
                 DEBUG.printError(e, getClass().getName());
                 return null;
             }
+
         }
         System.arraycopy(buffer.array(), 0, finalData, 4, len);
 
@@ -496,6 +488,25 @@ public class TCPMessagesHandler {
                     valuablePeers.get(0).getPeerState().writeMessageQ.addFirst(message);
             }
         }
+
+    }
+
+    public void endOfStream(SelectionKey key){
+            System.out.println("end of stream reached");
+            PeerInfo peerInfo = (PeerInfo) key.attachment();
+            PeerState peerState = peerInfo.getPeerState();
+
+            long nonResponseTime = peerState.nonResponseTime();
+            if (nonResponseTime/1000 >=  10 && nonResponseTime/1000 <= 15){
+                Message keepAlive = new Message(PeerMessage.MsgType.KEEPALIVE);
+                peerState.writeMessageQ.add(keepAlive);
+                if (key.isValid()){
+                    key.interestOps(SelectionKey.OP_WRITE);
+                }
+            }else if (nonResponseTime/1000 > 15){
+                System.out.println("timeout for peer " + peerInfo);
+                cancelKey(key);
+            }
 
     }
 
