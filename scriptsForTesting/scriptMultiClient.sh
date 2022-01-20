@@ -16,7 +16,8 @@ cp peer_1_to_1000/test.torrent .
 gnome-terminal -e "aria2c --listen-port 20011 -V  -d peer_1_to_200 test.torrent"
 gnome-terminal -e "aria2c --listen-port 20031 -V  -d peer_800_to_1000 test.torrent"
 gnome-terminal -e "aria2c --listen-port 20041 -V  -d peer_100_to_900 test.torrent"
-gnome-terminal -e "aria2c --listen-port 20051 -V  -d peer_400_669 test.torrent"
-gnome-terminal -e "aria2c --listen-port 20021 -V  -d peer_200_700 test.torrent"
+gnome-terminal -e "aria2c --listen-port 20051 -V  -d peer_400_to_669 test.torrent"
+gnome-terminal -e "aria2c --listen-port 20021 -V  -d peer_200_to_700 test.torrent"
+
 
 
