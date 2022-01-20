@@ -33,9 +33,9 @@ public class DownloadRate implements Runnable {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                uploadRate = (torrentState.getUploadedSize() - uploadSize)*1.0/1024;
+                uploadRate = (torrentState.getUploadedSize() - uploadSize)*1.0/1000;
                 uploadSize = torrentState.getUploadedSize();
-                downloadRate = (torrentState.getDownloadedSize() - downloadSize)*1.0/1024;
+                downloadRate = (torrentState.getDownloadedSize() - downloadSize)*1.0/1000;
                 downloadSize = torrentState.getDownloadedSize();
             }
         };
