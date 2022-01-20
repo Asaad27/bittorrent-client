@@ -37,13 +37,13 @@
 \end{figure}
 
 \rule{\linewidth}{0.2 mm} \\[0.4 cm]
-{\huge\bfseries Rapport de Projet Réseaux \par\vspace{1cm}} 
-{\Large Réalisation d'un Client Bittorent en Java} 
+{\huge\bfseries Rapport de Projet Réseaux \par\vspace{1cm}}
+{\Large Réalisation d'un Client Bittorent en Java}
 \rule{\linewidth}{0.2 mm} \\[1.0 cm]
 
 
 
-{\scshape\Large 
+{\scshape\Large
 Équipe 5 : Youssef Boulkhir, Asaad Belarbi, Pierre Cheylus
 \par}
 \vspace{1cm}
@@ -66,7 +66,7 @@ olivier.alphand@univ-grenoble-alpes.fr\\
 \section{Introduction}
 % Nécessaire ?
 L'bjectif de ce projet était de réaliser un client Java implémentant le protocole Bittorent selon sa spécification 1.0 et permettant ainsi de faire des transferts de fichiers pair à pair pour des torrents mono-fichier. \\
-Dans ce rapport nous présenterons d'abord les fonctionnalités implémentées dans notre client en détaillant quelques points clefs de notre implémentation ainsi que l'architecture objet que nous avons utilisée. Ensuite nous présenterons les performances réseaux en se basant sur un scénario test de référence et enfin nous présenterons notre méthode de tests et validation du fonctionnement du client ainsi que notre organisation du travail au cours de ce projet. 
+Dans ce rapport nous présenterons d'abord les fonctionnalités implémentées dans notre client en détaillant quelques points clefs de notre implémentation ainsi que l'architecture objet que nous avons utilisée. Ensuite nous présenterons les performances réseaux en se basant sur un scénario test de référence et enfin nous présenterons notre méthode de tests et validation du fonctionnement du client ainsi que notre organisation du travail au cours de ce projet.
 
 
 \section{Implémentation}
@@ -80,50 +80,83 @@ Dans ce rapport nous présenterons d'abord les fonctionnalités implémentées d
          Leecher 0\% & Socket bloquante + java.io & OK \\
          Leecher 0\% & Ecriture pièce sur disque & au fur et à mesure \\
          Leecher 0\% & Plusieurs messages bittorent au sein d'un segment TCP & OK \\
-         Leecher 0\% & Message inconnu traîté & ??? \\
-         Leecher 0\% & Sélection de pièces & ??? \\
-         Seeder 100\% & Sélection de pièces : Stratégie & ??? \\
+         Leecher 0\% & Message inconnu traîté & KEEPALIVE \\
+         Leecher 0\% & Sélection de pièces & RARESTFIRST,ENDGAME,RANDOM\\
          Seeder 100\% & Bitfield créé en fonction du test & OK \\
          Seeder 100\% & Gestion pièces et blocs & OK \\
-         & Clients supportés & Aria2C, ... \\
+         & Clients supportés & Aria2C, Vuze, Qbittorent ... \\
          Sprint 2 & Support Multi-Leecher & OK \\
-         & Support Multi-Seeder & ??? \\
+         & Support Multi-Seeder & OK \\
          & Bytebuffer & 1 par message \\
-         & Sélection de pièces & ??? \\
-         & Evaluation de performances & local, Machine perso \\
+         & Sélection de pièces & Strategies \\
+         & Evaluation de performances & local, distribué \\
          & Resume calculé à partir du fichier partiel & OK \\
          & Scénario multi-Leecher supporté & OK \\
          & Gestion concurrente & Selector \\
+         & Scénario Leech et Seed en même temps & OK \\
          Sprint 3 & Design patterns & Observer, Stratégie \\
-         & Sélection de pièces & Random, RarestFirst \\
-         & Message supporté & ??? \\
-         & Clean Code, Factorisation, Archi. Objet, . . . & ??? \\
-         Avancé & Test automatisé & ??? \\
-         & Calcul débit, barre progression & Calcul débit \\
-         & Compilation automatique & ??? \\
-         & Taille de pièce (32K et plus) & OK \\
+         & Sélection de pièces & Random, RarestFirst, ENDGAME \\
+         & Message supporté & tous sauf PORT \\
+         & Clean Code, Factorisation, Archi. Objet, . . . & Ok \\
+         Avancé & Test automatisé & Scripts \\
+         & Calcul débit, barre progression & Calcul débit, progression \\
+         & Compilation automatique & Maven \\
+         & Taille de pièce (32K et plus) & Tous les tailles \\
          & Extensions & Aucune \\
-         & Tracker contacté à intervalle régulier & OK \\ 
+         & Tracker contacté à intervalle régulier & OK \\
+         & Gestion des déconnexions des peers & OK à tous instants\\
+         & Tracker contacté à intervalle régulier & OK\\
+         & Changement dynamique des strategies & OK\\
+         & Selection des peers & Supression des peers inutiles\\
          \hline
         \end{tabularx}
         \end{center}
     \subsection{Architecture}
     % Ici on pourrait mettre le diagramme UML et parler des design patterns utilisés
+    % Je vais ajouter ici une explication du mecanisme des la recherche des pieces à demander..
     \subsection{Traitement de messages}
+    % Ici faire un schéma ou un diagramme de sequence...de la machine à état, elle est dans NIODownload handler, sentStateMachine() et receivedStateMachine
     \subsection{Algorithme de sélection des pièces}
-
+    %RAREST FIRST modification : soit m l'occurence minimal des pieces, on telecharge tous les pieces ayant m comme occurence, (de facon aleatoire, random au sein meme de rarestfirst, car normalement plusieurs clients vont vouloir telecharger les pieces rares en meme temps, pour eviter les congestions il faut faire un petit random), puis on passe au RANDOM, puis au Endgame pour les 3 dernieres pieces
+    %ps: il y a aussi un observer pattern qui notifie les strategies si un peer s'est connecté ou deconnecté ou a envoyé un have
+    \subsection{Fonctionnalités}
+    %-gestion des connections deconnections
+    %-analyse des peers, need to seed or need to download, else remove peer
+    %-calcul du debit
+    %-contacte tracker à intervalle réguliers
+    %-verification des pieces au debut et à la fin du telechargement
+    %- fast et slow mode de telechargement
+    %- suivi de l'etat du client, des peers et du torrent (torrenstate clienstate state ...)
+    % LOCALFILEHANDLES
+    \subsection{Structures de données}
+    % message queue et deque
+    % piece to request queue
+    % minHeap au niveau du rarestFirst
+    % peer Set
+    % classe Piece , PieceStatus et BlockStatus
 \section{Performances}
+    \subsection{scripts}
     \subsection{Scénario de Test}
+    %local et (distribué ?)
     \subsection{Tableau de performances}
 
-\section{Tests \& Validation}
 
+
+\section{Tests \& Validation}
+    \subsection{Problèmes rencontrées}
+    %-blacklists
+    %-jvm heap overflow
+    %-memory usage to high
+    %-tracker blocks sometimes
 \section{Organisation du travail}
     \subsection{Organisation générale}
+    %decoupage en tache
+    %Pierre : communication avec le Tracker, interval from TRACKER, LocalFileHandler, Strategies, Bitfield, PeerInfo, ...., Tests  + Conception...
+    %Youssef : Framer, participation à la machine à etat et messages ...
+    %Asaad : selector...
     \subsection{Conclusions personnelles}
         \subsubsection{Youssef Boulkhir}
         \subsubsection{Asaad Belarbi}
         \subsubsection{Pierre Cheylus}
-
+%%fonctionnalités qu'on aurait pus ajouter : timer pour timeout les peers inactifs, choke unchoke algorithm
 \end{document}
-
