@@ -43,12 +43,14 @@ scripts are in [scriptsForTesting](/scriptsForTesting) <br />
 
 **example of use:** <br />
 
-inside [scriptsForTesting](/scriptsForTesting) folder, run  a script, for example `./scriptMultiClient.sh `
+1-run opentracker <br />
+2-inside [scriptsForTesting](/scriptsForTesting) folder, run  a script, for example `./scriptMultiClient.sh `
 <br />, the script will create a file, generate it's torrent file from it and launch 5 aria2c instances, each with a specific range of pieces (can be used without opentracker to demonstrate strategies). The script will create
 folders named peer_`from`_`to` with _from_ = first piece (1-index based) and _to_ = lastpiece **(max is 1000)**, with each folder is used by one Aria2c<br />
 see the script file for more details and modifications. <br />
 **IMPORTANT**: change announce URL to opentracker url in `-a http://..../announce` inside the script sh file. <br />
 the script creates both torrent file, and metainfo file, hence the script can be used for multiple machines without the need of copying any file, and also for testing in one machine. <br />
+3-run `java -jar equi*.jar test /scriptsForTesting/test.torrent [-f ou -s]`
 
 see [scripts for generating files and torrents](/scripts) Readme for more details about how i created the scripts and infos about their CLI arguments
 
