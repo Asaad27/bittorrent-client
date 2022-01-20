@@ -123,7 +123,8 @@ public class TCPMessagesHandler {
                         if (key.isValid()){
                             key.interestOps(SelectionKey.OP_WRITE);
                         }
-                    }else if (nonResponseTime > 1000 * 15){
+                    }else if (nonResponseTime/1000 > 15){
+                        System.out.println("timeout for peer " + peerInfo);
                         cancelKey(key);
                     }
 

@@ -35,7 +35,6 @@ public class LocalFileHandler {
 
 		try {
 			fileAccess = new RandomAccessFile(torrentMetaData.getName(), "rw");
-			fileAccess.setLength((int) fileLength);
 		} catch (IOException e) {
 			DEBUG.printError(e, getClass().getName());
 		}

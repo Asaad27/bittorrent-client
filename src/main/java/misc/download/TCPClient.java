@@ -279,9 +279,9 @@ public class TCPClient implements Runnable {
     }
 
     private void setSlowMode() {
-        NIODownloadHandler.BLOCKS_PER_PEER = 6;
-        TCPMessagesHandler.NUMBER_OF_READ_MSG_PER_PEER = 6;
-        TCPMessagesHandler.NUMBER_OF_REQUEST_PER_PEER = 6;
+        NIODownloadHandler.BLOCKS_PER_PEER = 5;
+        TCPMessagesHandler.NUMBER_OF_READ_MSG_PER_PEER = 5;
+        TCPMessagesHandler.NUMBER_OF_REQUEST_PER_PEER = 5;
         NUMBER_OF_PIECES_PER_REQUEST = 3;
     }
 
