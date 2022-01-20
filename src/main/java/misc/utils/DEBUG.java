@@ -6,7 +6,7 @@ import java.io.*;
 public class DEBUG {
 
     public static boolean flag = true;
-    public static String fileName = "log4seederStrategies.txt";
+    public static String fileName = "log.txt";
     public static BufferedWriter writer;
     public static FileWriter fileWriter;
 
