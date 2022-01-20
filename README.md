@@ -1,7 +1,8 @@
-##Informations
+## Informations
 
-reports folder contains profiler informations about the execution and call trees... <br />
-javadoc folder contains java documentation;
+[reports](/reports) folder contains profiler informations about the execution and call trees... <br />
+[documentation](/docs) folder contains java documentation; <br />
+[log](/log4seederStrategies.txt) contains and example of logs of an executed scenario <br />
 
 ## How to Use
 either compile jar using : `mvn compile assembly:single` <br/>
