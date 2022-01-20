@@ -1,6 +1,9 @@
 #!/bin/bash
 
 rm -rf peer*
+./filegen test 1 1000
+cp peer*/test .
+./metainfo test -p 256 -a http://$(hostname).ensimag.fr:6969/announce
 ./filegen test 1 200
 mkdir peer_0_to_1000
 mkdir peer2_0_to_1000
