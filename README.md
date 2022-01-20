@@ -1,8 +1,32 @@
 ## Informations
 
-[reports](/reports) folder contains profiler informations about the execution and call trees... <br />
+[reports](/reports) folder contains profiler information about the execution and call trees... <br />
 [documentation](/docs) folder contains java documentation; <br />
-[log](/log4seederStrategies.txt) contains and example of logs of an executed scenario <br />
+[log](/logs) (/log5multiclientsSeedAndLeech.txt) contains  examples of logs of some executed scenarios <br />
+[ex](/logs/log5multiclientsSeedAndLeechFast.txt) : execution of scriptMultiClient.sh, starts with rarest first then switches strategies to random and endgame,at the beginning, peers have different % of files, at the end of the
+download, all peers have all pieces, see for details about what file each peer has, example :  <br />
+
+**scenario:** 
+test file : pieces ->  1_to 100 <br />
+peer1 : 1_to_200    port : 2001 <br />
+peer2 : 800_to_1000 port : 2003 <br />
+peer3 : 100_to_900  port : 2004 <br />
+peer4 : 400_to_669  port : 2005 <br />
+peer5 : 200_700     port : 2002 <br />
+![img_1.png](logs/img_1.png)<br />
+
+**console output:**<br />
+
+![img_3.png](logs/img_3.png)<br />
+
+**end of the download console output stats** <br />
+
+![img_5.png](logs/img_5.png) <br />
+
+[log file](/logs/log5multiclientsSeedAndLeechFast.txt) <br />
+
+![img_4.png](logs/img_4.png)
+
 
 ## How to Use
 either compile jar using : `mvn compile assembly:single` <br/>
