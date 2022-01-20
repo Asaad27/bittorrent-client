@@ -1,9 +1,14 @@
 #!/bin/bash
 
-rm -rf peer_0_to_1000
+rm ../test
+rm -rf peer*
+rm *.torrent
 ./filegen test 1 1000
-cp peer*/test .
-./metainfo test -p 256 -a http://$(hostname).ensimag.fr:6969/announce
-mkdir peer_0_to_1000
-cd peer_0_to_1000/
-gnome-terminal -e "aria2c --listen-port 2008 -V  -d . ../test.torrent"
+./metainfo peer_1_to_1000/test -p 256 -a http://$(hostname).ensimag.fr:6969/announce
+cp peer_1_to_1000/test.torrent .
+mkdir peer_0_to_O
+gnome-terminal -e "aria2c --listen-port 20022 -V  -d peer_0_to_O test.torrent"
+
+
+
+
