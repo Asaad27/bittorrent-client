@@ -115,19 +115,7 @@ public class TCPMessagesHandler {
                 if (bRead == -1) {
                     PeerInfo peerInfo = (PeerInfo) key.attachment();
                     PeerState peerState = peerInfo.getPeerState();
-                    /*boolean cancelKey = true;
 
-                    for (int i = 0; i < torrentMetaData.getNumberOfPieces(); i++) {
-                        if ((!clientState.hasPiece(i) && peerState.hasPiece(i) || (clientState.hasPiece(i) && !peerState.hasPiece(i)))) {
-                            cancelKey = false;
-                        }
-                    }
-
-                    if (cancelKey && peerState.writeMessageQ.isEmpty())
-                        cancelKey(key);
-                    else {
-                        key.interestOps(SelectionKey.OP_WRITE);
-                    }*/
                     long nonResponseTime = peerState.nonResponseTime();
                     if (nonResponseTime/1000 >=  10 && nonResponseTime/1000 <= 15){
                         Message keepAlive = new Message(PeerMessage.MsgType.KEEPALIVE);
@@ -169,7 +157,6 @@ public class TCPMessagesHandler {
 
         if (len < 0)
             return null;
-        //buffer.flip();
         byte[] finalData = new byte[4 + len];
         System.arraycopy(buffer.array(), 0, finalData, 0, 4);
 
@@ -183,7 +170,6 @@ public class TCPMessagesHandler {
                 return null;
             }
         }
-        //buffer.flip();
         System.arraycopy(buffer.array(), 0, finalData, 4, len);
 
         if (byteRead != len)
