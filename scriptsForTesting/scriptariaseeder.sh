@@ -7,7 +7,7 @@ rm *.torrent
 cp peer*/test .
 ./metainfo test -p 256 -a http://$(hostname).ensimag.fr:6969/announce
 cd peer_1_to_1000/
-gnome-terminal -e "aria2c --listen-port 2001 -V  -d . ../test.torrent"
+gnome-terminal -e "aria2c --listen-port 2009 -V  -d . ../test.torrent"
 
 
 

@@ -13,22 +13,22 @@ cp peer*/test .
 # shellcheck disable=SC2046
 ./metainfo test -p 256 -a http://$(hostname).ensimag.fr:6969/announce
 cd peer_1_to_200/
-gnome-terminal -e "aria2c --listen-port 2001 -V  -d . ../test.torrent"
+gnome-terminal -e "aria2c --listen-port 20011 -V  -d . ../test.torrent"
 cd ..
 
 cd peer_800_to_1000
-gnome-terminal -e "aria2c --listen-port 2003 -V  -d . ../test.torrent"
+gnome-terminal -e "aria2c --listen-port 20031 -V  -d . ../test.torrent"
 cd ..
 
 cd peer_100_to_900
-gnome-terminal -e "aria2c --listen-port 2004 -V  -d . ../test.torrent"
+gnome-terminal -e "aria2c --listen-port 20041 -V  -d . ../test.torrent"
 cd..
 
 cd peer_400_to_669
-gnome-terminal -e "aria2c --listen-port 2005 -V  -d . ../test.torrent"
+gnome-terminal -e "aria2c --listen-port 20051 -V  -d . ../test.torrent"
 cd..
 
 cd peer_200_700
-gnome-terminal -e "aria2c --listen-port 2002 -V  -d . ../test.torrent"
+gnome-terminal -e "aria2c --listen-port 20021 -V  -d . ../test.torrent"
 
 

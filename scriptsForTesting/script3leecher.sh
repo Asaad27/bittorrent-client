@@ -7,11 +7,11 @@ cp peer*/test .
 ./filegen test 1 200
 mkdir peer_0_to_1000
 mkdir peer2_0_to_1000
-cd peer_0_to_1000/
+cd peer_0_to_1000/ || exit
 gnome-terminal -e "aria2c --listen-port 2001 -V  -d . ../test.torrent"
 cd ..
-cd peer2_0_to_1000/
+cd peer2_0_to_1000/ || exit
 gnome-terminal -e "aria2c --listen-port 2002 -V  -d . ../test.torrent"
 cd ..
-cd peer_1_to_200
+cd peer_1_to_200 || exit
 gnome-terminal -e "aria2c --listen-port 2003 -V  -d . ../test.torrent"
