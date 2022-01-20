@@ -2,7 +2,7 @@
 
 [reports](/reports) folder contains profiler information about the execution and call trees... <br />
 [documentation](/docs) folder contains java documentation; <br />
-[log](/logs) (/log5multiclientsSeedAndLeech.txt) contains  examples of logs of some executed scenarios <br />
+[log](/logs)  contains  examples of logs of some executed scenarios <br />
 [ex](/logs/log5multiclientsSeedAndLeechFast.txt) : execution of scriptMultiClient.sh, starts with rarest first then switches strategies to random and endgame,at the beginning, peers have different % of files, at the end of the
 download, all peers have all pieces, see for details about what file each peer has, example :  <br />
 
