@@ -1,12 +1,11 @@
 ## Informations
 
+Link to project report : [report](/doc/Rapport_Projet_R_seaux.pdf) <br />
 
 
-[example: 
-log5multiclientsSeedAndLeechFast.txt](/logs/log5multiclientsSeedAndLeechFast.txt) : execution of scriptMultiClient.sh, starts with rarest first then switches strategies to random and endgame,at the beginning, peers have different % of files, at the end of the
-download, all peers have all pieces, see for details about what file each peer has, example :  <br />
 
-**scenario:** 
+
+**example scenario:** 
 test file : pieces ->  1_to 100 <br />
 peer1 : 1_to_200    port : 2001 <br />
 peer2 : 800_to_1000 port : 2003 <br />
