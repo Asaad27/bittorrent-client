@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="dc.created" content="2022-01-18">
-<meta name="description" content="declaration: package: misc.download.strategies, class: DownloadStrategy">
+<meta name="description" content="declaration: package: com.download.strategies, class: DownloadStrategy">
 <meta name="generator" content="javadoc/ClassWriterImpl">
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../script-dir/jquery-ui.min.css" title="Style">
@@ -68,25 +68,25 @@ loadScripts(document, 'script');</script>
 <main role="main">
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">misc.download.strategies</a></div>
+<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">com.download.strategies</a></div>
 <h1 title="Class DownloadStrategy" class="title">Class DownloadStrategy</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance">misc.download.strategies.DownloadStrategy</div>
+<div class="inheritance">com.download.strategies.DownloadStrategy</div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="IDownloadStrategy.html" title="interface in misc.download.strategies">IDownloadStrategy</a></code></dd>
+<dd><code><a href="IDownloadStrategy.html" title="interface in com.download.strategies">IDownloadStrategy</a></code></dd>
 </dl>
 <dl class="notes">
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="EndGame.html" title="class in misc.download.strategies">EndGame</a></code>, <code><a href="RandomPiece.html" title="class in misc.download.strategies">RandomPiece</a></code>, <code><a href="RarestFirst.html" title="class in misc.download.strategies">RarestFirst</a></code></dd>
+<dd><code><a href="EndGame.html" title="class in com.download.strategies">EndGame</a></code>, <code><a href="RandomPiece.html" title="class in com.download.strategies">RandomPiece</a></code>, <code><a href="RarestFirst.html" title="class in com.download.strategies">RarestFirst</a></code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">DownloadStrategy</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
-implements <a href="IDownloadStrategy.html" title="interface in misc.download.strategies">IDownloadStrategy</a></span></div>
+implements <a href="IDownloadStrategy.html" title="interface in com.download.strategies">IDownloadStrategy</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -114,12 +114,12 @@ implements <a href="IDownloadStrategy.html" title="interface in misc.download.st
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#peersByPieceIndex(java.util.Set,int)" class="member-name-link">peersByPieceIndex</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&gt;&nbsp;peers,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#peersByPieceIndex(java.util.Set,int)" class="member-name-link">peersByPieceIndex</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&gt;&nbsp;peers,
  int&nbsp;pieceNb)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#remainingPieces(misc.torrent.TorrentState)" class="member-name-link">remainingPieces</a><wbr>(<a href="../../torrent/TorrentState.html" title="class in misc.torrent">TorrentState</a>&nbsp;status)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#remainingPieces(misc.torrent.TorrentState)" class="member-name-link">remainingPieces</a><wbr>(<a href="../../torrent/TorrentState.html" title="class in com.torrent">TorrentState</a>&nbsp;status)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
@@ -128,7 +128,7 @@ implements <a href="IDownloadStrategy.html" title="interface in misc.download.st
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-misc.download.strategies.IDownloadStrategy">Methods inherited from interface&nbsp;misc.download.strategies.<a href="IDownloadStrategy.html" title="interface in misc.download.strategies">IDownloadStrategy</a></h3>
+<h3 id="methods-inherited-from-class-misc.download.strategies.IDownloadStrategy">Methods inherited from interface&nbsp;misc.download.strategies.<a href="IDownloadStrategy.html" title="interface in com.download.strategies">IDownloadStrategy</a></h3>
 <code><a href="IDownloadStrategy.html#clear()">clear</a>, <a href="IDownloadStrategy.html#getName()">getName</a>, <a href="IDownloadStrategy.html#updatePeerState()">updatePeerState</a></code></div>
 </section>
 </li>
@@ -158,14 +158,14 @@ implements <a href="IDownloadStrategy.html" title="interface in misc.download.st
 <li>
 <section class="detail" id="peersByPieceIndex(java.util.Set,int)">
 <h3>peersByPieceIndex</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&gt;</span>&nbsp;<span class="element-name">peersByPieceIndex</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&gt;&nbsp;peers,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&gt;</span>&nbsp;<span class="element-name">peersByPieceIndex</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&gt;&nbsp;peers,
  int&nbsp;pieceNb)</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="remainingPieces(misc.torrent.TorrentState)">
 <h3>remainingPieces</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</span>&nbsp;<span class="element-name">remainingPieces</span><wbr><span class="parameters">(<a href="../../torrent/TorrentState.html" title="class in misc.torrent">TorrentState</a>&nbsp;status)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</span>&nbsp;<span class="element-name">remainingPieces</span><wbr><span class="parameters">(<a href="../../torrent/TorrentState.html" title="class in com.torrent">TorrentState</a>&nbsp;status)</span></div>
 </section>
 </li>
 </ul>

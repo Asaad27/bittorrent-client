@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="dc.created" content="2022-01-18">
-<meta name="description" content="declaration: package: misc.download, class: TCPMessagesHandler">
+<meta name="description" content="declaration: package: com.download, class: TCPMessagesHandler">
 <meta name="generator" content="javadoc/ClassWriterImpl">
 <link rel="stylesheet" type="text/css" href="../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../script-dir/jquery-ui.min.css" title="Style">
@@ -68,11 +68,11 @@ loadScripts(document, 'script');</script>
 <main role="main">
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">misc.download</a></div>
+<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">com.download</a></div>
 <h1 title="Class TCPMessagesHandler" class="title">Class TCPMessagesHandler</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance">misc.download.TCPMessagesHandler</div>
+<div class="inheritance">com.download.TCPMessagesHandler</div>
 </div>
 <section class="class-description" id="class-description">
 <hr>
@@ -91,7 +91,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Field</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code><a href="../peers/ClientState.html" title="class in misc.peers">ClientState</a></code></div>
+<div class="col-first even-row-color"><code><a href="../peers/ClientState.html" title="class in com.peers">ClientState</a></code></div>
 <div class="col-second even-row-color"><code><a href="#clientState" class="member-name-link">clientState</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>static final int</code></div>
@@ -103,19 +103,19 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color"><code>static final int</code></div>
 <div class="col-second odd-row-color"><code><a href="#NUMBER_OF_REQUEST_PER_PEER" class="member-name-link">NUMBER_OF_REQUEST_PER_PEER</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code><a href="../torrent/Observer.html" title="class in misc.torrent">Observer</a></code></div>
+<div class="col-first even-row-color"><code><a href="../torrent/Observer.html" title="class in com.torrent">Observer</a></code></div>
 <div class="col-second even-row-color"><code><a href="#observer" class="member-name-link">observer</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code><a href="NIODownloadHandler.html" title="class in misc.download">NIODownloadHandler</a></code></div>
+<div class="col-first odd-row-color"><code><a href="NIODownloadHandler.html" title="class in com.download">NIODownloadHandler</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#peerDownloadHandler" class="member-name-link">peerDownloadHandler</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&gt;</code></div>
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#peerList" class="member-name-link">peerList</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code><a href="../torrent/TorrentMetaData.html" title="class in misc.torrent">TorrentMetaData</a></code></div>
+<div class="col-first odd-row-color"><code><a href="../torrent/TorrentMetaData.html" title="class in com.torrent">TorrentMetaData</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#torrentMetaData" class="member-name-link">torrentMetaData</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code><a href="../torrent/TorrentState.html" title="class in misc.torrent">TorrentState</a></code></div>
+<div class="col-first even-row-color"><code><a href="../torrent/TorrentState.html" title="class in com.torrent">TorrentState</a></code></div>
 <div class="col-second even-row-color"><code><a href="#torrentState" class="member-name-link">torrentState</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
@@ -129,11 +129,11 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(misc.torrent.TorrentMetaData,java.util.Set,misc.peers.ClientState,misc.torrent.TorrentState,misc.torrent.Observer)" class="member-name-link">TCPMessagesHandler</a><wbr>(<a href="../torrent/TorrentMetaData.html" title="class in misc.torrent">TorrentMetaData</a>&nbsp;torrentMetaData,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&gt;&nbsp;peerList,
- <a href="../peers/ClientState.html" title="class in misc.peers">ClientState</a>&nbsp;clientState,
- <a href="../torrent/TorrentState.html" title="class in misc.torrent">TorrentState</a>&nbsp;torrentState,
- <a href="../torrent/Observer.html" title="class in misc.torrent">Observer</a>&nbsp;observer)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(misc.torrent.TorrentMetaData,java.util.Set,misc.peers.ClientState,misc.torrent.TorrentState,misc.torrent.Observer)" class="member-name-link">TCPMessagesHandler</a><wbr>(<a href="../torrent/TorrentMetaData.html" title="class in com.torrent">TorrentMetaData</a>&nbsp;torrentMetaData,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&gt;&nbsp;peerList,
+ <a href="../peers/ClientState.html" title="class in com.peers">ClientState</a>&nbsp;clientState,
+ <a href="../torrent/TorrentState.html" title="class in com.torrent">TorrentState</a>&nbsp;torrentState,
+ <a href="../torrent/Observer.html" title="class in com.torrent">Observer</a>&nbsp;observer)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
@@ -150,7 +150,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addPeer(misc.peers.PeerInfo)" class="member-name-link">addPeer</a><wbr>(<a href="../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&nbsp;peerInfo)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addPeer(misc.peers.PeerInfo)" class="member-name-link">addPeer</a><wbr>(<a href="../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&nbsp;peerInfo)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cancelKey(java.nio.channels.SelectionKey)" class="member-name-link">cancelKey</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/channels/SelectionKey.html" title="class or interface in java.nio.channels" class="external-link">SelectionKey</a>&nbsp;key)</code></div>
@@ -176,7 +176,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#handleWrite(java.nio.channels.SelectionKey)" class="member-name-link">handleWrite</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/channels/SelectionKey.html" title="class or interface in java.nio.channels" class="external-link">SelectionKey</a>&nbsp;key)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removePeer(misc.peers.PeerInfo)" class="member-name-link">removePeer</a><wbr>(<a href="../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&nbsp;peerInfo)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removePeer(misc.peers.PeerInfo)" class="member-name-link">removePeer</a><wbr>(<a href="../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&nbsp;peerInfo)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
@@ -240,37 +240,37 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="peerDownloadHandler">
 <h3>peerDownloadHandler</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="NIODownloadHandler.html" title="class in misc.download">NIODownloadHandler</a></span>&nbsp;<span class="element-name">peerDownloadHandler</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="NIODownloadHandler.html" title="class in com.download">NIODownloadHandler</a></span>&nbsp;<span class="element-name">peerDownloadHandler</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="peerList">
 <h3>peerList</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&gt;</span>&nbsp;<span class="element-name">peerList</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&gt;</span>&nbsp;<span class="element-name">peerList</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="torrentMetaData">
 <h3>torrentMetaData</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../torrent/TorrentMetaData.html" title="class in misc.torrent">TorrentMetaData</a></span>&nbsp;<span class="element-name">torrentMetaData</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../torrent/TorrentMetaData.html" title="class in com.torrent">TorrentMetaData</a></span>&nbsp;<span class="element-name">torrentMetaData</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="clientState">
 <h3>clientState</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../peers/ClientState.html" title="class in misc.peers">ClientState</a></span>&nbsp;<span class="element-name">clientState</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../peers/ClientState.html" title="class in com.peers">ClientState</a></span>&nbsp;<span class="element-name">clientState</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="observer">
 <h3>observer</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../torrent/Observer.html" title="class in misc.torrent">Observer</a></span>&nbsp;<span class="element-name">observer</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../torrent/Observer.html" title="class in com.torrent">Observer</a></span>&nbsp;<span class="element-name">observer</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="torrentState">
 <h3>torrentState</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../torrent/TorrentState.html" title="class in misc.torrent">TorrentState</a></span>&nbsp;<span class="element-name">torrentState</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../torrent/TorrentState.html" title="class in com.torrent">TorrentState</a></span>&nbsp;<span class="element-name">torrentState</span></div>
 </section>
 </li>
 </ul>
@@ -284,11 +284,11 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;(misc.torrent.TorrentMetaData,java.util.Set,misc.peers.ClientState,misc.torrent.TorrentState,misc.torrent.Observer)">
 <h3>TCPMessagesHandler</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">TCPMessagesHandler</span><wbr><span class="parameters">(<a href="../torrent/TorrentMetaData.html" title="class in misc.torrent">TorrentMetaData</a>&nbsp;torrentMetaData,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&gt;&nbsp;peerList,
- <a href="../peers/ClientState.html" title="class in misc.peers">ClientState</a>&nbsp;clientState,
- <a href="../torrent/TorrentState.html" title="class in misc.torrent">TorrentState</a>&nbsp;torrentState,
- <a href="../torrent/Observer.html" title="class in misc.torrent">Observer</a>&nbsp;observer)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">TCPMessagesHandler</span><wbr><span class="parameters">(<a href="../torrent/TorrentMetaData.html" title="class in com.torrent">TorrentMetaData</a>&nbsp;torrentMetaData,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&gt;&nbsp;peerList,
+ <a href="../peers/ClientState.html" title="class in com.peers">ClientState</a>&nbsp;clientState,
+ <a href="../torrent/TorrentState.html" title="class in com.torrent">TorrentState</a>&nbsp;torrentState,
+ <a href="../torrent/Observer.html" title="class in com.torrent">Observer</a>&nbsp;observer)</span></div>
 </section>
 </li>
 </ul>
@@ -349,13 +349,13 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="addPeer(misc.peers.PeerInfo)">
 <h3>addPeer</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addPeer</span><wbr><span class="parameters">(<a href="../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&nbsp;peerInfo)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addPeer</span><wbr><span class="parameters">(<a href="../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&nbsp;peerInfo)</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="removePeer(misc.peers.PeerInfo)">
 <h3>removePeer</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">removePeer</span><wbr><span class="parameters">(<a href="../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&nbsp;peerInfo)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">removePeer</span><wbr><span class="parameters">(<a href="../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&nbsp;peerInfo)</span></div>
 </section>
 </li>
 </ul>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="dc.created" content="2022-01-18">
-<meta name="description" content="declaration: package: misc.download.strategies, class: RarestFirst">
+<meta name="description" content="declaration: package: com.download.strategies, class: RarestFirst">
 <meta name="generator" content="javadoc/ClassWriterImpl">
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../script-dir/jquery-ui.min.css" title="Style">
@@ -68,23 +68,23 @@ loadScripts(document, 'script');</script>
 <main role="main">
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">misc.download.strategies</a></div>
+<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">com.download.strategies</a></div>
 <h1 title="Class RarestFirst" class="title">Class RarestFirst</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance"><a href="DownloadStrategy.html" title="class in misc.download.strategies">misc.download.strategies.DownloadStrategy</a>
-<div class="inheritance">misc.download.strategies.RarestFirst</div>
+<div class="inheritance"><a href="DownloadStrategy.html" title="class in com.download.strategies">com.download.strategies.DownloadStrategy</a>
+<div class="inheritance">com.download.strategies.RarestFirst</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="IDownloadStrategy.html" title="interface in misc.download.strategies">IDownloadStrategy</a></code>, <code><a href="../../torrent/IObservable.html" title="interface in misc.torrent">IObservable</a></code></dd>
+<dd><code><a href="IDownloadStrategy.html" title="interface in com.download.strategies">IDownloadStrategy</a></code>, <code><a href="../../torrent/IObservable.html" title="interface in com.torrent">IObservable</a></code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">RarestFirst</span>
-<span class="extends-implements">extends <a href="DownloadStrategy.html" title="class in misc.download.strategies">DownloadStrategy</a>
-implements <a href="../../torrent/IObservable.html" title="interface in misc.torrent">IObservable</a></span></div>
+<span class="extends-implements">extends <a href="DownloadStrategy.html" title="class in com.download.strategies">DownloadStrategy</a>
+implements <a href="../../torrent/IObservable.html" title="interface in com.torrent">IObservable</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -105,16 +105,16 @@ implements <a href="../../torrent/IObservable.html" title="interface in misc.tor
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getName()" class="member-name-link">getName</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="IDownloadStrategy.html" title="interface in misc.download.strategies">IDownloadStrategy</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#instance(java.util.Set,misc.torrent.TorrentState,misc.torrent.Observer)" class="member-name-link">instance</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&gt;&nbsp;peers,
- <a href="../../torrent/TorrentState.html" title="class in misc.torrent">TorrentState</a>&nbsp;status,
- <a href="../../torrent/Observer.html" title="class in misc.torrent">Observer</a>&nbsp;subject)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="IDownloadStrategy.html" title="interface in com.download.strategies">IDownloadStrategy</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#instance(java.util.Set,misc.torrent.TorrentState,misc.torrent.Observer)" class="member-name-link">instance</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&gt;&nbsp;peers,
+ <a href="../../torrent/TorrentState.html" title="class in com.torrent">TorrentState</a>&nbsp;status,
+ <a href="../../torrent/Observer.html" title="class in com.torrent">Observer</a>&nbsp;subject)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#peerConnection(misc.peers.PeerState)" class="member-name-link">peerConnection</a><wbr>(<a href="../../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#peerConnection(misc.peers.PeerState)" class="member-name-link">peerConnection</a><wbr>(<a href="../../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#peerDisconnection(misc.peers.PeerState)" class="member-name-link">peerDisconnection</a><wbr>(<a href="../../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#peerDisconnection(misc.peers.PeerState)" class="member-name-link">peerDisconnection</a><wbr>(<a href="../../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#peerHasPiece(int)" class="member-name-link">peerHasPiece</a><wbr>(int&nbsp;index)</code></div>
@@ -129,7 +129,7 @@ implements <a href="../../torrent/IObservable.html" title="interface in misc.tor
 </div>
 </div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-misc.download.strategies.DownloadStrategy">Methods inherited from class&nbsp;misc.download.strategies.<a href="DownloadStrategy.html" title="class in misc.download.strategies">DownloadStrategy</a></h3>
+<h3 id="methods-inherited-from-class-misc.download.strategies.DownloadStrategy">Methods inherited from class&nbsp;misc.download.strategies.<a href="DownloadStrategy.html" title="class in com.download.strategies">DownloadStrategy</a></h3>
 <code><a href="DownloadStrategy.html#peersByPieceIndex(java.util.Set,int)">peersByPieceIndex</a>, <a href="DownloadStrategy.html#remainingPieces(misc.torrent.TorrentState)">remainingPieces</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
@@ -148,9 +148,9 @@ implements <a href="../../torrent/IObservable.html" title="interface in misc.tor
 <li>
 <section class="detail" id="instance(java.util.Set,misc.torrent.TorrentState,misc.torrent.Observer)">
 <h3>instance</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IDownloadStrategy.html" title="interface in misc.download.strategies">IDownloadStrategy</a></span>&nbsp;<span class="element-name">instance</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&gt;&nbsp;peers,
- <a href="../../torrent/TorrentState.html" title="class in misc.torrent">TorrentState</a>&nbsp;status,
- <a href="../../torrent/Observer.html" title="class in misc.torrent">Observer</a>&nbsp;subject)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IDownloadStrategy.html" title="interface in com.download.strategies">IDownloadStrategy</a></span>&nbsp;<span class="element-name">instance</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&gt;&nbsp;peers,
+ <a href="../../torrent/TorrentState.html" title="class in com.torrent">TorrentState</a>&nbsp;status,
+ <a href="../../torrent/Observer.html" title="class in com.torrent">Observer</a>&nbsp;subject)</span></div>
 </section>
 </li>
 <li>
@@ -159,7 +159,7 @@ implements <a href="../../torrent/IObservable.html" title="interface in misc.tor
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">clear</span>()</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="IDownloadStrategy.html#clear()">clear</a></code>&nbsp;in interface&nbsp;<code><a href="IDownloadStrategy.html" title="interface in misc.download.strategies">IDownloadStrategy</a></code></dd>
+<dd><code><a href="IDownloadStrategy.html#clear()">clear</a></code>&nbsp;in interface&nbsp;<code><a href="IDownloadStrategy.html" title="interface in com.download.strategies">IDownloadStrategy</a></code></dd>
 </dl>
 </section>
 </li>
@@ -175,7 +175,7 @@ implements <a href="../../torrent/IObservable.html" title="interface in misc.tor
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">updatePeerState</span>()</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="IDownloadStrategy.html#updatePeerState()">updatePeerState</a></code>&nbsp;in interface&nbsp;<code><a href="IDownloadStrategy.html" title="interface in misc.download.strategies">IDownloadStrategy</a></code></dd>
+<dd><code><a href="IDownloadStrategy.html#updatePeerState()">updatePeerState</a></code>&nbsp;in interface&nbsp;<code><a href="IDownloadStrategy.html" title="interface in com.download.strategies">IDownloadStrategy</a></code></dd>
 </dl>
 </section>
 </li>
@@ -185,7 +185,7 @@ implements <a href="../../torrent/IObservable.html" title="interface in misc.tor
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getName</span>()</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="IDownloadStrategy.html#getName()">getName</a></code>&nbsp;in interface&nbsp;<code><a href="IDownloadStrategy.html" title="interface in misc.download.strategies">IDownloadStrategy</a></code></dd>
+<dd><code><a href="IDownloadStrategy.html#getName()">getName</a></code>&nbsp;in interface&nbsp;<code><a href="IDownloadStrategy.html" title="interface in com.download.strategies">IDownloadStrategy</a></code></dd>
 </dl>
 </section>
 </li>
@@ -195,27 +195,27 @@ implements <a href="../../torrent/IObservable.html" title="interface in misc.tor
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">peerHasPiece</span><wbr><span class="parameters">(int&nbsp;index)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="../../torrent/IObservable.html#peerHasPiece(int)">peerHasPiece</a></code>&nbsp;in interface&nbsp;<code><a href="../../torrent/IObservable.html" title="interface in misc.torrent">IObservable</a></code></dd>
+<dd><code><a href="../../torrent/IObservable.html#peerHasPiece(int)">peerHasPiece</a></code>&nbsp;in interface&nbsp;<code><a href="../../torrent/IObservable.html" title="interface in com.torrent">IObservable</a></code></dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="peerConnection(misc.peers.PeerState)">
 <h3>peerConnection</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">peerConnection</span><wbr><span class="parameters">(<a href="../../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">peerConnection</span><wbr><span class="parameters">(<a href="../../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="../../torrent/IObservable.html#peerConnection(misc.peers.PeerState)">peerConnection</a></code>&nbsp;in interface&nbsp;<code><a href="../../torrent/IObservable.html" title="interface in misc.torrent">IObservable</a></code></dd>
+<dd><code><a href="../../torrent/IObservable.html#peerConnection(misc.peers.PeerState)">peerConnection</a></code>&nbsp;in interface&nbsp;<code><a href="../../torrent/IObservable.html" title="interface in com.torrent">IObservable</a></code></dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="peerDisconnection(misc.peers.PeerState)">
 <h3>peerDisconnection</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">peerDisconnection</span><wbr><span class="parameters">(<a href="../../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">peerDisconnection</span><wbr><span class="parameters">(<a href="../../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="../../torrent/IObservable.html#peerDisconnection(misc.peers.PeerState)">peerDisconnection</a></code>&nbsp;in interface&nbsp;<code><a href="../../torrent/IObservable.html" title="interface in misc.torrent">IObservable</a></code></dd>
+<dd><code><a href="../../torrent/IObservable.html#peerDisconnection(misc.peers.PeerState)">peerDisconnection</a></code>&nbsp;in interface&nbsp;<code><a href="../../torrent/IObservable.html" title="interface in com.torrent">IObservable</a></code></dd>
 </dl>
 </section>
 </li>

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="dc.created" content="2022-01-18">
-<meta name="description" content="declaration: package: misc.download, class: NIODownloadHandler">
+<meta name="description" content="declaration: package: com.download, class: NIODownloadHandler">
 <meta name="generator" content="javadoc/ClassWriterImpl">
 <link rel="stylesheet" type="text/css" href="../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../script-dir/jquery-ui.min.css" title="Style">
@@ -68,11 +68,11 @@ loadScripts(document, 'script');</script>
 <main role="main">
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">misc.download</a></div>
+<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">com.download</a></div>
 <h1 title="Class NIODownloadHandler" class="title">Class NIODownloadHandler</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance">misc.download.NIODownloadHandler</div>
+<div class="inheritance">com.download.NIODownloadHandler</div>
 </div>
 <section class="class-description" id="class-description">
 <hr>
@@ -90,10 +90,10 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(misc.peers.ClientState,misc.torrent.TorrentState,java.util.Set,misc.torrent.Observer)" class="member-name-link">NIODownloadHandler</a><wbr>(<a href="../peers/ClientState.html" title="class in misc.peers">ClientState</a>&nbsp;clientState,
- <a href="../torrent/TorrentState.html" title="class in misc.torrent">TorrentState</a>&nbsp;torrentState,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&gt;&nbsp;peerInfoList,
- <a href="../torrent/Observer.html" title="class in misc.torrent">Observer</a>&nbsp;observer)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(misc.peers.ClientState,misc.torrent.TorrentState,java.util.Set,misc.torrent.Observer)" class="member-name-link">NIODownloadHandler</a><wbr>(<a href="../peers/ClientState.html" title="class in com.peers">ClientState</a>&nbsp;clientState,
+ <a href="../torrent/TorrentState.html" title="class in com.torrent">TorrentState</a>&nbsp;torrentState,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&gt;&nbsp;peerInfoList,
+ <a href="../torrent/Observer.html" title="class in com.torrent">Observer</a>&nbsp;observer)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
@@ -109,29 +109,29 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../peers/ClientState.html" title="class in misc.peers">ClientState</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../peers/ClientState.html" title="class in com.peers">ClientState</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getClientState()" class="member-name-link">getClientState</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#needToDownload(misc.peers.PeerState)" class="member-name-link">needToDownload</a><wbr>(<a href="../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#needToDownload(misc.peers.PeerState)" class="member-name-link">needToDownload</a><wbr>(<a href="../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#needToSeed(misc.peers.PeerState)" class="member-name-link">needToSeed</a><wbr>(<a href="../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#needToSeed(misc.peers.PeerState)" class="member-name-link">needToSeed</a><wbr>(<a href="../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onBitfieldReceived(misc.peers.PeerState,byte%5B%5D)" class="member-name-link">onBitfieldReceived</a><wbr>(<a href="../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onBitfieldReceived(misc.peers.PeerState,byte%5B%5D)" class="member-name-link">onBitfieldReceived</a><wbr>(<a href="../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState,
  byte[]&nbsp;payload)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Handles event of receiving bitfield and notifies observes</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onBlockDownloaded(misc.messages.Message)" class="member-name-link">onBlockDownloaded</a><wbr>(<a href="../messages/Message.html" title="class in misc.messages">Message</a>&nbsp;receivedMessage)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onBlockDownloaded(misc.messages.Message)" class="member-name-link">onBlockDownloaded</a><wbr>(<a href="../messages/Message.html" title="class in com.messages">Message</a>&nbsp;receivedMessage)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">handle blocks download, and checks for piece integrity</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onBlockReceived(misc.messages.Message,misc.peers.PeerState)" class="member-name-link">onBlockReceived</a><wbr>(<a href="../messages/Message.html" title="class in misc.messages">Message</a>&nbsp;receivedMessage,
- <a href="../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onBlockReceived(misc.messages.Message,misc.peers.PeerState)" class="member-name-link">onBlockReceived</a><wbr>(<a href="../messages/Message.html" title="class in com.messages">Message</a>&nbsp;receivedMessage,
+ <a href="../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Deal with the event of receiving a block from a peer</div>
 </div>
@@ -141,25 +141,25 @@ loadScripts(document, 'script');</script>
 <div class="block">Handles cases when download of a file is completed</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sendBlockRequests(java.util.List,int)" class="member-name-link">sendBlockRequests</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&gt;&nbsp;valuablePeers,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sendBlockRequests(java.util.List,int)" class="member-name-link">sendBlockRequests</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&gt;&nbsp;valuablePeers,
  int&nbsp;pieceIndex)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">we distribute the blocks of a piece randomly over valuable peers</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#sendFullPieceRequest(int,misc.peers.PeerState,misc.torrent.TorrentState)" class="member-name-link">sendFullPieceRequest</a><wbr>(int&nbsp;pieceIndex,
- <a href="../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState,
- <a href="../torrent/TorrentState.html" title="class in misc.torrent">TorrentState</a>&nbsp;torrentState)</code></div>
+ <a href="../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState,
+ <a href="../torrent/TorrentState.html" title="class in com.torrent">TorrentState</a>&nbsp;torrentState)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">send all blocks of piece to a peer, used in Endgame</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sentStateMachine(misc.messages.Message,misc.peers.PeerState)" class="member-name-link">sentStateMachine</a><wbr>(<a href="../messages/Message.html" title="class in misc.messages">Message</a>&nbsp;message,
- <a href="../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sentStateMachine(misc.messages.Message,misc.peers.PeerState)" class="member-name-link">sentStateMachine</a><wbr>(<a href="../messages/Message.html" title="class in com.messages">Message</a>&nbsp;message,
+ <a href="../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stateMachine(misc.messages.Message,misc.peers.PeerState)" class="member-name-link">stateMachine</a><wbr>(<a href="../messages/Message.html" title="class in misc.messages">Message</a>&nbsp;receivedMessage,
- <a href="../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stateMachine(misc.messages.Message,misc.peers.PeerState)" class="member-name-link">stateMachine</a><wbr>(<a href="../messages/Message.html" title="class in com.messages">Message</a>&nbsp;receivedMessage,
+ <a href="../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">state machine for received messages</div>
 </div>
@@ -183,10 +183,10 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;(misc.peers.ClientState,misc.torrent.TorrentState,java.util.Set,misc.torrent.Observer)">
 <h3>NIODownloadHandler</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">NIODownloadHandler</span><wbr><span class="parameters">(<a href="../peers/ClientState.html" title="class in misc.peers">ClientState</a>&nbsp;clientState,
- <a href="../torrent/TorrentState.html" title="class in misc.torrent">TorrentState</a>&nbsp;torrentState,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&gt;&nbsp;peerInfoList,
- <a href="../torrent/Observer.html" title="class in misc.torrent">Observer</a>&nbsp;observer)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">NIODownloadHandler</span><wbr><span class="parameters">(<a href="../peers/ClientState.html" title="class in com.peers">ClientState</a>&nbsp;clientState,
+ <a href="../torrent/TorrentState.html" title="class in com.torrent">TorrentState</a>&nbsp;torrentState,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&gt;&nbsp;peerInfoList,
+ <a href="../torrent/Observer.html" title="class in com.torrent">Observer</a>&nbsp;observer)</span></div>
 </section>
 </li>
 </ul>
@@ -201,8 +201,8 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="sendFullPieceRequest(int,misc.peers.PeerState,misc.torrent.TorrentState)">
 <h3>sendFullPieceRequest</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">sendFullPieceRequest</span><wbr><span class="parameters">(int&nbsp;pieceIndex,
- <a href="../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState,
- <a href="../torrent/TorrentState.html" title="class in misc.torrent">TorrentState</a>&nbsp;torrentState)</span></div>
+ <a href="../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState,
+ <a href="../torrent/TorrentState.html" title="class in com.torrent">TorrentState</a>&nbsp;torrentState)</span></div>
 <div class="block">send all blocks of piece to a peer, used in Endgame</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -215,15 +215,15 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="sentStateMachine(misc.messages.Message,misc.peers.PeerState)">
 <h3>sentStateMachine</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">sentStateMachine</span><wbr><span class="parameters">(<a href="../messages/Message.html" title="class in misc.messages">Message</a>&nbsp;message,
- <a href="../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">sentStateMachine</span><wbr><span class="parameters">(<a href="../messages/Message.html" title="class in com.messages">Message</a>&nbsp;message,
+ <a href="../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState)</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="stateMachine(misc.messages.Message,misc.peers.PeerState)">
 <h3>stateMachine</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stateMachine</span><wbr><span class="parameters">(<a href="../messages/Message.html" title="class in misc.messages">Message</a>&nbsp;receivedMessage,
- <a href="../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stateMachine</span><wbr><span class="parameters">(<a href="../messages/Message.html" title="class in com.messages">Message</a>&nbsp;receivedMessage,
+ <a href="../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState)</span></div>
 <div class="block">state machine for received messages</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -235,8 +235,8 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="onBlockReceived(misc.messages.Message,misc.peers.PeerState)">
 <h3>onBlockReceived</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onBlockReceived</span><wbr><span class="parameters">(<a href="../messages/Message.html" title="class in misc.messages">Message</a>&nbsp;receivedMessage,
- <a href="../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onBlockReceived</span><wbr><span class="parameters">(<a href="../messages/Message.html" title="class in com.messages">Message</a>&nbsp;receivedMessage,
+ <a href="../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState)</span></div>
 <div class="block">Deal with the event of receiving a block from a peer</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -248,7 +248,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="onBlockDownloaded(misc.messages.Message)">
 <h3>onBlockDownloaded</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">onBlockDownloaded</span><wbr><span class="parameters">(<a href="../messages/Message.html" title="class in misc.messages">Message</a>&nbsp;receivedMessage)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">onBlockDownloaded</span><wbr><span class="parameters">(<a href="../messages/Message.html" title="class in com.messages">Message</a>&nbsp;receivedMessage)</span></div>
 <div class="block">handle blocks download, and checks for piece integrity</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -268,7 +268,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="onBitfieldReceived(misc.peers.PeerState,byte[])">
 <h3>onBitfieldReceived</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onBitfieldReceived</span><wbr><span class="parameters">(<a href="../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onBitfieldReceived</span><wbr><span class="parameters">(<a href="../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState,
  byte[]&nbsp;payload)</span></div>
 <div class="block">Handles event of receiving bitfield and notifies observes</div>
 <dl class="notes">
@@ -281,7 +281,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="needToDownload(misc.peers.PeerState)">
 <h3>needToDownload</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">needToDownload</span><wbr><span class="parameters">(<a href="../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">needToDownload</span><wbr><span class="parameters">(<a href="../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState)</span></div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>peerState</code> - peer</dd>
@@ -293,7 +293,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="needToSeed(misc.peers.PeerState)">
 <h3>needToSeed</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">needToSeed</span><wbr><span class="parameters">(<a href="../peers/PeerState.html" title="class in misc.peers">PeerState</a>&nbsp;peerState)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">needToSeed</span><wbr><span class="parameters">(<a href="../peers/PeerState.html" title="class in com.peers">PeerState</a>&nbsp;peerState)</span></div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>peerState</code> - peer</dd>
@@ -305,7 +305,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="sendBlockRequests(java.util.List,int)">
 <h3>sendBlockRequests</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">sendBlockRequests</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../peers/PeerInfo.html" title="class in misc.peers">PeerInfo</a>&gt;&nbsp;valuablePeers,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">sendBlockRequests</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../peers/PeerInfo.html" title="class in com.peers">PeerInfo</a>&gt;&nbsp;valuablePeers,
  int&nbsp;pieceIndex)</span></div>
 <div class="block">we distribute the blocks of a piece randomly over valuable peers</div>
 <dl class="notes">
@@ -320,7 +320,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getClientState()">
 <h3>getClientState</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../peers/ClientState.html" title="class in misc.peers">ClientState</a></span>&nbsp;<span class="element-name">getClientState</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../peers/ClientState.html" title="class in com.peers">ClientState</a></span>&nbsp;<span class="element-name">getClientState</span>()</div>
 </section>
 </li>
 </ul>

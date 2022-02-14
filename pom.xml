@@ -32,7 +32,7 @@
                         <archive>
                             <manifest>
                                 <addClasspath>true</addClasspath>
-                                <mainClass>misc.MainBittorrent</mainClass>
+                                <mainClass>com.MainBittorrent</mainClass>
                             </manifest>
                         </archive>
                         <descriptorRefs>
