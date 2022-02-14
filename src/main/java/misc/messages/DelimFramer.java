@@ -3,7 +3,7 @@ package misc.messages;
 import java.io.*;
 
 public class DelimFramer implements Framer {
-    private static final byte DELIMITER = 01; // message delimiter
+    private static final byte DELIMITER = 04; // message delimiter
     private final InputStream in; // data source
 
     public DelimFramer(InputStream in) {

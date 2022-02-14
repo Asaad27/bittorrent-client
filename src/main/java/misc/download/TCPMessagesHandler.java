@@ -29,7 +29,7 @@ import static java.lang.System.exit;
 import static java.lang.System.in;
 import static misc.messages.PeerMessage.MsgType.*;
 
-//TODO : secure mode vs fast mode
+
 
 /**
  * handles read and write operations to channels
@@ -63,15 +63,6 @@ public class TCPMessagesHandler {
      * @return True if request could be fetched
      */
     public boolean fetchRequests() {
-
-       /* boolean everyoneIsConnected = true;
-        for (PeerInfo peer : peerList) {
-            PeerState peerState = peer.getPeerState();
-            everyoneIsConnected = everyoneIsConnected && peerState.isConnected();
-        }
-        if (!everyoneIsConnected) {
-            return false;
-        }*/
 
         boolean fetched = false;
         if (!TCPClient.torrentContext.getStrategy().getName().equals("ENDGAME")) {
@@ -492,7 +483,7 @@ public class TCPMessagesHandler {
     }
 
     public void endOfStream(SelectionKey key){
-            System.out.println("end of stream reached");
+            //System.out.println("end of stream reached");
             PeerInfo peerInfo = (PeerInfo) key.attachment();
             PeerState peerState = peerInfo.getPeerState();
 

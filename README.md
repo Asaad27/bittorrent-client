@@ -1,9 +1,9 @@
 ## Informations
 
-[reports](/reports) folder contains profiler information about the execution and call trees... <br />
-[documentation](/javaDoc) folder contains java documentation; <br />
-[log](/logs)  contains  examples of logs of some executed scenarios <br />
-[example: log5multiclientsSeedAndLeechFast.txt](/logs/log5multiclientsSeedAndLeechFast.txt) : execution of scriptMultiClient.sh, starts with rarest first then switches strategies to random and endgame,at the beginning, peers have different % of files, at the end of the
+
+
+[example: 
+log5multiclientsSeedAndLeechFast.txt](/logs/log5multiclientsSeedAndLeechFast.txt) : execution of scriptMultiClient.sh, starts with rarest first then switches strategies to random and endgame,at the beginning, peers have different % of files, at the end of the
 download, all peers have all pieces, see for details about what file each peer has, example :  <br />
 
 **scenario:** 
@@ -29,8 +29,8 @@ peer5 : 200_700     port : 2002 <br />
 
 
 ## How to Use
-either compile jar using : `mvn compile assembly:single` <br/>
-or use ready made equipe5-Final-jar-with-dependencies.jar
+compile jar using : `mvn compile assembly:single` <br/>
+
 
 **command to execute:**
 
@@ -64,8 +64,3 @@ see [scripts for generating files and torrents](/scripts) Readme for more detail
 `docker run -p 6969:6969 ot` <br />
 access opentracker in  http://localhost:6969/stats
 
-## Bittorrent
-
-execute MainBittorent with the torrent file as an argument <br />
-edit generatePeerList() in TCPClient constructor with the ports
-or use trackerList() to generate them from the tracker
